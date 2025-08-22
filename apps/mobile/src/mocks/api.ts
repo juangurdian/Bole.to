@@ -12,6 +12,10 @@ import categoriesFixt from "./fixtures/categories.json";
 import feedMineFixt from "./fixtures/feed_mine.json";
 import feedEventEv1Fixt from "./fixtures/feed_event_ev_1.json";
 import attendeesEv1Fixt from "./fixtures/attendees_ev_1.json";
+import profileFixt from "./fixtures/profile.json";
+import profileShowcaseFixt from "./fixtures/profile_showcase.json";
+import eventDraftsFixt from "./fixtures/event_drafts.json";
+import eventDetailFixt from "./fixtures/event_detail.json";
 import { mockToggles, delay } from "./toggles";
 import { z } from "zod";
 import { Event, ProductTier, Order, Ticket, Post, Poll } from "../types/models";
@@ -828,6 +832,480 @@ export const mockApi = {
       attendees: items,
       totalCount: attendees.length,
       nextCursor
+    };
+  },
+
+  async getMyProfile() {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    return { ...profileFixt };
+  },
+
+  async updateMyProfile(patch: any) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    // In a real app, this would update the backend
+    const updatedProfile = { ...profileFixt, ...patch };
+    return updatedProfile;
+  },
+
+  async getMyShowcase() {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    return { ...profileShowcaseFixt };
+  },
+
+  async setPrivacy(patch: any) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    const updatedPrivacy = { ...profileFixt.privacy, ...patch };
+    return updatedPrivacy;
+  },
+
+  async listFollowers(query: any = {}) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    const { after, pageSize = 20 } = query;
+    
+    // Generate mock followers
+    const mockFollowers = Array.from({ length: profileFixt.followers }, (_, i) => ({
+      id: `follower_${i + 1}`,
+      name: `Follower ${i + 1}`,
+      handle: `follower${i + 1}`,
+      avatarUrl: null,
+      isFollowing: Math.random() > 0.6 // 40% mutual follows
+    }));
+    
+    // Handle cursor-based pagination
+    let startIndex = 0;
+    if (after) {
+      const afterIndex = mockFollowers.findIndex(user => user.id === after);
+      startIndex = afterIndex > -1 ? afterIndex + 1 : 0;
+    }
+    
+    const items = mockFollowers.slice(startIndex, startIndex + pageSize);
+    const nextCursor = items.length === pageSize && startIndex + pageSize < mockFollowers.length 
+      ? items[items.length - 1].id 
+      : undefined;
+    
+    return {
+      users: items,
+      totalCount: mockFollowers.length,
+      nextCursor
+    };
+  },
+
+  async listFollowing(query: any = {}) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    const { after, pageSize = 20 } = query;
+    
+    // Generate mock following
+    const mockFollowing = Array.from({ length: profileFixt.following }, (_, i) => ({
+      id: `following_${i + 1}`,
+      name: `Following ${i + 1}`,
+      handle: `following${i + 1}`,
+      avatarUrl: null,
+      isFollowing: true
+    }));
+    
+    // Handle cursor-based pagination
+    let startIndex = 0;
+    if (after) {
+      const afterIndex = mockFollowing.findIndex(user => user.id === after);
+      startIndex = afterIndex > -1 ? afterIndex + 1 : 0;
+    }
+    
+    const items = mockFollowing.slice(startIndex, startIndex + pageSize);
+    const nextCursor = items.length === pageSize && startIndex + pageSize < mockFollowing.length 
+      ? items[items.length - 1].id 
+      : undefined;
+    
+    return {
+      users: items,
+      totalCount: mockFollowing.length,
+      nextCursor
+    };
+  },
+
+  async toggleEventVisibility(eventId: string) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    // Mock toggling event visibility in profile
+    const event = profileShowcaseFixt.pastEvents.find(e => e.id === eventId);
+    if (event) {
+      return { 
+        eventId, 
+        isHidden: !event.isHiddenFromProfile 
+      };
+    }
+    throw new Error("Event not found");
+  },
+
+  async getMyPhotos(query: any = {}) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    const { filter = "all", after, pageSize = 20 } = query;
+    
+    let photos = [...profileShowcaseFixt.recentPhotos];
+    
+    // Apply filter
+    if (filter === "revealed") {
+      photos = photos.filter(photo => photo.isRevealed);
+    }
+    
+    // Handle cursor-based pagination
+    let startIndex = 0;
+    if (after) {
+      const afterIndex = photos.findIndex(photo => photo.id === after);
+      startIndex = afterIndex > -1 ? afterIndex + 1 : 0;
+    }
+    
+    const items = photos.slice(startIndex, startIndex + pageSize);
+    const nextCursor = items.length === pageSize && startIndex + pageSize < photos.length 
+      ? items[items.length - 1].id 
+      : undefined;
+    
+    return {
+      photos: items,
+      totalCount: photos.length,
+      nextCursor
+    };
+  },
+
+  async getMyPosts(query: any = {}) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    const { eventId, after, pageSize = 15 } = query;
+    
+    let posts = [...profileShowcaseFixt.recentPosts];
+    
+    // Filter by event if specified
+    if (eventId) {
+      posts = posts.filter(post => post.eventId === eventId);
+    }
+    
+    // Handle cursor-based pagination
+    let startIndex = 0;
+    if (after) {
+      const afterIndex = posts.findIndex(post => post.id === after);
+      startIndex = afterIndex > -1 ? afterIndex + 1 : 0;
+    }
+    
+    const items = posts.slice(startIndex, startIndex + pageSize);
+    const nextCursor = items.length === pageSize && startIndex + pageSize < posts.length 
+      ? items[items.length - 1].id 
+      : undefined;
+    
+    return {
+      posts: items,
+      totalCount: posts.length,
+      nextCursor
+    };
+  },
+
+  // Event Management APIs
+  async listMyEvents() {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    return [...eventDraftsFixt];
+  },
+
+  async createEventDraft() {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    const newDraftId = `draft_${Date.now()}`;
+    const newDraft = {
+      id: newDraftId,
+      status: "DRAFT",
+      title: "",
+      category: "",
+      organizerName: "Alex Rivera",
+      description: "",
+      timezone: "America/Managua",
+      startsAt: "",
+      endsAt: "",
+      venue: {
+        name: "",
+        city: "",
+        country: "Nicaragua"
+      },
+      social: { enabled: true },
+      camera: { enabled: false },
+      policies: {
+        refundPolicy: "WINDOW",
+        refundWindowHours: 24,
+        reentry: true,
+        attendeeListVisibility: "PUBLIC"
+      },
+      checkout: {},
+      products: [],
+      metrics: {
+        views: 0,
+        wishlists: 0,
+        sold: 0,
+        revenue: 0
+      },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    return { id: newDraftId, draft: newDraft };
+  },
+
+  async getEventDraft(id: string) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    const draft = eventDraftsFixt.find(d => d.id === id);
+    if (!draft) {
+      throw new Error("Draft not found");
+    }
+    
+    return { ...draft };
+  },
+
+  async updateEventDraft(id: string, patch: any) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    const draft = eventDraftsFixt.find(d => d.id === id);
+    if (!draft) {
+      throw new Error("Draft not found");
+    }
+    
+    const updatedDraft = {
+      ...draft,
+      ...patch,
+      updatedAt: new Date().toISOString()
+    };
+    
+    return updatedDraft;
+  },
+
+  async publishEvent(id: string) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    const draft = eventDraftsFixt.find(d => d.id === id);
+    if (!draft) {
+      throw new Error("Draft not found");
+    }
+    
+    return {
+      ...draft,
+      status: "PUBLISHED",
+      publishedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+  },
+
+  async scheduleEvent(id: string, publishAtISO: string) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    const draft = eventDraftsFixt.find(d => d.id === id);
+    if (!draft) {
+      throw new Error("Draft not found");
+    }
+    
+    return {
+      ...draft,
+      status: "SCHEDULED",
+      scheduledPublishAt: publishAtISO,
+      updatedAt: new Date().toISOString()
+    };
+  },
+
+  async duplicateEvent(id: string) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    const original = eventDraftsFixt.find(d => d.id === id);
+    if (!original) {
+      throw new Error("Event not found");
+    }
+    
+    const newId = `draft_${Date.now()}`;
+    const duplicated = {
+      ...original,
+      id: newId,
+      status: "DRAFT",
+      title: `${original.title} (Copy)`,
+      metrics: {
+        views: 0,
+        wishlists: 0,
+        sold: 0,
+        revenue: 0
+      },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      publishedAt: undefined,
+      scheduledPublishAt: undefined
+    };
+    
+    return { id: newId, draft: duplicated };
+  },
+
+  async addProduct(eventId: string, input: any) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    const productId = `prod_${Date.now()}`;
+    const newProduct = {
+      id: productId,
+      currency: "USD",
+      capacity: 100,
+      ...input,
+      order: input.order || 1
+    };
+    
+    return newProduct;
+  },
+
+  async updateProduct(eventId: string, productId: string, patch: any) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    // Find product in event drafts
+    const event = eventDraftsFixt.find(e => e.id === eventId);
+    const product = event?.products.find(p => p.id === productId);
+    
+    if (!product) {
+      throw new Error("Product not found");
+    }
+    
+    return { ...product, ...patch };
+  },
+
+  async removeProduct(eventId: string, productId: string) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    return { success: true };
+  },
+
+  async reorderProducts(eventId: string, newOrder: string[]) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    return { success: true, order: newOrder };
+  },
+
+  async generateCheckInList(eventId: string, name?: string) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    const listId = `checkin_${Date.now()}`;
+    const shortId = Math.random().toString(36).substring(2, 8).toUpperCase();
+    
+    return {
+      id: listId,
+      shortId,
+      name: name || `Check-in List ${shortId}`,
+      eventId,
+      createdAt: new Date().toISOString()
+    };
+  },
+
+  async getQuickMetrics(eventId: string) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    const event = eventDraftsFixt.find(e => e.id === eventId);
+    if (!event) {
+      return { sold: 0, capacity: 0, revenue: 0 };
+    }
+    
+    const capacity = event.products.reduce((sum, p) => sum + p.capacity, 0);
+    
+    return {
+      sold: event.metrics?.sold || 0,
+      capacity,
+      revenue: event.metrics?.revenue || 0
+    };
+  },
+
+  async getEventCategories() {
+    await delay(mockToggles.delayMs / 2);
+    
+    return [
+      "Music",
+      "Sports",
+      "Party",
+      "Business",
+      "Food & Drink",
+      "Arts",
+      "Comedy",
+      "Education",
+      "Community",
+      "Other"
+    ];
+  },
+
+  async getEventDetail(id: string) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    // For now, return the same event for any ID
+    // In a real app, this would fetch by ID
+    return { ...eventDetailFixt };
+  },
+
+  async createOrderMock(eventId: string, tiers: { tierId: string; quantity: number }[]) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    // Mock order creation - in real app this would process payment
+    const orderId = `order_${Date.now()}`;
+    
+    // Update user's ticket status for this event (mock)
+    // This simulates the user now having a ticket
+    return {
+      orderId,
+      eventId,
+      status: "confirmed",
+      total: 55.00, // Mock total
+      items: tiers,
+      hasTicket: true // This would trigger UI mode change
+    };
+  },
+
+  async toggleEventFollow(eventId: string) {
+    await delay(mockToggles.delayMs / 2);
+    await maybeFail();
+    
+    // Toggle follow status
+    const isFollowing = Math.random() > 0.5; // Mock toggle
+    
+    return {
+      eventId,
+      following: isFollowing,
+      followersCount: eventDetailFixt.stats.interestedCount + (isFollowing ? 1 : -1)
+    };
+  },
+
+  async setEventReminder(eventId: string, enabled: boolean) {
+    await delay(mockToggles.delayMs / 2);
+    await maybeFail();
+    
+    return {
+      eventId,
+      reminderOn: enabled,
+      message: enabled 
+        ? "You'll be notified when tickets go on sale"
+        : "Reminder removed"
     };
   }
 };

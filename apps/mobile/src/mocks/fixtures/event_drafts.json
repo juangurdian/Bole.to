@@ -1,0 +1,287 @@
+[
+  {
+    "id": "draft_001",
+    "status": "PUBLISHED",
+    "title": "Electric Nights Festival",
+    "category": "Music",
+    "organizerName": "Alex Rivera",
+    "description": "Join us for an unforgettable night of electronic music featuring top DJs from around the world. Experience mind-blowing visuals, incredible sound, and an atmosphere that will leave you wanting more.",
+    "ageRestriction": "18+",
+    "timezone": "America/Managua",
+    "startsAt": "2024-12-30T20:00:00Z",
+    "endsAt": "2024-12-31T04:00:00Z",
+    "doorsOpen": "2024-12-30T19:00:00Z",
+    "venue": {
+      "name": "Central Park Arena",
+      "address": "123 Main St",
+      "city": "Managua",
+      "country": "Nicaragua",
+      "lat": 12.136389,
+      "lng": -86.251389
+    },
+    "coverUrl": "https://example.com/electric-nights-cover.jpg",
+    "galleryUrls": [
+      "https://example.com/gallery1.jpg",
+      "https://example.com/gallery2.jpg",
+      "https://example.com/gallery3.jpg"
+    ],
+    "themeColor": "#6C5CE7",
+    "social": {
+      "enabled": true
+    },
+    "camera": {
+      "enabled": true,
+      "revealAtISO": "2024-12-31T12:00:00Z"
+    },
+    "policies": {
+      "refundPolicy": "WINDOW",
+      "refundWindowHours": 24,
+      "reentry": true,
+      "attendeeListVisibility": "PUBLIC",
+      "minAge": 18
+    },
+    "checkout": {
+      "askPhone": true,
+      "customQuestions": [
+        {
+          "id": "q1",
+          "label": "Dietary restrictions?",
+          "type": "text"
+        }
+      ],
+      "promoCodes": [
+        {
+          "code": "EARLY2024",
+          "discountPct": 15
+        }
+      ]
+    },
+    "products": [
+      {
+        "id": "prod_001",
+        "name": "General Admission",
+        "price": 45,
+        "currency": "USD",
+        "capacity": 800,
+        "salesStart": "2024-11-01T00:00:00Z",
+        "salesEnd": "2024-12-30T18:00:00Z",
+        "perOrderLimit": {
+          "min": 1,
+          "max": 4
+        },
+        "description": "Access to main floor and bar area",
+        "order": 1
+      },
+      {
+        "id": "prod_002",
+        "name": "VIP Experience",
+        "price": 125,
+        "currency": "USD",
+        "capacity": 200,
+        "salesStart": "2024-11-01T00:00:00Z",
+        "salesEnd": "2024-12-30T16:00:00Z",
+        "perOrderLimit": {
+          "min": 1,
+          "max": 2
+        },
+        "description": "Premium viewing area, complimentary drinks, VIP lounge access",
+        "order": 2
+      }
+    ],
+    "metrics": {
+      "views": 2847,
+      "wishlists": 156,
+      "sold": 742,
+      "revenue": 58650
+    },
+    "createdAt": "2024-10-15T10:30:00Z",
+    "updatedAt": "2024-12-28T14:22:00Z",
+    "publishedAt": "2024-11-01T09:00:00Z"
+  },
+  {
+    "id": "draft_002",
+    "status": "SCHEDULED",
+    "title": "New Year's Eve Bash 2025",
+    "category": "Party",
+    "organizerName": "Alex Rivera",
+    "description": "Ring in the new year with style! Join us for the biggest celebration in town featuring live music, dancing, premium cocktails, and a spectacular midnight countdown.",
+    "ageRestriction": "21+",
+    "timezone": "America/Managua",
+    "startsAt": "2024-12-31T21:00:00Z",
+    "endsAt": "2025-01-01T06:00:00Z",
+    "doorsOpen": "2024-12-31T20:30:00Z",
+    "venue": {
+      "name": "Downtown Plaza",
+      "address": "456 Central Ave",
+      "city": "Managua",
+      "country": "Nicaragua"
+    },
+    "coverUrl": "https://example.com/nye-bash-cover.jpg",
+    "themeColor": "#FFD700",
+    "social": {
+      "enabled": true
+    },
+    "camera": {
+      "enabled": true,
+      "revealAtISO": "2025-01-01T18:00:00Z"
+    },
+    "policies": {
+      "refundPolicy": "NONE",
+      "reentry": false,
+      "attendeeListVisibility": "FOLLOWERS",
+      "minAge": 21
+    },
+    "checkout": {
+      "askPhone": false,
+      "promoCodes": [
+        {
+          "code": "NYE2025",
+          "amountOff": 10
+        }
+      ]
+    },
+    "products": [
+      {
+        "id": "prod_003",
+        "name": "Party Package",
+        "price": 89,
+        "currency": "USD",
+        "capacity": 500,
+        "salesStart": "2024-12-01T00:00:00Z",
+        "salesEnd": "2024-12-31T20:00:00Z",
+        "perOrderLimit": {
+          "max": 6
+        },
+        "description": "Full access plus 2 drink tickets",
+        "order": 1
+      }
+    ],
+    "metrics": {
+      "views": 1245,
+      "wishlists": 67,
+      "sold": 234,
+      "revenue": 20826
+    },
+    "createdAt": "2024-11-20T16:45:00Z",
+    "updatedAt": "2024-12-20T11:15:00Z",
+    "scheduledPublishAt": "2024-12-15T10:00:00Z"
+  },
+  {
+    "id": "draft_003",
+    "status": "DRAFT",
+    "title": "Spring Music Festival",
+    "category": "Music",
+    "organizerName": "Alex Rivera",
+    "description": "A celebration of spring with local and international artists across multiple stages.",
+    "ageRestriction": "All ages",
+    "timezone": "America/Managua",
+    "startsAt": "2025-03-15T14:00:00Z",
+    "endsAt": "2025-03-15T23:00:00Z",
+    "venue": {
+      "name": "Riverside Park",
+      "city": "Managua",
+      "country": "Nicaragua"
+    },
+    "themeColor": "#2ECC71",
+    "social": {
+      "enabled": true
+    },
+    "camera": {
+      "enabled": false
+    },
+    "policies": {
+      "refundPolicy": "WINDOW",
+      "refundWindowHours": 48,
+      "reentry": true,
+      "attendeeListVisibility": "PUBLIC"
+    },
+    "checkout": {},
+    "products": [
+      {
+        "id": "prod_004",
+        "name": "Early Bird",
+        "price": 35,
+        "currency": "USD",
+        "capacity": 300,
+        "salesStart": "2025-01-01T00:00:00Z",
+        "salesEnd": "2025-02-01T23:59:59Z",
+        "description": "Limited early bird pricing",
+        "order": 1
+      }
+    ],
+    "metrics": {
+      "views": 0,
+      "wishlists": 0,
+      "sold": 0,
+      "revenue": 0
+    },
+    "createdAt": "2024-12-28T09:15:00Z",
+    "updatedAt": "2024-12-28T09:15:00Z"
+  },
+  {
+    "id": "draft_004",
+    "status": "ENDED",
+    "title": "Jazz Night at Blue Note",
+    "category": "Music",
+    "organizerName": "Alex Rivera",
+    "description": "An intimate evening of jazz featuring local musicians and special guest performers.",
+    "ageRestriction": "18+",
+    "timezone": "America/Managua",
+    "startsAt": "2024-12-20T19:00:00Z",
+    "endsAt": "2024-12-20T23:30:00Z",
+    "venue": {
+      "name": "Blue Note Lounge",
+      "address": "789 Jazz Ave",
+      "city": "Managua",
+      "country": "Nicaragua"
+    },
+    "coverUrl": "https://example.com/jazz-night-cover.jpg",
+    "themeColor": "#34495E",
+    "social": {
+      "enabled": true
+    },
+    "camera": {
+      "enabled": true,
+      "revealAtISO": "2024-12-21T12:00:00Z"
+    },
+    "policies": {
+      "refundPolicy": "WINDOW",
+      "refundWindowHours": 24,
+      "reentry": false,
+      "attendeeListVisibility": "HIDDEN",
+      "minAge": 18
+    },
+    "checkout": {
+      "askPhone": true
+    },
+    "products": [
+      {
+        "id": "prod_005",
+        "name": "Table Seating",
+        "price": 65,
+        "currency": "USD",
+        "capacity": 80,
+        "description": "Reserved table seating with 2 drink minimum",
+        "order": 1
+      },
+      {
+        "id": "prod_006",
+        "name": "Bar Seating",
+        "price": 45,
+        "currency": "USD",
+        "capacity": 40,
+        "description": "Bar counter seating, first-come first-served",
+        "order": 2
+      }
+    ],
+    "metrics": {
+      "views": 456,
+      "wishlists": 23,
+      "sold": 98,
+      "revenue": 5670
+    },
+    "createdAt": "2024-11-15T14:20:00Z",
+    "updatedAt": "2024-12-21T10:45:00Z",
+    "publishedAt": "2024-11-20T12:00:00Z"
+  }
+]

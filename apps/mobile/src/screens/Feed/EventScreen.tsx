@@ -1,24 +1,23 @@
 import React, { useState } from "react";
 import { 
   View, 
-  Text, 
+  ScrollView,
   StyleSheet, 
-  FlatList, 
-  TouchableOpacity, 
   RefreshControl 
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useApi } from "../../api";
-import PostCard from "./components/PostCard";
-import PollCard from "./components/PollCard";
-import AnnouncementCard from "./components/AnnouncementCard";
-import UpdateCard from "./components/UpdateCard";
-import GalleryTeaserCard from "./components/GalleryTeaserCard";
-import PostComposerSheet from "./components/PostComposerSheet";
+import EventHeader from "./components/EventHeader";
+import EventMeta from "./components/EventMeta";
+import EventDescription from "./components/EventDescription";
+import TicketsModule from "./components/TicketsModule";
+import VenueCard from "./components/VenueCard";
 import AttendeesRail from "./components/AttendeesRail";
-import FeedErrorState from "./components/FeedErrorState";
-import FeedEmptyState from "./components/FeedEmptyState";
+import FeedPreview from "./components/FeedPreview";
+import GalleryTeaser from "./components/GalleryTeaser";
+import PoliciesSummary from "./components/PoliciesSummary";
+import ActionBar from "./components/ActionBar";
+import TicketSelectorSheet from "./components/TicketSelectorSheet";
 
 interface EventScreenProps {
   route: {
@@ -32,185 +31,195 @@ interface EventScreenProps {
 
 export default function EventScreen({ route, navigation }: EventScreenProps) {
   const { eventId, eventName } = route.params;
-  const [isComposerVisible, setIsComposerVisible] = useState(false);
-  const [isAttendee, setIsAttendee] = useState(false);
+  const [isTicketSelectorVisible, setIsTicketSelectorVisible] = useState(false);
+  const [selectedTiers, setSelectedTiers] = useState<Record<string, number>>({});
+  const [userHasTicket, setUserHasTicket] = useState(false);
   const api = useApi();
 
-  // Check if user is an attendee of this event
-  React.useEffect(() => {
-    api.hasTicket(eventId).then(setIsAttendee);
-  }, [eventId]);
-
-  const feedQuery = useInfiniteQuery({
-    queryKey: ["eventFeed", eventId],
-    queryFn: ({ pageParam }) => 
-      api.eventFeed(eventId, { after: pageParam, pageSize: 15 }),
-    getNextPageParam: (lastPage) => lastPage.nextCursor,
-    initialPageParam: undefined,
+  const eventQuery = useQuery({
+    queryKey: ["eventDetail", eventId],
+    queryFn: () => api.getEventDetail(eventId),
   });
 
-  const attendeesQuery = useInfiniteQuery({
-    queryKey: ["eventAttendees", eventId],
-    queryFn: ({ pageParam }) => 
-      api.getEventAttendees(eventId, { after: pageParam, pageSize: 20 }),
-    getNextPageParam: (lastPage) => lastPage.nextCursor,
-    initialPageParam: undefined,
-  });
+  const handleRefresh = () => {
+    eventQuery.refetch();
+  };
 
-  const renderFeedItem = ({ item }: { item: any }) => {
-    switch (item.type) {
-      case "post":
-        return <PostCard item={item} />;
-      case "poll":
-        return <PollCard item={item} />;
-      case "announcement":
-        return <AnnouncementCard item={item} />;
-      case "update":
-        return <UpdateCard item={item} />;
-      case "gallery_teaser":
-        return <GalleryTeaserCard item={item} />;
-      default:
-        return null;
+  const handleBack = () => {
+    navigation.goBack();
+  };
+
+  const handleShare = () => {
+    // Handle share
+  };
+
+  const handleSave = async () => {
+    if (!eventQuery.data) return;
+    try {
+      await api.toggleEventFollow(eventId);
+      eventQuery.refetch();
+    } catch (error) {
+      // Handle error
     }
   };
 
-  const renderHeader = () => (
-    <View style={styles.header}>
-      {/* Event Info */}
-      <View style={styles.eventInfo}>
-        <Text style={styles.eventName}>{eventName}</Text>
-        {isAttendee ? (
-          <View style={styles.attendeeBadge}>
-            <Text style={styles.attendeeBadgeText}>✓ Attending</Text>
-          </View>
-        ) : (
-          <TouchableOpacity 
-            style={styles.getTicketsButton}
-            onPress={() => navigation.navigate("Tickets", { eventId })}
-          >
-            <Text style={styles.getTicketsText}>Get Tickets</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-
-      {/* Attendees Rail - Only show if attendee or if there are public attendees */}
-      {(isAttendee || attendeesQuery.data?.pages?.[0]?.attendees?.length) && (
-        <AttendeesRail 
-          attendees={attendeesQuery.data?.pages?.[0]?.attendees || []}
-          totalCount={attendeesQuery.data?.pages?.[0]?.totalCount || 0}
-          isAttendee={isAttendee}
-        />
-      )}
-
-      {/* Action Bar - Only show for attendees */}
-      {isAttendee && (
-        <View style={styles.actionBar}>
-          <TouchableOpacity 
-            style={styles.actionButton}
-            onPress={() => setIsComposerVisible(true)}
-          >
-            <Text style={styles.actionText}>✏️ Post</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.actionButton}
-            onPress={() => navigation.navigate("CaptureScreen", { eventId })}
-          >
-            <Text style={styles.actionText}>📷 Photo</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.actionButton}
-            onPress={() => navigation.navigate("GalleryScreen", { eventId })}
-          >
-            <Text style={styles.actionText}>🖼️ Gallery</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {/* Feed Header */}
-      <View style={styles.feedHeader}>
-        <Text style={styles.feedTitle}>
-          {isAttendee ? "Event Updates & Posts" : "Recent Updates"}
-        </Text>
-        {!isAttendee && (
-          <Text style={styles.feedSubtitle}>
-            Get tickets to join the conversation
-          </Text>
-        )}
-      </View>
-    </View>
-  );
-
-  const renderFooter = () => {
-    if (!feedQuery.hasNextPage) return null;
-    
-    return (
-      <TouchableOpacity 
-        style={styles.loadMoreButton}
-        onPress={() => feedQuery.fetchNextPage()}
-        disabled={feedQuery.isFetchingNextPage}
-      >
-        <Text style={styles.loadMoreText}>
-          {feedQuery.isFetchingNextPage ? "Loading..." : "Load More"}
-        </Text>
-      </TouchableOpacity>
-    );
+  const handleOpenMap = () => {
+    // Open map/directions
   };
 
-  const allFeedItems = feedQuery.data?.pages.flatMap(page => page.feed) || [];
+  const handleOpenOrganizer = () => {
+    // Navigate to organizer profile
+  };
 
-  if (feedQuery.error) {
+  const handleSelectTier = (tierId: string) => {
+    setIsTicketSelectorVisible(true);
+  };
+
+  const handleBuyTickets = async () => {
+    if (Object.keys(selectedTiers).length === 0) {
+      setIsTicketSelectorVisible(true);
+      return;
+    }
+
+    try {
+      const tierItems = Object.entries(selectedTiers).map(([tierId, quantity]) => ({
+        tierId,
+        quantity
+      }));
+      
+      const result = await api.createOrderMock(eventId, tierItems);
+      if (result.hasTicket) {
+        setUserHasTicket(true);
+        eventQuery.refetch();
+      }
+    } catch (error) {
+      // Handle error
+    }
+  };
+
+  const handleOpenTicket = () => {
+    navigation.navigate("TicketScreen", { ticketId: eventId });
+  };
+
+  const handleRemindMe = async () => {
+    try {
+      await api.setEventReminder(eventId, true);
+    } catch (error) {
+      // Handle error
+    }
+  };
+
+  const event = eventQuery.data;
+  const isAttendee = userHasTicket || event?.you?.hasTicket;
+
+  if (eventQuery.isLoading) {
     return (
-      <SafeAreaView style={styles.container}>
-        {renderHeader()}
-        <FeedErrorState onRetry={() => feedQuery.refetch()} />
-      </SafeAreaView>
+      <View style={styles.container}>
+        {/* Loading skeletons would go here */}
+      </View>
     );
   }
 
-  if (allFeedItems.length === 0 && !feedQuery.isLoading) {
+  if (!event) {
     return (
-      <SafeAreaView style={styles.container}>
-        {renderHeader()}
-        <FeedEmptyState 
-          scope="event"
-          onDiscoverPress={() => navigation.navigate("Discover")}
-        />
-      </SafeAreaView>
+      <View style={styles.container}>
+        {/* Error state would go here */}
+      </View>
     );
   }
+
+  const totalPrice = Object.entries(selectedTiers).reduce((total, [tierId, quantity]) => {
+    const tier = event.pricing.tiers.find(t => t.id === tierId);
+    return total + (tier?.price || 0) * quantity;
+  }, 0);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <FlatList
-        data={allFeedItems}
-        keyExtractor={(item) => item.id}
-        renderItem={renderFeedItem}
-        ListHeaderComponent={renderHeader}
-        ListFooterComponent={renderFooter}
+    <View style={styles.container}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
-            refreshing={feedQuery.isRefetching}
-            onRefresh={() => feedQuery.refetch()}
+            refreshing={eventQuery.isRefetching}
+            onRefresh={handleRefresh}
             tintColor="#007AFF"
           />
         }
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.feedContainer}
+      >
+        <EventHeader
+          event={event}
+          onBack={handleBack}
+          onShare={handleShare}
+          onSave={handleSave}
+        />
+        
+        <EventMeta
+          event={event}
+          onOpenMap={handleOpenMap}
+          onOpenOrganizer={handleOpenOrganizer}
+        />
+        
+        <EventDescription description={event.description} />
+        
+        {!isAttendee && (
+          <TicketsModule
+            pricing={event.pricing}
+            onSelectTier={handleSelectTier}
+          />
+        )}
+        
+        <VenueCard venue={event.venue} onOpenMaps={handleOpenMap} />
+        
+        <AttendeesRail
+          attendees={event.attendees}
+          totalCount={event.stats.goingCount}
+          mode={isAttendee ? "attendee" : "visitor"}
+        />
+        
+        <FeedPreview
+          items={event.feedPreview}
+          mode={isAttendee ? "attendee" : "visitor"}
+          onOpen={() => {/* Navigate to full feed */}}
+        />
+        
+        <GalleryTeaser
+          photos={event.galleryPreview}
+          revealAt={event.camera.revealAtISO}
+          onOpen={() => {/* Navigate to gallery */}}
+        />
+        
+        <PoliciesSummary
+          policies={event.policies}
+          onOpen={() => {/* Navigate to policies */}}
+        />
+        
+        {/* Bottom padding for sticky bar */}
+        <View style={styles.bottomPadding} />
+      </ScrollView>
+
+      {/* Sticky Action Bar */}
+      <ActionBar
+        event={event}
+        isAttendee={isAttendee}
+        totalPrice={totalPrice}
+        onBuyTickets={handleBuyTickets}
+        onOpenTicket={handleOpenTicket}
+        onRemindMe={handleRemindMe}
+        onShare={handleShare}
       />
 
-      {/* Post Composer - Only for attendees */}
-      {isAttendee && (
-        <PostComposerSheet
-          visible={isComposerVisible}
-          onClose={() => setIsComposerVisible(false)}
-          onPostCreated={() => {
-            setIsComposerVisible(false);
-            feedQuery.refetch();
-          }}
-          preselectedEventId={eventId}
-        />
-      )}
-    </SafeAreaView>
+      {/* Ticket Selector Sheet */}
+      <TicketSelectorSheet
+        visible={isTicketSelectorVisible}
+        tiers={event.pricing.tiers.filter(t => !t.soldOut && t.active !== false)}
+        selectedTiers={selectedTiers}
+        onChangeQuantity={(tierId, quantity) => {
+          setSelectedTiers(prev => ({ ...prev, [tierId]: quantity }));
+        }}
+        onClose={() => setIsTicketSelectorVisible(false)}
+        onCheckout={handleBuyTickets}
+      />
+    </View>
   );
 }
 
@@ -219,99 +228,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f5f5f5",
   },
-  header: {
-    backgroundColor: "white",
-    paddingBottom: 12,
-    marginBottom: 12,
-  },
-  eventInfo: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 12,
-  },
-  eventName: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#333",
+  scrollView: {
     flex: 1,
-    marginRight: 12,
   },
-  attendeeBadge: {
-    backgroundColor: "#E8F5E8",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "#4CAF50",
-  },
-  attendeeBadgeText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#4CAF50",
-  },
-  getTicketsButton: {
-    backgroundColor: "#007AFF",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  getTicketsText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "white",
-  },
-  actionBar: {
-    flexDirection: "row",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    gap: 12,
-  },
-  actionButton: {
-    flex: 1,
-    backgroundColor: "#f8f9fa",
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#e9ecef",
-  },
-  actionText: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#495057",
-  },
-  feedHeader: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-  },
-  feedTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 4,
-  },
-  feedSubtitle: {
-    fontSize: 14,
-    color: "#666",
-  },
-  feedContainer: {
-    paddingBottom: 20,
-  },
-  loadMoreButton: {
-    backgroundColor: "white",
-    margin: 16,
-    padding: 16,
-    borderRadius: 8,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#e0e0e0",
-  },
-  loadMoreText: {
-    fontSize: 16,
-    color: "#007AFF",
-    fontWeight: "500",
+  bottomPadding: {
+    height: 100, // Space for sticky action bar
   },
 });

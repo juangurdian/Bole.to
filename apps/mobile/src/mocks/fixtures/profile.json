@@ -1,0 +1,91 @@
+{
+  "id": "user_123",
+  "name": "Alex Rivera",
+  "handle": "alexr",
+  "bio": "Music lover 🎵 | Festival enthusiast | Always down for a good show ✨",
+  "avatarUrl": null,
+  "followers": 342,
+  "following": 89,
+  "attendedCount": 23,
+  "roles": ["user", "promoter"],
+  "privacy": {
+    "profile": "public",
+    "events": "public", 
+    "photos": "followers",
+    "dms": "followers",
+    "showOnline": true
+  },
+  "interests": [
+    "Electronic",
+    "Hip Hop", 
+    "Indie Rock",
+    "Pop",
+    "Techno"
+  ],
+  "badges": [
+    {
+      "id": "early_bird",
+      "name": "Early Bird",
+      "description": "Bought tickets within the first hour",
+      "earned": true,
+      "earnedAt": "2024-12-20T10:30:00Z"
+    },
+    {
+      "id": "super_fan",
+      "name": "Super Fan",
+      "description": "Attended 20+ events",
+      "earned": true,
+      "earnedAt": "2024-12-25T15:45:00Z"
+    },
+    {
+      "id": "photographer",
+      "name": "Photographer",
+      "description": "Uploaded 50+ event photos",
+      "earned": true,
+      "earnedAt": "2024-12-22T09:15:00Z"
+    },
+    {
+      "id": "verified",
+      "name": "Verified",
+      "description": "Verified account",
+      "earned": false
+    },
+    {
+      "id": "first_checkin",
+      "name": "First Check-in",
+      "description": "Checked into your first event",
+      "earned": true,
+      "earnedAt": "2024-11-15T18:00:00Z"
+    }
+  ],
+  "settings": {
+    "notifications": {
+      "push": {
+        "purchases": true,
+        "reminders": true,
+        "social": true,
+        "polls": false,
+        "galleries": true
+      },
+      "email": {
+        "purchases": true,
+        "reminders": false,
+        "social": false,
+        "marketing": true
+      },
+      "quietHours": {
+        "enabled": true,
+        "start": "22:00",
+        "end": "08:00"
+      }
+    },
+    "accessibility": {
+      "textSize": "medium",
+      "reduceMotion": false,
+      "highContrast": false
+    },
+    "language": "en",
+    "timezone": "America/Managua",
+    "currency": "USD"
+  }
+}

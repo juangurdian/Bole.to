@@ -17,12 +17,12 @@ interface Attendee {
 interface AttendeesRailProps {
   attendees: Attendee[];
   totalCount: number;
-  isAttendee: boolean;
+  mode: "visitor" | "attendee";
 }
 
 const { width: screenWidth } = Dimensions.get("window");
 
-export default function AttendeesRail({ attendees, totalCount, isAttendee }: AttendeesRailProps) {
+export default function AttendeesRail({ attendees, totalCount, mode }: AttendeesRailProps) {
   const visibleAttendees = attendees.slice(0, 20); // Show max 20 in rail
   const hasMoreAttendees = totalCount > visibleAttendees.length;
 
@@ -68,7 +68,7 @@ export default function AttendeesRail({ attendees, totalCount, isAttendee }: Att
   };
 
   const getSubtitleText = () => {
-    if (!isAttendee) return "Get tickets to see who's going";
+    if (mode === "visitor") return "Get tickets to see who's going";
     
     const connectedCount = attendees.filter(a => a.isConnected).length;
     if (connectedCount === 0) return "Connect with other attendees";

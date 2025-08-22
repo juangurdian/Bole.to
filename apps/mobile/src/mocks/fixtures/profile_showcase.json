@@ -1,0 +1,153 @@
+{
+  "upcoming": [
+    {
+      "id": "ticket_001",
+      "eventId": "event_001", 
+      "eventTitle": "Electric Nights Festival",
+      "eventDate": "2024-12-30T20:00:00Z",
+      "venue": "Central Park Arena",
+      "ticketTier": "VIP",
+      "status": "confirmed",
+      "qrCode": "TKT_001_QR",
+      "artwork": "https://example.com/electric-nights.jpg"
+    },
+    {
+      "id": "ticket_002",
+      "eventId": "event_002",
+      "eventTitle": "Comedy Central Live",
+      "eventDate": "2025-01-05T19:30:00Z", 
+      "venue": "Laugh Factory",
+      "ticketTier": "General",
+      "status": "confirmed",
+      "qrCode": "TKT_002_QR",
+      "artwork": "https://example.com/comedy-central.jpg"
+    }
+  ],
+  "recentPosts": [
+    {
+      "id": "post_profile_001",
+      "type": "post",
+      "eventId": "event_001",
+      "eventName": "Electric Nights Festival",
+      "text": "Can't wait for tonight! Who else is going to be front row? 🎵⚡",
+      "createdAt": "2024-12-28T16:30:00Z",
+      "likeCount": 24,
+      "commentCount": 8,
+      "liked": false
+    },
+    {
+      "id": "post_profile_002", 
+      "type": "post",
+      "eventId": "event_003",
+      "eventName": "New Year's Eve Bash",
+      "text": "Last night was incredible! Thank you to everyone who made it special 🎆",
+      "createdAt": "2024-12-26T02:15:00Z",
+      "likeCount": 67,
+      "commentCount": 23,
+      "liked": true
+    },
+    {
+      "id": "post_profile_003",
+      "type": "post", 
+      "eventId": "event_004",
+      "eventName": "Indie Rock Showcase",
+      "text": "That guitar solo during the second set... absolutely mind-blowing 🎸",
+      "createdAt": "2024-12-24T23:45:00Z",
+      "likeCount": 15,
+      "commentCount": 4,
+      "liked": false
+    }
+  ],
+  "recentPhotos": [
+    {
+      "id": "photo_001",
+      "eventId": "event_001",
+      "eventName": "Electric Nights Festival",
+      "thumbUrl": "https://example.com/thumb1.jpg",
+      "isRevealed": true,
+      "createdAt": "2024-12-28T22:30:00Z"
+    },
+    {
+      "id": "photo_002",
+      "eventId": "event_001", 
+      "eventName": "Electric Nights Festival",
+      "thumbUrl": "https://example.com/thumb2.jpg",
+      "isRevealed": true,
+      "createdAt": "2024-12-28T23:15:00Z"
+    },
+    {
+      "id": "photo_003",
+      "eventId": "event_003",
+      "eventName": "New Year's Eve Bash",
+      "thumbUrl": "https://example.com/thumb3.jpg",
+      "isRevealed": false,
+      "createdAt": "2024-12-26T00:30:00Z"
+    },
+    {
+      "id": "photo_004",
+      "eventId": "event_004",
+      "eventName": "Indie Rock Showcase", 
+      "thumbUrl": "https://example.com/thumb4.jpg",
+      "isRevealed": true,
+      "createdAt": "2024-12-24T21:00:00Z"
+    },
+    {
+      "id": "photo_005",
+      "eventId": "event_002",
+      "eventName": "Comedy Central Live",
+      "thumbUrl": "https://example.com/thumb5.jpg",
+      "isRevealed": true,
+      "createdAt": "2024-12-23T20:45:00Z"
+    },
+    {
+      "id": "photo_006",
+      "eventId": "event_001",
+      "eventName": "Electric Nights Festival",
+      "thumbUrl": "https://example.com/thumb6.jpg", 
+      "isRevealed": false,
+      "createdAt": "2024-12-28T21:15:00Z"
+    }
+  ],
+  "pinnedEvents": [
+    "event_001",
+    "event_003"
+  ],
+  "pastEvents": [
+    {
+      "id": "event_003",
+      "title": "New Year's Eve Bash",
+      "date": "2024-12-26T23:00:00Z",
+      "venue": "Downtown Plaza",
+      "tier": "VIP",
+      "artwork": "https://example.com/nye-bash.jpg",
+      "isHiddenFromProfile": false
+    },
+    {
+      "id": "event_004", 
+      "title": "Indie Rock Showcase",
+      "date": "2024-12-24T20:00:00Z",
+      "venue": "Underground Club",
+      "tier": "General",
+      "artwork": "https://example.com/indie-rock.jpg",
+      "isHiddenFromProfile": false
+    },
+    {
+      "id": "event_005",
+      "title": "Jazz Night",
+      "date": "2024-12-20T19:00:00Z", 
+      "venue": "Blue Note Lounge",
+      "tier": "Premium",
+      "artwork": "https://example.com/jazz-night.jpg",
+      "isHiddenFromProfile": false
+    },
+    {
+      "id": "event_006",
+      "title": "Electronic Dance Party",
+      "date": "2024-12-15T22:00:00Z",
+      "venue": "Warehouse District",
+      "tier": "General", 
+      "artwork": "https://example.com/edp.jpg",
+      "isHiddenFromProfile": true
+    }
+  ]
+}

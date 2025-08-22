@@ -1,0 +1,174 @@
+{
+  "id": "event_001",
+  "title": "Electric Nights Festival",
+  "coverUrl": "https://example.com/electric-nights-cover.jpg",
+  "startsAt": "2024-12-30T20:00:00Z",
+  "endsAt": "2024-12-31T04:00:00Z",
+  "timezone": "America/Managua",
+  "venue": {
+    "name": "Central Park Arena",
+    "address": "123 Main Street",
+    "city": "Managua",
+    "country": "Nicaragua",
+    "lat": 12.136389,
+    "lng": -86.251389
+  },
+  "organizer": {
+    "id": "organizer_001",
+    "name": "Electric Events Co.",
+    "avatarUrl": "https://example.com/organizer-avatar.jpg",
+    "verified": true
+  },
+  "categories": ["Music", "Party", "Electronic"],
+  "description": "Join us for an unforgettable night of electronic music featuring top DJs from around the world. Experience mind-blowing visuals, incredible sound, and an atmosphere that will leave you wanting more.\n\nThis premier electronic music festival brings together the best artists in the genre for one epic night. Dance until dawn with fellow music lovers in an immersive environment designed to elevate your senses.\n\nFeaturing:\n• World-class DJs and live electronic acts\n• State-of-the-art sound and lighting systems\n• Multiple stages and VIP areas\n• Food trucks and craft cocktails\n• Professional photography and videography\n\nAge restriction: 18+ with valid ID required\nDress code: Festival attire encouraged\nNo outside food or beverages permitted",
+  "you": {
+    "hasTicket": false,
+    "following": false,
+    "reminderOn": false
+  },
+  "status": "PUBLISHED",
+  "pricing": {
+    "saleStatus": "ON_SALE",
+    "saleStartsAt": "2024-11-01T00:00:00Z",
+    "tiers": [
+      {
+        "id": "tier_001",
+        "name": "Early Bird Special",
+        "price": 35,
+        "currency": "USD",
+        "remaining": 0,
+        "capacity": 200,
+        "soldOut": true,
+        "description": "Limited early access pricing",
+        "perks": ["Early entry", "Welcome drink"]
+      },
+      {
+        "id": "tier_002", 
+        "name": "Phase 1 - General",
+        "price": 45,
+        "currency": "USD",
+        "remaining": 0,
+        "capacity": 300,
+        "soldOut": true,
+        "description": "First wave general admission",
+        "perks": ["Main floor access"]
+      },
+      {
+        "id": "tier_003",
+        "name": "Phase 2 - General", 
+        "price": 55,
+        "currency": "USD",
+        "remaining": 47,
+        "capacity": 250,
+        "soldOut": false,
+        "description": "Second wave general admission",
+        "perks": ["Main floor access", "Digital mixtape"]
+      },
+      {
+        "id": "tier_004",
+        "name": "VIP Experience",
+        "price": 125,
+        "currency": "USD", 
+        "remaining": 23,
+        "capacity": 100,
+        "soldOut": false,
+        "description": "Premium festival experience",
+        "perks": ["VIP area access", "Premium bar", "Meet & greet", "Exclusive merchandise"]
+      },
+      {
+        "id": "tier_005",
+        "name": "Phase 3 - General",
+        "price": 65,
+        "currency": "USD",
+        "remaining": 200,
+        "capacity": 200,
+        "soldOut": false,
+        "active": false,
+        "activatesAt": "2024-12-15T00:00:00Z",
+        "description": "Final wave general admission"
+      }
+    ]
+  },
+  "social": {
+    "enabled": true
+  },
+  "camera": {
+    "enabled": true,
+    "revealAtISO": "2024-12-31T12:00:00Z"
+  },
+  "policies": {
+    "refundPolicy": "WINDOW",
+    "refundWindowHours": 24,
+    "reentry": true,
+    "minAge": 18,
+    "doorsOpen": "2024-12-30T19:00:00Z"
+  },
+  "stats": {
+    "goingCount": 1247,
+    "interestedCount": 3891
+  },
+  "attendees": [
+    { "id": "user_001", "name": "Alex Rivera", "avatarUrl": null },
+    { "id": "user_002", "name": "Maria Santos", "avatarUrl": null },
+    { "id": "user_003", "name": "Carlos Mendez", "avatarUrl": null },
+    { "id": "user_004", "name": "Ana Garcia", "avatarUrl": null },
+    { "id": "user_005", "name": "Diego Lopez", "avatarUrl": null },
+    { "id": "user_006", "name": "Sofia Martinez", "avatarUrl": null }
+  ],
+  "feedPreview": [
+    {
+      "id": "preview_001",
+      "type": "announcement",
+      "eventId": "event_001",
+      "text": "🎉 DOORS OPEN IN 30 MINUTES! Get ready for an incredible night!",
+      "createdAt": "2024-12-30T19:30:00Z",
+      "from": "organizer"
+    },
+    {
+      "id": "preview_002", 
+      "type": "post",
+      "eventId": "event_001",
+      "authorName": "Maria Santos",
+      "text": "So excited! Who else is ready to dance all night? 💃🕺",
+      "createdAt": "2024-12-30T17:15:00Z",
+      "likeCount": 12,
+      "commentCount": 3
+    },
+    {
+      "id": "preview_003",
+      "type": "poll",
+      "eventId": "event_001", 
+      "authorName": "Electric Events Co.",
+      "question": "What's your favorite electronic music subgenre?",
+      "options": [
+        { "id": "opt_1", "text": "House", "votes": 45 },
+        { "id": "opt_2", "text": "Techno", "votes": 32 },
+        { "id": "opt_3", "text": "Trance", "votes": 28 },
+        { "id": "opt_4", "text": "Dubstep", "votes": 19 }
+      ],
+      "createdAt": "2024-12-30T14:20:00Z"
+    }
+  ],
+  "galleryPreview": [
+    {
+      "id": "gallery_001",
+      "thumbUrl": "https://example.com/gallery-thumb-1.jpg",
+      "isRevealed": false
+    },
+    {
+      "id": "gallery_002", 
+      "thumbUrl": "https://example.com/gallery-thumb-2.jpg",
+      "isRevealed": false
+    },
+    {
+      "id": "gallery_003",
+      "thumbUrl": "https://example.com/gallery-thumb-3.jpg", 
+      "isRevealed": false
+    },
+    {
+      "id": "gallery_004",
+      "thumbUrl": "https://example.com/gallery-thumb-4.jpg",
+      "isRevealed": false
+    }
+  ]
+}
