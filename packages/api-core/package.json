@@ -1,0 +1,14 @@
+{
+  "name": "@bole/api-core",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "zod": "^3.23.8",
+    "@bole/types": "workspace:*"
+  }
+}

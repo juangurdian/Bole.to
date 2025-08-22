@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "jsx": "react-jsx",
+    "strict": true,
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "allowJs": false,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@bole/types/*": ["./packages/types/*"],
+      "@bole/api-core/*": ["./packages/api-core/src/*"],
+      "@bole/api-social/*": ["./packages/api-social/src/*"],
+      "@bole/api-camera/*": ["./packages/api-camera/src/*"],
+      "@bole/ui/*": ["./packages/ui/src/*"]
+    }
+  }
+}

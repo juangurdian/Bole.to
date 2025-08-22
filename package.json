@@ -1,0 +1,26 @@
+{
+  "name": "boleto",
+  "private": true,
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "postinstall": "turbo run postinstall --filter=...[HEAD]",
+    "dev:web": "pnpm --filter @bole/web dev",
+    "dev:mobile": "pnpm --filter @bole/mobile start",
+    "dev:social": "pnpm --filter @bole/social start:dev",
+    "dev:camera": "pnpm --filter @bole/camera start:dev",
+    "dev:backend": "cd backend && php artisan serve --port=8000",
+    "docker:up": "docker compose -f infra/docker/compose.dev.yml up -d",
+    "docker:down": "docker compose -f infra/docker/compose.dev.yml down"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.6",
+    "typescript": "^5.5.4",
+    "eslint": "^9.9.0",
+    "prettier": "^3.3.3",
+    "zod": "^3.23.8"
+  }
+}

@@ -1,14 +1,52 @@
-./.idea
-./node_modules
-./.phpunit.result.cache
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Dependencies
+node_modules/
+vendor/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+*.log
+
+# Mobile
+.expo/
+.expo-shared/
+android/
+ios/
+
+# Environment files
+.env
+.env.*
+!.env.example
+!.env.development
+!.env.production
+
+# OS
 .DS_Store
-/.idea/**
-frontend/.env
-backend/.env
+Thumbs.db
+
+# Testing
+coverage/
+.phpunit.result.cache
+
+# Docker
+infra/docker/.env
+
+# Storage
+storage/
+!storage/.gitkeep
+
+# Misc
 todo.md
 CLAUDE.md
-/prompts/**
-/prompts
-
-.vercel
 prompts/
+.vercel
+*.lock
+pnpm-lock.yaml
