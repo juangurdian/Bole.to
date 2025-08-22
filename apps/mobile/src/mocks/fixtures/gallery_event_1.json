@@ -1,0 +1,16 @@
+[
+  {
+    "id": "img_1",
+    "eventId": "ev_1", 
+    "url": "mock://photo1.jpg",
+    "takenAt": "2025-10-01T02:15:00.000Z",
+    "revealed": false
+  },
+  {
+    "id": "img_2",
+    "eventId": "ev_1",
+    "url": "mock://photo2.jpg", 
+    "takenAt": "2025-10-01T02:30:00.000Z",
+    "revealed": false
+  }
+]

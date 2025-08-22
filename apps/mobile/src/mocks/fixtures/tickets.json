@@ -1,0 +1,5 @@
+[
+  { "id": "tk_1", "eventId": "ev_1", "code": "ABC123", "holderName": "Mock User" },
+  { "id": "tk_2", "eventId": "ev_1", "code": "ABC124", "holderName": "Mock User" },
+  { "id": "tk_3", "eventId": "ev_2", "code": "DEF456", "holderName": "Mock User" }
+]

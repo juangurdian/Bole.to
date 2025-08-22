@@ -1,0 +1,4 @@
+[
+  { "id": "ord_1", "eventId": "ev_1", "total": { "amount": 24, "currency": "USD" }, "status": "COMPLETED" },
+  { "id": "ord_2", "eventId": "ev_2", "total": { "amount": 60, "currency": "USD" }, "status": "COMPLETED" }
+]

@@ -1,0 +1,6 @@
+[
+  { "code": "ABC123", "name": "Mock User", "tier": "General", "checkedIn": false, "checkedInAt": null },
+  { "code": "ABC124", "name": "Mock User", "tier": "General", "checkedIn": false, "checkedInAt": null },
+  { "code": "XYZ789", "name": "Jane Doe", "tier": "VIP", "checkedIn": true, "checkedInAt": "2025-10-01T01:45:00.000Z" },
+  { "code": "QWE456", "name": "John Smith", "tier": "General", "checkedIn": false, "checkedInAt": null }
+]

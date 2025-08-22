@@ -1,0 +1,5 @@
+[
+  { "id": "t1", "name": "General", "price": { "amount": 12, "currency": "USD" }, "remaining": 120 },
+  { "id": "t2", "name": "VIP", "price": { "amount": 30, "currency": "USD" }, "remaining": 25 },
+  { "id": "t3", "name": "Premium", "price": { "amount": 50, "currency": "USD" }, "remaining": 10 }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "id": "post_1",
+    "eventId": "ev_1",
+    "content": "So excited for tonight! This rooftop party is going to be amazing! 🎉",
+    "authorName": "Sarah M.",
+    "createdAt": "2025-10-01T01:30:00.000Z"
+  },
+  {
+    "id": "post_2", 
+    "eventId": "ev_1",
+    "content": "Just arrived! The view from up here is incredible. Can't wait for sunset! 🌅",
+    "authorName": "Mike R.",
+    "createdAt": "2025-10-01T01:45:00.000Z"
+  }
+]

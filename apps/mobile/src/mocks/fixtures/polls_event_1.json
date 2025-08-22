@@ -1,0 +1,15 @@
+[
+  {
+    "id": "poll_1",
+    "eventId": "ev_1",
+    "question": "What's your favorite part of the party so far?",
+    "options": [
+      { "text": "The music", "votes": 15 },
+      { "text": "The view", "votes": 23 },
+      { "text": "The drinks", "votes": 8 },
+      { "text": "The people", "votes": 12 }
+    ],
+    "totalVotes": 58,
+    "endsAt": "2025-10-01T03:00:00.000Z"
+  }
+]

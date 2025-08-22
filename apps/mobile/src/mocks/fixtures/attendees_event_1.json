@@ -1,0 +1,6 @@
+[
+  { "code": "ABC123", "name": "Mock User", "checked": false, "checkedAt": null },
+  { "code": "ABC124", "name": "Mock User", "checked": false, "checkedAt": null },
+  { "code": "XYZ789", "name": "Jane Doe", "checked": false, "checkedAt": null },
+  { "code": "QWE456", "name": "John Smith", "checked": false, "checkedAt": null }
+]
