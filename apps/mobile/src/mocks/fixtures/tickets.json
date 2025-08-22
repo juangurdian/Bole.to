@@ -1,5 +1,240 @@
 [
-  { "id": "tk_1", "eventId": "ev_1", "code": "ABC123", "holderName": "Mock User" },
-  { "id": "tk_2", "eventId": "ev_1", "code": "ABC124", "holderName": "Mock User" },
-  { "id": "tk_3", "eventId": "ev_2", "code": "DEF456", "holderName": "Mock User" }
+  {
+    "id": "ticket_001",
+    "eventId": "event_001",
+    "event": {
+      "id": "event_001",
+      "title": "Electric Nights Festival",
+      "shortTitle": "Electric Nights",
+      "coverUrl": null,
+      "startsAt": "2024-12-28T21:00:00Z",
+      "endsAt": "2024-12-29T04:00:00Z",
+      "venue": {
+        "name": "Arena Managua",
+        "city": "Managua",
+        "address": "Plaza Inter, Managua"
+      },
+      "categories": ["music", "festival"],
+      "holographicTheme": {
+        "primaryColor": "#FF6B35",
+        "secondaryColor": "#7209B7",
+        "foilPattern": "electric_waves",
+        "shimmerIntensity": 0.8
+      }
+    },
+    "tier": {
+      "id": "tier_vip_001",
+      "name": "VIP Experience",
+      "shortName": "VIP",
+      "color": "#FFD700",
+      "benefits": ["Backstage access", "Premium bar", "VIP seating"],
+      "holographicEffects": {
+        "pattern": "diamond_burst",
+        "metallic": true,
+        "rainbow": true
+      }
+    },
+    "qrCode": "TKT001-VIP-ELECTRIC-2024",
+    "seatInfo": {
+      "section": "VIP-A",
+      "row": "1",
+      "seat": "12"
+    },
+    "purchaseDate": "2024-11-15T14:30:00Z",
+    "price": 185.00,
+    "status": "valid",
+    "isTransferable": true,
+    "scanHistory": [],
+    "holographicData": {
+      "serialNumber": "HOLO-001-VIP",
+      "securityPattern": "aurora_waves",
+      "microtext": "AUTHENTIC•BOLE.TO•2024",
+      "reflectiveElements": ["foil_strip", "hologram_seal"],
+      "colorShift": {
+        "angle0": "#FF6B35",
+        "angle45": "#7209B7",
+        "angle90": "#00D4FF"
+      }
+    }
+  },
+  {
+    "id": "ticket_002", 
+    "eventId": "event_002",
+    "event": {
+      "id": "event_002",
+      "title": "Comedy Central Live",
+      "shortTitle": "Comedy Central",
+      "coverUrl": null,
+      "startsAt": "2024-12-22T20:00:00Z",
+      "endsAt": "2024-12-22T23:00:00Z",
+      "venue": {
+        "name": "Teatro Nacional",
+        "city": "Managua",
+        "address": "Centro Histórico, Managua"
+      },
+      "categories": ["comedy"],
+      "holographicTheme": {
+        "primaryColor": "#FF1744",
+        "secondaryColor": "#FFC107",
+        "foilPattern": "laugh_lines",
+        "shimmerIntensity": 0.6
+      }
+    },
+    "tier": {
+      "id": "tier_general_002",
+      "name": "General Admission",
+      "shortName": "GA",
+      "color": "#2196F3",
+      "benefits": ["Standing area", "Bar access"],
+      "holographicEffects": {
+        "pattern": "ripple_waves",
+        "metallic": false,
+        "rainbow": false
+      }
+    },
+    "qrCode": "TKT002-GA-COMEDY-2024",
+    "seatInfo": {
+      "section": "GA",
+      "row": "Floor",
+      "seat": "Standing"
+    },
+    "purchaseDate": "2024-12-01T09:15:00Z",
+    "price": 45.00,
+    "status": "valid",
+    "isTransferable": true,
+    "scanHistory": [],
+    "holographicData": {
+      "serialNumber": "HOLO-002-GA",
+      "securityPattern": "comedy_burst",
+      "microtext": "LAUGH•BOLE.TO•2024",
+      "reflectiveElements": ["foil_accent"],
+      "colorShift": {
+        "angle0": "#FF1744",
+        "angle45": "#FFC107",
+        "angle90": "#E91E63"
+      }
+    }
+  },
+  {
+    "id": "ticket_003",
+    "eventId": "event_003", 
+    "event": {
+      "id": "event_003",
+      "title": "New Year's Eve Bash",
+      "shortTitle": "NYE Bash",
+      "coverUrl": null,
+      "startsAt": "2024-12-31T22:00:00Z",
+      "endsAt": "2025-01-01T06:00:00Z",
+      "venue": {
+        "name": "Club Paradiso",
+        "city": "Managua", 
+        "address": "Zona Rosa, Managua"
+      },
+      "categories": ["party", "nye"],
+      "holographicTheme": {
+        "primaryColor": "#FFD700",
+        "secondaryColor": "#FF6B9D",
+        "foilPattern": "celebration_burst",
+        "shimmerIntensity": 1.0
+      }
+    },
+    "tier": {
+      "id": "tier_premium_003",
+      "name": "Premium Party",
+      "shortName": "Premium",
+      "color": "#9C27B0",
+      "benefits": ["Open bar", "VIP area", "Champagne toast"],
+      "holographicEffects": {
+        "pattern": "starfield",
+        "metallic": true,
+        "rainbow": true
+      }
+    },
+    "qrCode": "TKT003-PREM-NYE-2024",
+    "seatInfo": {
+      "section": "VIP-B",
+      "row": "Premium",
+      "seat": "Reserved"
+    },
+    "purchaseDate": "2024-10-31T16:45:00Z",
+    "price": 225.00,
+    "status": "valid",
+    "isTransferable": false,
+    "scanHistory": [],
+    "holographicData": {
+      "serialNumber": "HOLO-003-PREM",
+      "securityPattern": "nye_fireworks",
+      "microtext": "CELEBRATE•BOLE.TO•2025",
+      "reflectiveElements": ["full_holo", "glitter_strip"],
+      "colorShift": {
+        "angle0": "#FFD700",
+        "angle45": "#FF6B9D", 
+        "angle90": "#9C27B0"
+      }
+    }
+  },
+  {
+    "id": "ticket_004",
+    "eventId": "event_004",
+    "event": {
+      "id": "event_004",
+      "title": "Jazz Under Stars",
+      "shortTitle": "Jazz Stars",
+      "coverUrl": null,
+      "startsAt": "2024-11-20T19:30:00Z",
+      "endsAt": "2024-11-20T23:30:00Z",
+      "venue": {
+        "name": "Hotel Princess Rooftop",
+        "city": "Managua",
+        "address": "Bolonia, Managua"
+      },
+      "categories": ["music", "jazz"],
+      "holographicTheme": {
+        "primaryColor": "#1A237E",
+        "secondaryColor": "#FFB300",
+        "foilPattern": "jazz_notes",
+        "shimmerIntensity": 0.7
+      }
+    },
+    "tier": {
+      "id": "tier_standard_004",
+      "name": "Standard",
+      "shortName": "STD",
+      "color": "#607D8B",
+      "benefits": ["Assigned seating", "Bar access"],
+      "holographicEffects": {
+        "pattern": "music_waves",
+        "metallic": false,
+        "rainbow": false
+      }
+    },
+    "qrCode": "TKT004-STD-JAZZ-2024",
+    "seatInfo": {
+      "section": "Main",
+      "row": "C",
+      "seat": "8"
+    },
+    "purchaseDate": "2024-11-10T11:20:00Z",
+    "price": 75.00,
+    "status": "used",
+    "isTransferable": true,
+    "scanHistory": [
+      {
+        "timestamp": "2024-11-20T19:25:00Z",
+        "location": "Main Entrance",
+        "scanner": "Gate A"
+      }
+    ],
+    "holographicData": {
+      "serialNumber": "HOLO-004-STD",
+      "securityPattern": "smooth_jazz",
+      "microtext": "SMOOTH•BOLE.TO•2024",
+      "reflectiveElements": ["foil_border"],
+      "colorShift": {
+        "angle0": "#1A237E",
+        "angle45": "#FFB300",
+        "angle90": "#3F51B5"
+      }
+    }
+  }
 ]

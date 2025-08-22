@@ -1,0 +1,16 @@
+[
+  { "id": "music", "name": "Music", "emoji": "🎵" },
+  { "id": "sports", "name": "Sports", "emoji": "⚽" },
+  { "id": "comedy", "name": "Comedy", "emoji": "😂" },
+  { "id": "food", "name": "Food & Drink", "emoji": "🍽️" },
+  { "id": "art", "name": "Art & Culture", "emoji": "🎨" },
+  { "id": "family", "name": "Family", "emoji": "👨‍👩‍👧‍👦" },
+  { "id": "nightlife", "name": "Nightlife", "emoji": "🌙" },
+  { "id": "business", "name": "Business", "emoji": "💼" },
+  { "id": "wellness", "name": "Wellness", "emoji": "🧘" },
+  { "id": "education", "name": "Education", "emoji": "📚" },
+  { "id": "dance", "name": "Dance", "emoji": "💃" },
+  { "id": "theater", "name": "Theater", "emoji": "🎭" },
+  { "id": "outdoor", "name": "Outdoor", "emoji": "🌳" },
+  { "id": "vip", "name": "VIP", "emoji": "⭐" }
+]

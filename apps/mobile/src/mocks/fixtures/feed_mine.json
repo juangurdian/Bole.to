@@ -1,0 +1,206 @@
+[
+  {
+    "type": "announcement",
+    "id": "ann_001",
+    "eventId": "event_001",
+    "eventName": "Electric Nights Festival",
+    "text": "🎉 DOORS OPEN IN 30 MINUTES! Get ready for an incredible night of music and lights. VIP guests please use the special entrance on the left side of the venue.",
+    "createdAt": "2024-12-28T19:30:00Z",
+    "from": "organizer"
+  },
+  {
+    "type": "post",
+    "id": "post_001",
+    "eventId": "event_002",
+    "eventName": "Comedy Central Live",
+    "author": {
+      "id": "user_123",
+      "name": "Maria Gonzalez",
+      "avatarUrl": null
+    },
+    "text": "Can't wait for tonight's show! Been following this comedian for years and finally get to see them live 😂",
+    "mediaUrls": null,
+    "createdAt": "2024-12-22T18:45:00Z",
+    "likeCount": 12,
+    "commentCount": 3,
+    "liked": false
+  },
+  {
+    "type": "poll",
+    "id": "poll_001",
+    "eventId": "event_003",
+    "eventName": "New Year's Eve Bash",
+    "question": "What's your must-have song for the countdown?",
+    "options": [
+      {"id": "opt_1", "label": "Auld Lang Syne", "votes": 45},
+      {"id": "opt_2", "label": "Party in the USA", "votes": 78},
+      {"id": "opt_3", "label": "Don't Stop Believin'", "votes": 92},
+      {"id": "opt_4", "label": "Firework by Katy Perry", "votes": 34}
+    ],
+    "userVoteId": null,
+    "createdAt": "2024-12-30T16:20:00Z"
+  },
+  {
+    "type": "gallery",
+    "id": "gallery_001",
+    "eventId": "event_004",
+    "eventName": "Jazz Under Stars",
+    "revealAt": "2024-11-21T12:00:00Z",
+    "previewUrls": [
+      "https://picsum.photos/200/200?random=1",
+      "https://picsum.photos/200/200?random=2",
+      "https://picsum.photos/200/200?random=3",
+      "https://picsum.photos/200/200?random=4"
+    ],
+    "revealed": true,
+    "createdAt": "2024-11-21T12:00:00Z"
+  },
+  {
+    "type": "update",
+    "id": "update_001",
+    "eventId": "event_001",
+    "eventName": "Electric Nights Festival",
+    "kind": "low_stock",
+    "details": "Only 15 VIP tickets remaining! Don't miss out on the premium experience.",
+    "createdAt": "2024-12-28T15:30:00Z"
+  },
+  {
+    "type": "post",
+    "id": "post_002",
+    "eventId": "event_003",
+    "eventName": "New Year's Eve Bash",
+    "author": {
+      "id": "user_456",
+      "name": "Carlos Mendez",
+      "avatarUrl": null
+    },
+    "text": "First time at Club Paradiso! The venue looks amazing in the photos. Anyone know if there's parking nearby?",
+    "mediaUrls": null,
+    "createdAt": "2024-12-30T14:15:00Z",
+    "likeCount": 7,
+    "commentCount": 8,
+    "liked": true
+  },
+  {
+    "type": "announcement",
+    "id": "ann_002",
+    "eventId": "event_002",
+    "eventName": "Comedy Central Live",
+    "text": "📣 SHOW UPDATE: Due to popular demand, we've added an extra 30 minutes to tonight's performance! Same start time, just more laughs!",
+    "createdAt": "2024-12-22T16:00:00Z",
+    "from": "organizer"
+  },
+  {
+    "type": "post",
+    "id": "post_003",
+    "eventId": "event_001",
+    "eventName": "Electric Nights Festival",
+    "author": {
+      "id": "user_789",
+      "name": "Ana Rodriguez",
+      "avatarUrl": null
+    },
+    "text": "The light setup is INSANE! 🌈⚡ Just saw the sound check and I'm already getting goosebumps. This is going to be legendary!",
+    "mediaUrls": [
+      "https://picsum.photos/400/300?random=5"
+    ],
+    "createdAt": "2024-12-28T17:20:00Z",
+    "likeCount": 28,
+    "commentCount": 12,
+    "liked": false
+  },
+  {
+    "type": "update",
+    "id": "update_002",
+    "eventId": "event_002", 
+    "eventName": "Comedy Central Live",
+    "kind": "doors_open",
+    "details": "Doors are now open! Welcome drinks are being served at the lobby bar.",
+    "createdAt": "2024-12-22T19:00:00Z"
+  },
+  {
+    "type": "poll",
+    "id": "poll_002",
+    "eventId": "event_001",
+    "eventName": "Electric Nights Festival",
+    "question": "Which artist are you most excited to see?",
+    "options": [
+      {"id": "opt_5", "label": "DJ Nexus", "votes": 156},
+      {"id": "opt_6", "label": "Electric Dreams", "votes": 203},
+      {"id": "opt_7", "label": "Neon Pulse", "votes": 89},
+      {"id": "opt_8", "label": "All of them!", "votes": 267}
+    ],
+    "userVoteId": "opt_8",
+    "createdAt": "2024-12-28T12:30:00Z"
+  },
+  {
+    "type": "post",
+    "id": "post_004",
+    "eventId": "event_003",
+    "eventName": "New Year's Eve Bash",
+    "author": {
+      "id": "user_321",
+      "name": "Diego Silva",
+      "avatarUrl": null
+    },
+    "text": "Countdown begins! Who else is staying until sunrise? 🌅 This is going to be the best NYE ever!",
+    "mediaUrls": null,
+    "createdAt": "2024-12-30T22:45:00Z",
+    "likeCount": 19,
+    "commentCount": 6,
+    "liked": true
+  },
+  {
+    "type": "update",
+    "id": "update_003",
+    "eventId": "event_003",
+    "eventName": "New Year's Eve Bash",
+    "kind": "price_drop",
+    "details": "Last chance! General admission tickets now 20% off for the next 2 hours only.",
+    "createdAt": "2024-12-30T10:00:00Z"
+  },
+  {
+    "type": "post",
+    "id": "post_005",
+    "eventId": "event_004",
+    "eventName": "Jazz Under Stars",
+    "author": {
+      "id": "user_654",
+      "name": "Isabella Martinez",
+      "avatarUrl": null
+    },
+    "text": "What an incredible evening! The rooftop setting was perfect and the music was soul-stirring. Thank you for a magical night! 🎷✨",
+    "mediaUrls": [
+      "https://picsum.photos/400/300?random=6",
+      "https://picsum.photos/400/300?random=7"
+    ],
+    "createdAt": "2024-11-20T23:30:00Z",
+    "likeCount": 34,
+    "commentCount": 15,
+    "liked": false
+  },
+  {
+    "type": "gallery",
+    "id": "gallery_002",
+    "eventId": "event_002",
+    "eventName": "Comedy Central Live",
+    "revealAt": "2024-12-23T10:00:00Z",
+    "previewUrls": [
+      "https://picsum.photos/200/200?random=8",
+      "https://picsum.photos/200/200?random=9",
+      "https://picsum.photos/200/200?random=10",
+      "https://picsum.photos/200/200?random=11"
+    ],
+    "revealed": false,
+    "createdAt": "2024-12-22T22:00:00Z"
+  },
+  {
+    "type": "announcement",
+    "id": "ann_003",
+    "eventId": "event_003",
+    "eventName": "New Year's Eve Bash",
+    "text": "🍾 MIDNIGHT CHAMPAGNE TOAST: Complimentary champagne will be served to all guests at 11:55 PM. Don't miss this special moment as we welcome 2025 together!",
+    "createdAt": "2024-12-31T20:00:00Z",
+    "from": "organizer"
+  }
+]

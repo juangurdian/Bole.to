@@ -1,0 +1,149 @@
+[
+  {
+    "type": "announcement",
+    "id": "ann_ev1_001",
+    "eventId": "event_001",
+    "eventName": "Electric Nights Festival",
+    "text": "🎉 DOORS OPEN IN 30 MINUTES! Get ready for an incredible night of music and lights. VIP guests please use the special entrance on the left side of the venue.",
+    "createdAt": "2024-12-28T19:30:00Z",
+    "from": "organizer"
+  },
+  {
+    "type": "post",
+    "id": "post_ev1_001",
+    "eventId": "event_001",
+    "eventName": "Electric Nights Festival",
+    "author": {
+      "id": "user_789",
+      "name": "Ana Rodriguez",
+      "avatarUrl": null
+    },
+    "text": "The light setup is INSANE! 🌈⚡ Just saw the sound check and I'm already getting goosebumps. This is going to be legendary!",
+    "mediaUrls": [
+      "https://picsum.photos/400/300?random=5"
+    ],
+    "createdAt": "2024-12-28T17:20:00Z",
+    "likeCount": 28,
+    "commentCount": 12,
+    "liked": false
+  },
+  {
+    "type": "update",
+    "id": "update_ev1_001",
+    "eventId": "event_001",
+    "eventName": "Electric Nights Festival",
+    "kind": "low_stock",
+    "details": "Only 15 VIP tickets remaining! Don't miss out on the premium experience.",
+    "createdAt": "2024-12-28T15:30:00Z"
+  },
+  {
+    "type": "poll",
+    "id": "poll_ev1_001",
+    "eventId": "event_001",
+    "eventName": "Electric Nights Festival",
+    "question": "Which artist are you most excited to see?",
+    "options": [
+      {"id": "opt_5", "label": "DJ Nexus", "votes": 156},
+      {"id": "opt_6", "label": "Electric Dreams", "votes": 203},
+      {"id": "opt_7", "label": "Neon Pulse", "votes": 89},
+      {"id": "opt_8", "label": "All of them!", "votes": 267}
+    ],
+    "userVoteId": "opt_8",
+    "createdAt": "2024-12-28T12:30:00Z"
+  },
+  {
+    "type": "post",
+    "id": "post_ev1_002",
+    "eventId": "event_001",
+    "eventName": "Electric Nights Festival",
+    "author": {
+      "id": "user_111",
+      "name": "Miguel Torres",
+      "avatarUrl": null
+    },
+    "text": "First Electric Nights! Heard the bass from outside and had to get tickets. Ready to dance all night! 🕺💃",
+    "mediaUrls": null,
+    "createdAt": "2024-12-28T16:45:00Z",
+    "likeCount": 15,
+    "commentCount": 7,
+    "liked": true
+  },
+  {
+    "type": "announcement",
+    "id": "ann_ev1_002",
+    "eventId": "event_001",
+    "eventName": "Electric Nights Festival",
+    "text": "⚡ LINEUP UPDATE: Due to overwhelming response, DJ Nexus will be playing an extended 90-minute set! Get ready for non-stop energy!",
+    "createdAt": "2024-12-28T14:00:00Z",
+    "from": "organizer"
+  },
+  {
+    "type": "post",
+    "id": "post_ev1_003",
+    "eventId": "event_001",
+    "eventName": "Electric Nights Festival",
+    "author": {
+      "id": "user_222",
+      "name": "Sofia Herrera",
+      "avatarUrl": null
+    },
+    "text": "The production value is off the charts! These visuals with the music are creating pure magic ✨🎶",
+    "mediaUrls": [
+      "https://picsum.photos/400/300?random=12",
+      "https://picsum.photos/400/300?random=13"
+    ],
+    "createdAt": "2024-12-28T18:15:00Z",
+    "likeCount": 42,
+    "commentCount": 18,
+    "liked": false
+  },
+  {
+    "type": "post",
+    "id": "post_ev1_004",
+    "eventId": "event_001",
+    "eventName": "Electric Nights Festival",
+    "author": {
+      "id": "user_333",
+      "name": "Roberto Vega",
+      "avatarUrl": null
+    },
+    "text": "VIP area is amazing! Great view of the stage and the exclusive bar is 🔥 Worth every penny!",
+    "mediaUrls": null,
+    "createdAt": "2024-12-28T19:00:00Z",
+    "likeCount": 23,
+    "commentCount": 9,
+    "liked": true
+  },
+  {
+    "type": "gallery",
+    "id": "gallery_ev1_001",
+    "eventId": "event_001",
+    "eventName": "Electric Nights Festival",
+    "revealAt": "2024-12-29T10:00:00Z",
+    "previewUrls": [
+      "https://picsum.photos/200/200?random=14",
+      "https://picsum.photos/200/200?random=15",
+      "https://picsum.photos/200/200?random=16",
+      "https://picsum.photos/200/200?random=17"
+    ],
+    "revealed": false,
+    "createdAt": "2024-12-29T06:00:00Z"
+  },
+  {
+    "type": "post",
+    "id": "post_ev1_005",
+    "eventId": "event_001",
+    "eventName": "Electric Nights Festival",
+    "author": {
+      "id": "user_444",
+      "name": "Lucia Morales",
+      "avatarUrl": null
+    },
+    "text": "What an incredible night! The energy was unmatched and the crowd was amazing. Already hoping for next year! 🙌",
+    "mediaUrls": null,
+    "createdAt": "2024-12-29T02:30:00Z",
+    "likeCount": 67,
+    "commentCount": 31,
+    "liked": false
+  }
+]

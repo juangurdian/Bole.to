@@ -1,24 +1,27 @@
-import React from "react";
-import { View, Text, FlatList, TouchableOpacity, RefreshControl, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, Text, FlatList, TouchableOpacity, RefreshControl, StyleSheet, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Skeleton from "../../components/Skeleton";
 import EmptyState from "../../components/EmptyState";
 import ErrorState from "../../components/ErrorState";
-import Card from "../../components/Card";
 import { useQuery } from "@tanstack/react-query";
 import { useApi } from "../../api";
+import NextEventHero from "./components/NextEventHero";
+import TicketCard from "./components/TicketCard";
+import UtilitiesRow from "./components/UtilitiesRow";
 
 export default function WalletScreen({ navigation }: any) {
+  const [selectedTab, setSelectedTab] = useState<"upcoming" | "past">("upcoming");
   const api = useApi();
   const q = useQuery({ queryKey: ["my-tickets"], queryFn: api.listMyTickets });
 
   if (q.isLoading) {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.content}>
-          <Skeleton h={100} />
-          <Skeleton h={100} />
-          <Skeleton h={100} />
+        <View style={styles.loadingContainer}>
+          <Skeleton h={200} />
+          <Skeleton h={150} />
+          <Skeleton h={150} />
         </View>
       </SafeAreaView>
     );
@@ -33,75 +36,105 @@ export default function WalletScreen({ navigation }: any) {
   }
 
   const data = q.data ?? [];
+  const now = new Date();
   
-  if (!data.length) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <EmptyState 
-          text="No tickets yet" 
-          onRetry={() => q.refetch()}
-        />
-      </SafeAreaView>
-    );
-  }
+  const upcomingTickets = data.filter(ticket => 
+    new Date(ticket.event.startsAt) > now && ticket.status === "valid"
+  );
+  const pastTickets = data.filter(ticket => 
+    new Date(ticket.event.startsAt) <= now || ticket.status === "used"
+  );
 
-  const renderTicket = ({ item }: any) => {
-    const isValid = item.status === "valid";
-    const isUsed = item.status === "used";
-    
-    return (
-      <TouchableOpacity 
-        onPress={() => navigation.navigate("TicketScreen", { id: item.id })}
+  const nextEvent = upcomingTickets.length > 0 ? upcomingTickets[0] : null;
+  const displayTickets = selectedTab === "upcoming" ? upcomingTickets : pastTickets;
+
+  const renderSegmentedControl = () => (
+    <View style={styles.segmentedControl}>
+      <TouchableOpacity
         style={[
-          styles.ticketCard,
-          !isValid && styles.ticketCardInvalid
+          styles.segmentButton,
+          selectedTab === "upcoming" && styles.segmentButtonActive
         ]}
+        onPress={() => setSelectedTab("upcoming")}
       >
-        <Card>
-          <View style={styles.ticketHeader}>
-            <Text style={styles.eventTitle}>{item.event.title}</Text>
-            <View style={[
-              styles.statusBadge,
-              isValid && styles.statusValid,
-              isUsed && styles.statusUsed,
-              !isValid && !isUsed && styles.statusInvalid
-            ]}>
-              <Text style={[
-                styles.statusText,
-                isValid && styles.statusTextValid
-              ]}>
-                {isValid ? "VALID" : isUsed ? "USED" : "INVALID"}
-              </Text>
-            </View>
-          </View>
-          
-          <Text style={styles.venue}>
-            {item.event.venue.name} · {item.event.venue.city}
-          </Text>
-          
-          <Text style={styles.date}>
-            {new Date(item.event.startsAt).toLocaleDateString()} at{" "}
-            {new Date(item.event.startsAt).toLocaleTimeString()}
-          </Text>
-          
-          <View style={styles.ticketDetails}>
-            <Text style={styles.tierName}>{item.tier.name}</Text>
-            <Text style={styles.ticketId}>#{item.id.slice(-8)}</Text>
-          </View>
-        </Card>
+        <Text style={[
+          styles.segmentText,
+          selectedTab === "upcoming" && styles.segmentTextActive
+        ]}>
+          Upcoming ({upcomingTickets.length})
+        </Text>
       </TouchableOpacity>
+      <TouchableOpacity
+        style={[
+          styles.segmentButton,
+          selectedTab === "past" && styles.segmentButtonActive
+        ]}
+        onPress={() => setSelectedTab("past")}
+      >
+        <Text style={[
+          styles.segmentText,
+          selectedTab === "past" && styles.segmentTextActive
+        ]}>
+          Past ({pastTickets.length})
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderTicket = ({ item }: any) => (
+    <TicketCard
+      ticket={item}
+      onPress={() => navigation.navigate("TicketScreen", { id: item.id })}
+      isPast={selectedTab === "past"}
+    />
+  );
+
+  const renderEmpty = () => {
+    const isUpcoming = selectedTab === "upcoming";
+    return (
+      <EmptyState 
+        text={isUpcoming ? "No upcoming tickets" : "No past tickets yet"}
+        onRetry={() => q.refetch()}
+      />
     );
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <FlatList
-        data={data}
-        keyExtractor={item => item.id}
-        refreshControl={<RefreshControl refreshing={q.isFetching} onRefresh={() => q.refetch()} />}
-        renderItem={renderTicket}
+      <ScrollView 
+        style={styles.scrollView}
+        refreshControl={
+          <RefreshControl refreshing={q.isFetching} onRefresh={() => q.refetch()} />
+        }
         showsVerticalScrollIndicator={false}
-      />
+      >
+        {/* Next Event Hero - only show if there are upcoming tickets */}
+        {nextEvent && selectedTab === "upcoming" && (
+          <NextEventHero 
+            ticket={nextEvent}
+            onPress={() => navigation.navigate("TicketScreen", { id: nextEvent.id })}
+          />
+        )}
+
+        {/* Utilities Row */}
+        <UtilitiesRow />
+
+        {/* Segmented Control */}
+        {renderSegmentedControl()}
+
+        {/* Tickets List */}
+        <View style={styles.ticketsContainer}>
+          {displayTickets.length === 0 ? (
+            renderEmpty()
+          ) : (
+            displayTickets.map((ticket, index) => (
+              <View key={ticket.id} style={styles.ticketItem}>
+                {renderTicket({ item: ticket })}
+              </View>
+            ))
+          )}
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -109,78 +142,52 @@ export default function WalletScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#0A0A0A",
   },
-  content: {
-    padding: 16,
-  },
-  ticketCard: {
-    marginBottom: 8,
-  },
-  ticketCardInvalid: {
-    opacity: 0.6,
-  },
-  ticketHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 8,
-  },
-  eventTitle: {
-    fontSize: 18,
-    fontWeight: "600",
+  scrollView: {
     flex: 1,
-    marginRight: 12,
   },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    backgroundColor: "#f0f0f0",
+  loadingContainer: {
+    padding: 16,
+    gap: 16,
   },
-  statusValid: {
-    backgroundColor: "#d4edda",
-  },
-  statusUsed: {
-    backgroundColor: "#fff3cd",
-  },
-  statusInvalid: {
-    backgroundColor: "#f8d7da",
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#666",
-  },
-  statusTextValid: {
-    color: "#155724",
-  },
-  venue: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 4,
-  },
-  date: {
-    fontSize: 14,
-    color: "#007AFF",
-    marginBottom: 12,
-  },
-  ticketDetails: {
+  segmentedControl: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: "#eee",
+    margin: 16,
+    backgroundColor: "#1A1A1A",
+    borderRadius: 12,
+    padding: 4,
+    borderWidth: 1,
+    borderColor: "#333",
   },
-  tierName: {
+  segmentButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  segmentButtonActive: {
+    backgroundColor: "#007AFF",
+    shadowColor: "#007AFF",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  segmentText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#333",
-  },
-  ticketId: {
-    fontSize: 12,
     color: "#999",
-    fontFamily: "monospace",
+  },
+  segmentTextActive: {
+    color: "white",
+  },
+  ticketsContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 32,
+  },
+  ticketItem: {
+    marginBottom: 16,
   },
 });
