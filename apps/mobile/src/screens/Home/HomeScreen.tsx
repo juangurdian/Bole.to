@@ -109,29 +109,12 @@ export default function HomeScreen({ navigation }: any) {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={theme.colors.bg} />
-      
-      {/* Pinned Top Bar */}
-      <NewHomeTopBar
-        style={{
-          position: "absolute",
-          top: insets.top,
-          left: 0,
-          right: 0,
-          zIndex: 10,
-        }}
-        scrollY={scrollY}
-        city={data?.city ?? "—"}
-        unread={data?.notifications?.unread ?? 0}
-        onPickCity={openCityPicker}
-        onOpenSearch={() => setSearchOpen(true)}
-        onOpenNotifications={handleOpenNotifications}
-      />
 
       <Animated.ScrollView
         onScroll={scrollHandler}
         scrollEventThrottle={16}
         contentContainerStyle={{
-          paddingTop: insets.top + TOPBAR_H + 12,
+          paddingTop: insets.top,
           paddingBottom: insets.bottom + 32,
         }}
         showsVerticalScrollIndicator={false}
@@ -144,6 +127,19 @@ export default function HomeScreen({ navigation }: any) {
           />
         }
       >
+        {/* Top Bar - Now scrolls with content */}
+        <NewHomeTopBar
+          style={{
+            marginBottom: 12,
+          }}
+          scrollY={scrollY}
+          city={data?.city ?? "—"}
+          unread={data?.notifications?.unread ?? 0}
+          onPickCity={openCityPicker}
+          onOpenSearch={() => setSearchOpen(true)}
+          onOpenNotifications={handleOpenNotifications}
+        />
+        
         <OfflineBanner />
         
         {/* Quick Actions Row */}

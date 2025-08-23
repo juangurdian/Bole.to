@@ -7,17 +7,11 @@ import {
   ViewStyle,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import Animated, {
-  useAnimatedStyle,
-  interpolate,
-  Extrapolation,
-  SharedValue,
-} from "react-native-reanimated";
 import { theme } from "../../../theme";
 
 interface HomeTopBarProps {
   style?: ViewStyle;
-  scrollY: SharedValue<number>;
+  scrollY?: any; // Keep for compatibility but not used
   city: string;
   unread: number;
   onPickCity: () => void;
@@ -27,32 +21,15 @@ interface HomeTopBarProps {
 
 export default function NewHomeTopBar({
   style,
-  scrollY,
+  scrollY, // Not used anymore
   city,
   unread,
   onPickCity,
   onOpenSearch,
   onOpenNotifications,
 }: HomeTopBarProps) {
-  const backgroundAnimatedStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      scrollY.value,
-      [24, 40],
-      [0, 1],
-      Extrapolation.CLAMP
-    );
-    
-    return { opacity };
-  });
-
   return (
     <View style={[styles.container, style]}>
-      <Animated.View style={[styles.background, backgroundAnimatedStyle]}>
-        <LinearGradient
-          colors={theme.colors.gradient.dark}
-          style={StyleSheet.absoluteFillObject}
-        />
-      </Animated.View>
 
       <View style={styles.content}>
         {/* Left: Location Pill */}
@@ -98,19 +75,13 @@ export default function NewHomeTopBar({
 const styles = StyleSheet.create({
   container: {
     height: theme.dimensions.topBarHeight,
-    zIndex: 1000,
-  },
-  background: {
-    ...StyleSheet.absoluteFillObject,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border.primary,
+    paddingHorizontal: theme.dimensions.screenPadding,
   },
   content: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: theme.dimensions.screenPadding,
   },
   locationPill: {
     flexDirection: "row",
