@@ -1,22 +1,24 @@
 import React, { useState, useCallback } from "react";
-import { View, Text, ScrollView, RefreshControl, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { View, Text, ScrollView, RefreshControl, StyleSheet, StatusBar, Platform } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { useApi } from "../../api";
 import { useAuth } from "../../auth/useAuth";
+import { theme } from "../../theme";
 import Skeleton from "../../components/Skeleton";
 import ErrorState from "../../components/ErrorState";
 
 // Discover Components
 import DiscoverHeader from "./components/DiscoverHeader";
-import FilterChips from "./components/FilterChips";
-import SortBar from "./components/SortBar";
+import StickyFilterBar from "./components/StickyFilterBar";
 import DiscoverSections from "./components/DiscoverSections";
 import AllEventsList from "./components/AllEventsList";
 
 export default function DiscoverScreen({ navigation }: any) {
   const { user } = useAuth();
   const api = useApi();
+  const insets = useSafeAreaInsets();
   
   const [query, setQuery] = useState({
     city: user?.city || "Managua",
@@ -78,23 +80,83 @@ export default function DiscoverScreen({ navigation }: any) {
 
   if (discoverQuery.isLoading && !refreshing) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor={theme.colors.bg} translucent />
+        <LinearGradient
+          colors={["rgba(124,92,255,0.25)", "rgba(0,224,255,0.15)", "transparent"]}
+          style={styles.atmosphereGradient}
+        />
+        <View style={[styles.headerContainer, { top: insets.top }]}>
+          <DiscoverHeader
+            city={query.city}
+            onCityChange={(city) => updateQuery({ city })}
+            onSearchPress={() => navigation.navigate("SearchScreen")}
+          />
+        </View>
+        <View style={[styles.stickyFilterContainer, { top: insets.top + 56 }]}>
+          <StickyFilterBar
+            selectedCategories={query.categories}
+            dateRange={query.dateRange}
+            isFree={query.price?.max === 0}
+            sort={query.sort}
+            hasFilters={hasFiltersApplied}
+            resultsCount={0}
+            onToggleCategory={toggleCategory}
+            onToggleDateRange={(range) => updateQuery({ dateRange: range })}
+            onToggleFree={(free) => updateQuery({ 
+              price: free ? { max: 0 } : null 
+            })}
+            onSortChange={(sort) => updateQuery({ sort })}
+            onClearFilters={clearFilters}
+          />
+        </View>
+        <View style={[styles.loadingContainer, { paddingTop: insets.top + 56 + 64 + 12 }]}>
           <Skeleton h={60} />
           <Skeleton h={40} />
           <Skeleton h={40} />
           <Skeleton h={120} />
           <Skeleton h={200} />
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   if (discoverQuery.isError) {
     return (
-      <SafeAreaView style={styles.container}>
-        <ErrorState onRetry={() => discoverQuery.refetch()} />
-      </SafeAreaView>
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor={theme.colors.bg} translucent />
+        <LinearGradient
+          colors={["rgba(124,92,255,0.25)", "rgba(0,224,255,0.15)", "transparent"]}
+          style={styles.atmosphereGradient}
+        />
+        <View style={[styles.headerContainer, { top: insets.top }]}>
+          <DiscoverHeader
+            city={query.city}
+            onCityChange={(city) => updateQuery({ city })}
+            onSearchPress={() => navigation.navigate("SearchScreen")}
+          />
+        </View>
+        <View style={[styles.stickyFilterContainer, { top: insets.top + 56 }]}>
+          <StickyFilterBar
+            selectedCategories={query.categories}
+            dateRange={query.dateRange}
+            isFree={query.price?.max === 0}
+            sort={query.sort}
+            hasFilters={hasFiltersApplied}
+            resultsCount={0}
+            onToggleCategory={toggleCategory}
+            onToggleDateRange={(range) => updateQuery({ dateRange: range })}
+            onToggleFree={(free) => updateQuery({ 
+              price: free ? { max: 0 } : null 
+            })}
+            onSortChange={(sort) => updateQuery({ sort })}
+            onClearFilters={clearFilters}
+          />
+        </View>
+        <View style={{ paddingTop: insets.top + 56 + 64 + 12 }}>
+          <ErrorState onRetry={() => discoverQuery.refetch()} />
+        </View>
+      </View>
     );
   }
 
@@ -103,42 +165,59 @@ export default function DiscoverScreen({ navigation }: any) {
   const hasFiltersApplied = query.dateRange !== "all" || query.categories.length > 0 || query.price;
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView
-        style={styles.scrollView}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        showsVerticalScrollIndicator={false}
-        stickyHeaderIndices={[2]} // Make SortBar sticky
-      >
-        {/* Header */}
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor={theme.colors.bg} translucent />
+      
+      {/* Atmosphere Gradient */}
+      <LinearGradient
+        colors={["rgba(124,92,255,0.25)", "rgba(0,224,255,0.15)", "transparent"]}
+        style={styles.atmosphereGradient}
+      />
+      
+      {/* Header - Absolutely Positioned */}
+      <View style={[styles.headerContainer, { top: insets.top }]}>
         <DiscoverHeader
           city={query.city}
           onCityChange={(city) => updateQuery({ city })}
           onSearchPress={() => navigation.navigate("SearchScreen")}
         />
-
-        {/* Filter Chips */}
-        <FilterChips
+      </View>
+      
+      {/* Sticky Filter Bar */}
+      <View style={[styles.stickyFilterContainer, { top: insets.top + 56 }]}>
+        <StickyFilterBar
           selectedCategories={query.categories}
           dateRange={query.dateRange}
           isFree={query.price?.max === 0}
+          sort={query.sort}
+          hasFilters={hasFiltersApplied}
+          resultsCount={data?.all.meta.total || 0}
           onToggleCategory={toggleCategory}
           onToggleDateRange={(range) => updateQuery({ dateRange: range })}
           onToggleFree={(free) => updateQuery({ 
             price: free ? { max: 0 } : null 
           })}
-        />
-
-        {/* Sort Bar - Sticky */}
-        <SortBar
-          sort={query.sort}
           onSortChange={(sort) => updateQuery({ sort })}
-          hasFilters={hasFiltersApplied}
           onClearFilters={clearFilters}
-          resultsCount={data?.all.meta.total || 0}
         />
+      </View>
+      
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[styles.scrollContent, { 
+          paddingTop: insets.top + 56 + 64 + 12, // top inset + header height + filter bar height + spacing
+          paddingBottom: insets.bottom + 90 + 24 // bottom inset + tab bar height + spacing
+        }]}
+        refreshControl={
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh}
+            tintColor={theme.colors.text.primary}
+            titleColor={theme.colors.text.primary}
+          />
+        }
+        showsVerticalScrollIndicator={false}
+      >
 
         {/* Sections */}
         {data && (
@@ -173,29 +252,55 @@ export default function DiscoverScreen({ navigation }: any) {
           </Text>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: theme.colors.bg,
+  },
+  atmosphereGradient: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 160,
+    zIndex: 0,
+  },
+  headerContainer: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    zIndex: 100,
+  },
+  stickyFilterContainer: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    zIndex: 99,
+    backgroundColor: "rgba(0,0,0,0.1)",
+    backdropFilter: "blur(10px)",
   },
   scrollView: {
     flex: 1,
   },
+  scrollContent: {
+    // Dynamic padding is applied inline
+  },
   loadingContainer: {
-    padding: 16,
-    gap: 16,
+    padding: theme.spacing.lg,
+    gap: theme.spacing.lg,
+    paddingTop: Platform.OS === 'ios' ? 44 : StatusBar.currentHeight || 0,
   },
   footer: {
-    padding: 20,
+    padding: theme.spacing.xl,
     alignItems: "center",
   },
   footerText: {
-    fontSize: 14,
-    color: "#666",
+    fontSize: theme.typography.sizes.sm,
+    color: theme.colors.text.tertiary,
     textAlign: "center",
   },
 });

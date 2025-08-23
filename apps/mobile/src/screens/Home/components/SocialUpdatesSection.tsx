@@ -95,10 +95,7 @@ export default function SocialUpdatesSection({
       onPress={() => onUpdatePress(update.id)}
       activeOpacity={0.8}
     >
-      <LinearGradient
-        colors={[theme.colors.surface.card, theme.colors.surface.card]}
-        style={styles.cardGradient}
-      >
+      <View style={styles.cardSurface}>
         <View style={styles.cardHeader}>
           <View style={styles.authorInfo}>
             {update.author.avatar ? (
@@ -185,7 +182,7 @@ export default function SocialUpdatesSection({
             </View>
           </View>
         )}
-      </LinearGradient>
+      </View>
     </TouchableOpacity>
   );
 
@@ -218,12 +215,16 @@ const styles = StyleSheet.create({
   },
   updateCard: {
     width: 280,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: 16,
     overflow: "hidden",
-    ...theme.shadows.sm,
   },
-  cardGradient: {
+  cardSurface: {
+    backgroundColor: "#111623",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.06)",
+    borderRadius: 16,
     padding: theme.spacing.md,
+    ...theme.shadows.md,
   },
   cardHeader: {
     flexDirection: "row",
@@ -254,7 +255,7 @@ const styles = StyleSheet.create({
   authorInitials: {
     fontSize: theme.typography.sizes.sm,
     fontWeight: theme.typography.weights.semibold,
-    color: theme.colors.text.onLight,
+    color: theme.colors.text.primary,
   },
   authorDetails: {
     flex: 1,
@@ -262,7 +263,7 @@ const styles = StyleSheet.create({
   authorName: {
     fontSize: theme.typography.sizes.sm,
     fontWeight: theme.typography.weights.medium,
-    color: theme.colors.text.onLight,
+    color: theme.colors.text.primary,
     marginBottom: 2,
   },
   updateTime: {
@@ -284,13 +285,13 @@ const styles = StyleSheet.create({
   updateTitle: {
     fontSize: theme.typography.sizes.md,
     fontWeight: theme.typography.weights.semibold,
-    color: theme.colors.text.onLight,
+    color: theme.colors.text.primary,
     lineHeight: theme.typography.lineHeights.tight * theme.typography.sizes.md,
     marginBottom: theme.spacing.xs,
   },
   updateDescription: {
     fontSize: theme.typography.sizes.sm,
-    color: theme.colors.text.tertiary,
+    color: theme.colors.text.secondary,
     lineHeight: theme.typography.lineHeights.normal * theme.typography.sizes.sm,
     marginBottom: theme.spacing.xs,
   },
@@ -304,7 +305,7 @@ const styles = StyleSheet.create({
   eventTagText: {
     fontSize: theme.typography.sizes.xs,
     fontWeight: theme.typography.weights.medium,
-    color: theme.colors.text.onLight,
+    color: theme.colors.text.primary,
   },
   mediaContainer: {
     position: "relative",

@@ -22,7 +22,7 @@ export default function SectionHeader({ title, onSeeAll }: SectionHeaderProps) {
       </View>
       
       {onSeeAll && (
-        <TouchableOpacity onPress={onSeeAll}>
+        <TouchableOpacity style={styles.seeAllChip} onPress={onSeeAll}>
           <Text style={styles.seeAllText}>See all</Text>
         </TouchableOpacity>
       )}
@@ -42,8 +42,8 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   title: {
-    fontSize: theme.typography.sizes.lg,
-    fontWeight: theme.typography.weights.semibold,
+    fontSize: theme.typography.sizes.xl,
+    fontWeight: theme.typography.weights.bold,
     color: theme.colors.text.primary,
     marginBottom: 4,
   },
@@ -52,8 +52,19 @@ const styles = StyleSheet.create({
     width: "60%",
     borderRadius: 1,
   },
+  seeAllChip: {
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs / 2,
+    borderRadius: theme.borderRadius.xl,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.06)",
+    minHeight: 28,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   seeAllText: {
-    fontSize: theme.typography.sizes.md,
+    fontSize: theme.typography.sizes.xs,
     fontWeight: theme.typography.weights.medium,
     color: theme.colors.text.secondary,
   },

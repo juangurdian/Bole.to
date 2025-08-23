@@ -17,7 +17,7 @@ export default function TicketsTab() {
       <Stack.Screen 
         name="TicketsMainScreen" 
         component={TicketsMainScreen} 
-        options={{ title: "Tickets & Events" }} 
+        options={{ headerShown: false }} 
       />
       <Stack.Screen 
         name="TicketScreen" 

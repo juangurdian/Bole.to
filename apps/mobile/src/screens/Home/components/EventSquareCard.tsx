@@ -185,7 +185,9 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.06)",
     overflow: "hidden",
     backgroundColor: theme.colors.surface.card,
     ...theme.shadows.md,

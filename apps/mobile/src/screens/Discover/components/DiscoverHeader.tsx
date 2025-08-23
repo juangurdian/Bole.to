@@ -1,5 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { theme } from "../../../theme";
 
 interface DiscoverHeaderProps {
   city: string;
@@ -10,82 +12,120 @@ interface DiscoverHeaderProps {
 export default function DiscoverHeader({ city, onCityChange, onSearchPress }: DiscoverHeaderProps) {
   return (
     <View style={styles.container}>
-      {/* City Selector */}
-      <TouchableOpacity style={styles.citySelector} onPress={() => {}}>
-        <Text style={styles.cityIcon}>📍</Text>
-        <Text style={styles.cityText}>{city}</Text>
-        <Text style={styles.chevron}>▼</Text>
-      </TouchableOpacity>
+      <View style={styles.content}>
+        {/* Left Section - Location */}
+        <View style={styles.leftSection}>
+          <TouchableOpacity style={styles.citySelector} onPress={() => {}}>
+            <Text style={styles.cityIcon}>📍</Text>
+            <Text style={styles.cityText}>{city}</Text>
+            <Text style={styles.chevron}>▼</Text>
+          </TouchableOpacity>
+        </View>
 
-      {/* Search Bar */}
-      <TouchableOpacity style={styles.searchBar} onPress={onSearchPress}>
-        <Text style={styles.searchIcon}>🔍</Text>
-        <Text style={styles.searchPlaceholder}>Search events...</Text>
-      </TouchableOpacity>
+        {/* Center - Bole.to */}
+        <View style={styles.centerSection}>
+          <Text style={styles.logo}>Bole.to</Text>
+        </View>
 
-      {/* Bell Icon */}
-      <TouchableOpacity style={styles.bellButton}>
-        <Text style={styles.bellIcon}>🔔</Text>
-      </TouchableOpacity>
+        {/* Right Actions */}
+        <View style={styles.rightSection}>
+          <TouchableOpacity style={styles.searchButton} onPress={onSearchPress}>
+            <Text style={styles.searchIcon}>🔍</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.bellButton}>
+            <Text style={styles.bellIcon}>🔔</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "transparent",
+    zIndex: 100,
+  },
+  content: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "white",
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
+    justifyContent: "space-between",
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
+    height: 56,
+  },
+  leftSection: {
+    flex: 1,
+    alignItems: "flex-start",
+  },
+  centerSection: {
+    flex: 1,
+    alignItems: "center",
+  },
+  rightSection: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    gap: theme.spacing.sm,
+  },
+  logo: {
+    fontSize: theme.typography.sizes.lg,
+    fontWeight: theme.typography.weights.bold,
+    color: theme.colors.text.primary,
   },
   citySelector: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    backgroundColor: "#f8f9fa",
-    borderRadius: 8,
-    marginRight: 12,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
+    borderRadius: theme.borderRadius.lg,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.06)",
   },
   cityIcon: {
-    fontSize: 14,
-    marginRight: 4,
+    fontSize: 12,
+    marginRight: theme.spacing.xs / 2,
   },
   cityText: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#333",
-    marginRight: 4,
+    fontSize: theme.typography.sizes.sm,
+    fontWeight: theme.typography.weights.medium,
+    color: theme.colors.text.primary,
+    marginRight: theme.spacing.xs / 2,
   },
   chevron: {
-    fontSize: 10,
-    color: "#666",
+    fontSize: 8,
+    color: theme.colors.text.secondary,
   },
-  searchBar: {
-    flex: 1,
-    flexDirection: "row",
+  searchButton: {
+    width: 32,
+    height: 32,
+    borderRadius: theme.borderRadius.round,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.06)",
+    justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f8f9fa",
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    marginRight: 12,
   },
   searchIcon: {
-    fontSize: 16,
-    marginRight: 8,
-  },
-  searchPlaceholder: {
     fontSize: 14,
-    color: "#666",
   },
   bellButton: {
-    padding: 8,
+    width: 32,
+    height: 32,
+    borderRadius: theme.borderRadius.round,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.06)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   bellIcon: {
-    fontSize: 20,
+    fontSize: 14,
   },
 });

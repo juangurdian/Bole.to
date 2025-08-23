@@ -5,6 +5,7 @@ import {
   RefreshControl,
   StatusBar,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
 import Animated, {
@@ -108,7 +109,13 @@ export default function HomeScreen({ navigation }: any) {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={theme.colors.bg} />
+      <StatusBar barStyle="light-content" backgroundColor={theme.colors.bg} translucent />
+      
+      {/* Atmosphere Gradient */}
+      <LinearGradient
+        colors={["rgba(124,92,255,0.25)", "rgba(0,224,255,0.15)", "transparent"]}
+        style={styles.atmosphereGradient}
+      />
 
       <Animated.ScrollView
         onScroll={scrollHandler}
@@ -186,5 +193,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.bg,
+  },
+  atmosphereGradient: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 200,
+    zIndex: 0,
   },
 });

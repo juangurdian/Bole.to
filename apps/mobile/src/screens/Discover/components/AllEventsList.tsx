@@ -3,6 +3,7 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native
 import EventCard from "./EventCard";
 import Skeleton from "../../../components/Skeleton";
 import Button from "../../../components/Button";
+import { theme } from "../../../theme";
 
 interface AllEventsListProps {
   events: any[];
@@ -152,92 +153,92 @@ export default function AllEventsList({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#f5f5f5",
-    paddingTop: 16,
+    backgroundColor: theme.colors.bg,
+    paddingTop: theme.spacing.lg,
   },
   listContent: {
-    paddingHorizontal: 16,
+    paddingHorizontal: theme.spacing.lg,
   },
   header: {
-    marginBottom: 16,
+    marginBottom: theme.spacing.lg,
   },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 4,
+    fontSize: theme.typography.sizes.xxl,
+    fontWeight: theme.typography.weights.bold,
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing.xs,
   },
   headerSubtitle: {
-    fontSize: 14,
-    color: "#666",
+    fontSize: theme.typography.sizes.sm,
+    color: theme.colors.text.secondary,
   },
   footer: {
-    paddingVertical: 20,
+    paddingVertical: theme.spacing.xl,
     alignItems: "center",
   },
   loadMoreButton: {
-    backgroundColor: "#007AFF",
-    paddingHorizontal: 32,
+    backgroundColor: theme.colors.info,
+    paddingHorizontal: theme.spacing.xxl,
   },
   endText: {
-    fontSize: 16,
-    color: "#666",
+    fontSize: theme.typography.sizes.md,
+    color: theme.colors.text.secondary,
     textAlign: "center",
   },
   loadingContainer: {
-    padding: 16,
-    gap: 16,
+    padding: theme.spacing.lg,
+    gap: theme.spacing.lg,
   },
   errorContainer: {
-    padding: 32,
+    padding: theme.spacing.xxl,
     alignItems: "center",
   },
   errorEmoji: {
     fontSize: 48,
-    marginBottom: 16,
+    marginBottom: theme.spacing.lg,
   },
   errorTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 8,
+    fontSize: theme.typography.sizes.xl,
+    fontWeight: theme.typography.weights.semibold,
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing.sm,
     textAlign: "center",
   },
   errorText: {
-    fontSize: 14,
-    color: "#666",
+    fontSize: theme.typography.sizes.sm,
+    color: theme.colors.text.secondary,
     textAlign: "center",
-    lineHeight: 20,
-    marginBottom: 24,
+    lineHeight: theme.typography.lineHeights.relaxed * theme.typography.sizes.sm,
+    marginBottom: theme.spacing.xl,
   },
   retryButton: {
-    backgroundColor: "#007AFF",
-    paddingHorizontal: 32,
+    backgroundColor: theme.colors.info,
+    paddingHorizontal: theme.spacing.xxl,
   },
   emptyContainer: {
-    padding: 32,
+    padding: theme.spacing.xxl,
     alignItems: "center",
   },
   emptyEmoji: {
     fontSize: 48,
-    marginBottom: 16,
+    marginBottom: theme.spacing.lg,
   },
   emptyTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 8,
+    fontSize: theme.typography.sizes.xl,
+    fontWeight: theme.typography.weights.semibold,
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing.sm,
     textAlign: "center",
   },
   emptyText: {
-    fontSize: 14,
-    color: "#666",
+    fontSize: theme.typography.sizes.sm,
+    color: theme.colors.text.secondary,
     textAlign: "center",
-    lineHeight: 20,
-    marginBottom: 24,
+    lineHeight: theme.typography.lineHeights.relaxed * theme.typography.sizes.sm,
+    marginBottom: theme.spacing.xl,
   },
   clearFiltersButton: {
-    backgroundColor: "#007AFF",
-    paddingHorizontal: 32,
+    backgroundColor: theme.colors.info,
+    paddingHorizontal: theme.spacing.xxl,
   },
 });

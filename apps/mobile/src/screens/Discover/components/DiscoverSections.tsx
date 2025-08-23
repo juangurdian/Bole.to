@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
 import EventCard from "./EventCard";
 import Skeleton from "../../../components/Skeleton";
+import { theme } from "../../../theme";
 
 interface DiscoverSectionsProps {
   sections: {
@@ -96,44 +97,44 @@ export default function DiscoverSections({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "white",
-    paddingTop: 16,
+    backgroundColor: theme.colors.bg,
+    paddingTop: theme.spacing.lg,
   },
   loadingContainer: {
-    padding: 16,
-    gap: 16,
+    padding: theme.spacing.lg,
+    gap: theme.spacing.lg,
   },
   section: {
-    marginBottom: 24,
+    marginBottom: theme.spacing.xl,
   },
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 16,
-    marginBottom: 16,
+    paddingHorizontal: theme.spacing.lg,
+    marginBottom: theme.spacing.lg,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#333",
+    fontSize: theme.typography.sizes.xl,
+    fontWeight: theme.typography.weights.bold,
+    color: theme.colors.text.primary,
   },
   viewAllText: {
-    fontSize: 14,
-    color: "#007AFF",
-    fontWeight: "500",
+    fontSize: theme.typography.sizes.sm,
+    color: theme.colors.info,
+    fontWeight: theme.typography.weights.medium,
   },
   horizontalList: {
-    paddingHorizontal: 8,
+    paddingHorizontal: theme.spacing.sm,
   },
   emptySection: {
-    paddingHorizontal: 16,
-    paddingVertical: 32,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.xxl,
     alignItems: "center",
   },
   emptyText: {
-    fontSize: 14,
-    color: "#666",
+    fontSize: theme.typography.sizes.sm,
+    color: theme.colors.text.tertiary,
     textAlign: "center",
   },
 });

@@ -1357,5 +1357,140 @@ export const mockApi = {
         ? "You'll be notified when tickets go on sale"
         : "Reminder removed"
     };
+  },
+
+  async getTicketsPayload() {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    const events = Events.parse(eventsFixt);
+    const tickets = ticketsFixt;
+    
+    // Mock user data
+    const user = {
+      id: "user_1",
+      city: "Managua",
+      roles: ["user", "organizer"] // User is both attendee and organizer
+    };
+
+    // Upcoming tickets (2-3 items)
+    const upcoming = tickets.slice(0, 3).map((ticket: any, index: number) => {
+      const event = ticket.event;
+      const now = new Date();
+      const eventDate = new Date(event.startsAt);
+      const diffHours = (eventDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+      
+      return {
+        id: `ticket_${index + 1}`,
+        eventId: event.id,
+        title: event.title,
+        startsAt: event.startsAt,
+        venue: event.venue.name,
+        city: event.venue.city,
+        coverUrl: event.coverUrl,
+        seatInfo: index === 0 ? "Section A, Row 5, Seats 12-13" : undefined,
+        hasQr: true,
+        photosReleased: false
+      };
+    });
+
+    // Past tickets (3-5 items)
+    const past = [
+      {
+        id: "ticket_past_1",
+        eventId: "ev_past_1",
+        title: "Indie Night Rooftop",
+        startsAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
+        venue: "Sky Lounge",
+        city: "Managua",
+        coverUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400",
+        hasQr: true,
+        photosReleased: true
+      },
+      {
+        id: "ticket_past_2", 
+        eventId: "ev_past_2",
+        title: "EDM Summer Fest",
+        startsAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(), // 2 weeks ago
+        venue: "Beach Club",
+        city: "San Juan del Sur",
+        coverUrl: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400",
+        hasQr: true,
+        photosReleased: true
+      },
+      {
+        id: "ticket_past_3",
+        eventId: "ev_past_3", 
+        title: "Jazz & Wine Evening",
+        startsAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // 1 month ago
+        venue: "Cultural Center",
+        city: "Granada",
+        coverUrl: "https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=400",
+        hasQr: true,
+        photosReleased: false
+      },
+      {
+        id: "ticket_past_4",
+        eventId: "ev_past_4",
+        title: "Food & Music Festival", 
+        startsAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(), // 2 months ago
+        venue: "Central Park",
+        city: "Managua",
+        coverUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400",
+        hasQr: true,
+        photosReleased: false
+      }
+    ];
+
+    // My Events (as organizer) - 2-3 items
+    const myEvents = [
+      {
+        id: "my_event_1",
+        title: "Sunset Beach Party 2024",
+        startsAt: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(), // 15 days from now
+        venue: "Playa Maderas",
+        city: "San Juan del Sur",
+        coverUrl: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400",
+        stats: {
+          sold: 127,
+          revenue: 3175,
+          checkins: 0
+        }
+      },
+      {
+        id: "my_event_2",
+        title: "Tech Meetup: AI & Future",
+        startsAt: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000).toISOString(), // 8 days from now
+        venue: "Innovation Hub",
+        city: "Managua", 
+        coverUrl: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400",
+        stats: {
+          sold: 45,
+          revenue: 0, // Free event
+          checkins: 0
+        }
+      },
+      {
+        id: "my_event_3",
+        title: "Cooking Workshop Series",
+        startsAt: new Date(Date.now() + 22 * 24 * 60 * 60 * 1000).toISOString(), // 22 days from now
+        venue: "Culinary Institute",
+        city: "Granada",
+        coverUrl: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400",
+        stats: {
+          sold: 23,
+          revenue: 690,
+          checkins: 0
+        }
+      }
+    ];
+
+    return {
+      city: user.city,
+      notifications: { unread: Math.floor(Math.random() * 3) },
+      upcoming,
+      past,
+      myEvents
+    };
   }
 };

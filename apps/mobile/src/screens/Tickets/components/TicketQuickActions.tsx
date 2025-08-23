@@ -12,47 +12,61 @@ import { theme } from "../../../theme";
 interface QuickAction {
   id: string;
   title: string;
-  subtitle: string;
   icon: string;
   gradient: string[];
   onPress: () => void;
 }
 
-interface QuickActionsRowProps {
-  onTickets?: () => void;
-  onNearby?: () => void;
-  onPromos?: () => void;
+interface TicketQuickActionsProps {
+  onAddToWallet?: () => void;
+  onShare?: () => void;
+  onScanner?: () => void;
+  onSettings?: () => void;
+  onHelp?: () => void;
 }
 
-export default function QuickActionsRow({
-  onTickets,
-  onNearby,
-  onPromos,
-}: QuickActionsRowProps) {
+export default function TicketQuickActions({
+  onAddToWallet,
+  onShare,
+  onScanner,
+  onSettings,
+  onHelp,
+}: TicketQuickActionsProps) {
   const quickActions: QuickAction[] = [
     {
-      id: "tickets",
-      title: "My Tickets",
-      subtitle: "Your events",
-      icon: "🎫",
+      id: "wallet",
+      title: "Add to Wallet",
+      icon: "📱",
       gradient: theme.colors.gradient.primary,
-      onPress: onTickets || (() => console.log("My Tickets")),
+      onPress: onAddToWallet || (() => console.log("Add to Wallet")),
     },
     {
-      id: "nearby",
-      title: "Find Nearby",
-      subtitle: "Discover events",
-      icon: "📍",
+      id: "share",
+      title: "Share",
+      icon: "📤",
       gradient: theme.colors.gradient.accent,
-      onPress: onNearby || (() => console.log("Find Nearby")),
+      onPress: onShare || (() => console.log("Share")),
     },
     {
-      id: "promos",
-      title: "Promotions",
-      subtitle: "Special deals",
-      icon: "🎁",
+      id: "scanner",
+      title: "Scanner",
+      icon: "📱",
       gradient: theme.colors.gradient.warm,
-      onPress: onPromos || (() => console.log("Promotions")),
+      onPress: onScanner || (() => console.log("Scanner")),
+    },
+    {
+      id: "settings",
+      title: "Settings",
+      icon: "⚙️",
+      gradient: ["#667EEA", "#764BA2"],
+      onPress: onSettings || (() => console.log("Settings")),
+    },
+    {
+      id: "help",
+      title: "Help",
+      icon: "❓",
+      gradient: ["#43E97B", "#38F9D7"],
+      onPress: onHelp || (() => console.log("Help")),
     },
   ];
 
@@ -84,10 +98,7 @@ export default function QuickActionsRow({
                 <View style={styles.iconContainer}>
                   <Text style={styles.actionIcon}>{action.icon}</Text>
                 </View>
-                <View style={styles.actionText}>
-                  <Text style={styles.actionTitle}>{action.title}</Text>
-                  <Text style={styles.actionSubtitle}>{action.subtitle}</Text>
-                </View>
+                <Text style={styles.actionTitle}>{action.title}</Text>
               </View>
             </View>
           </TouchableOpacity>
@@ -106,9 +117,9 @@ const styles = StyleSheet.create({
     gap: theme.spacing.sm,
   },
   actionButton: {
-    width: 140,
-    height: 120,
-    borderRadius: 20,
+    width: 80,
+    height: 80,
+    borderRadius: 16,
     overflow: "visible",
   },
   firstAction: {
@@ -117,7 +128,7 @@ const styles = StyleSheet.create({
   actionCard: {
     flex: 1,
     backgroundColor: "#111623",
-    borderRadius: 20,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.06)",
     position: "relative",
@@ -125,43 +136,37 @@ const styles = StyleSheet.create({
   },
   rimGradient: {
     position: "absolute",
-    top: -2,
-    left: -2,
-    right: -2,
-    bottom: -2,
-    borderRadius: 22,
+    top: -1,
+    left: -1,
+    right: -1,
+    bottom: -1,
+    borderRadius: 17,
     zIndex: -1,
-    opacity: 0.8,
+    opacity: 0.6,
   },
   actionContent: {
     flex: 1,
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    padding: theme.spacing.md,
-  },
-  iconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: theme.borderRadius.md,
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
     justifyContent: "center",
     alignItems: "center",
+    padding: theme.spacing.sm,
+  },
+  iconContainer: {
+    width: 28,
+    height: 28,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: theme.spacing.xs,
   },
   actionIcon: {
-    fontSize: 16,
-  },
-  actionText: {
-    alignSelf: "stretch",
+    fontSize: 14,
   },
   actionTitle: {
-    fontSize: theme.typography.sizes.sm,
-    fontWeight: theme.typography.weights.semibold,
-    color: theme.colors.text.primary,
-    marginBottom: 2,
-  },
-  actionSubtitle: {
     fontSize: theme.typography.sizes.xs,
-    color: "#A9B1C7",
+    fontWeight: theme.typography.weights.medium,
+    color: theme.colors.text.primary,
+    textAlign: "center",
     lineHeight: theme.typography.lineHeights.tight * theme.typography.sizes.xs,
   },
 });

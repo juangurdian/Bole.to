@@ -1,5 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { theme } from "../../../theme";
 
 interface EventCardProps {
   event: {
@@ -70,7 +72,13 @@ export default function EventCard({ event, onPress, size = "medium" }: EventCard
         <Text style={styles.coverPlaceholder}>🎪</Text>
         
         {/* Gradient Overlay */}
-        <View style={styles.gradientOverlay} />
+        <LinearGradient
+          colors={["transparent", "rgba(0,0,0,0.7)"]}
+          style={styles.gradientOverlay}
+        />
+        
+        {/* Rim Light Gradient */}
+        <View style={styles.rimLight} />
         
         {/* Price Badge */}
         <View style={styles.priceBadge}>
@@ -131,110 +139,128 @@ export default function EventCard({ event, onPress, size = "medium" }: EventCard
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "white",
-    borderRadius: 12,
+    backgroundColor: theme.colors.surface.card,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.06)",
     overflow: "hidden",
-    marginHorizontal: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    marginHorizontal: theme.spacing.sm,
+    ...theme.shadows.md,
   },
   largeContainer: {
     marginHorizontal: 0,
-    marginBottom: 16,
+    marginBottom: theme.spacing.lg,
   },
   coverImage: {
     position: "relative",
-    backgroundColor: "#f0f0f0",
+    backgroundColor: theme.colors.surface.secondary,
     alignItems: "center",
     justifyContent: "center",
   },
   coverPlaceholder: {
     fontSize: 32,
-    opacity: 0.5,
+    opacity: 0.3,
   },
   gradientOverlay: {
     position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    height: "50%",
-    backgroundColor: "rgba(0,0,0,0.3)",
+    height: "60%",
+  },
+  rimLight: {
+    position: "absolute",
+    top: -2,
+    left: -2,
+    right: -2,
+    bottom: -2,
+    borderRadius: 18,
+    borderWidth: 2,
+    borderColor: "transparent",
+    background: "linear-gradient(45deg, rgba(124,92,255,0.3), rgba(0,224,255,0.3))",
+    zIndex: -1,
   },
   priceBadge: {
     position: "absolute",
-    top: 8,
-    right: 8,
-    backgroundColor: "rgba(0,0,0,0.7)",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    top: theme.spacing.sm,
+    right: theme.spacing.sm,
+    backgroundColor: "rgba(0,0,0,0.8)",
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs / 2,
+    borderRadius: 11,
+    height: 22,
+    justifyContent: "center",
   },
   priceText: {
     fontSize: 12,
-    fontWeight: "600",
-    color: "white",
+    fontWeight: theme.typography.weights.medium,
+    color: theme.colors.white,
   },
   microBadges: {
     position: "absolute",
-    bottom: 8,
-    left: 8,
+    bottom: theme.spacing.sm,
+    left: theme.spacing.sm,
     flexDirection: "row",
-    gap: 4,
+    gap: theme.spacing.xs,
   },
   microBadge: {
-    backgroundColor: "rgba(255,255,255,0.9)",
-    paddingHorizontal: 6,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    paddingHorizontal: theme.spacing.xs,
     paddingVertical: 2,
-    borderRadius: 8,
+    borderRadius: 11,
+    height: 22,
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.1)",
   },
   todayBadge: {
-    backgroundColor: "#ff3b30",
+    backgroundColor: "rgba(255,59,48,0.9)",
+    borderColor: "rgba(255,59,48,0.3)",
   },
   lowStockBadge: {
-    backgroundColor: "#ff9500",
+    backgroundColor: "rgba(255,149,0,0.9)",
+    borderColor: "rgba(255,149,0,0.3)",
   },
   newBadge: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "rgba(0,122,255,0.9)",
+    borderColor: "rgba(0,122,255,0.3)",
   },
   microBadgeText: {
-    fontSize: 10,
-    fontWeight: "600",
-    color: "#333",
+    fontSize: 12,
+    fontWeight: theme.typography.weights.medium,
+    color: theme.colors.white,
   },
   eventInfo: {
-    padding: 12,
+    padding: theme.spacing.md,
   },
   eventTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 4,
-    lineHeight: 20,
+    fontSize: theme.typography.sizes.md,
+    fontWeight: theme.typography.weights.semibold,
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing.xs,
+    lineHeight: theme.typography.lineHeights.tight * theme.typography.sizes.md,
   },
   smallTitle: {
-    fontSize: 14,
+    fontSize: theme.typography.sizes.sm,
   },
   venueText: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 8,
+    fontSize: theme.typography.sizes.sm,
+    color: theme.colors.text.secondary,
+    marginBottom: theme.spacing.sm,
   },
   smallVenue: {
-    fontSize: 12,
+    fontSize: theme.typography.sizes.xs,
   },
   dateTimeContainer: {
     flexDirection: "row",
     alignItems: "center",
   },
   dateChip: {
-    fontSize: 12,
-    color: "#007AFF",
-    fontWeight: "500",
+    fontSize: theme.typography.sizes.xs,
+    color: theme.colors.info,
+    fontWeight: theme.typography.weights.medium,
   },
   smallDateChip: {
-    fontSize: 11,
+    fontSize: 10,
   },
 });
