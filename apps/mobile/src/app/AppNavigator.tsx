@@ -7,6 +7,7 @@ import DiscoverTab from "./tabs/DiscoverTab";
 import TicketsTab from "./tabs/TicketsTab";
 import SocialTab from "./tabs/SocialTab";
 import ProfileTab from "./tabs/ProfileTab";
+import BoletoTabBar from "../components/nav/BoletoTabBar";
 
 const Tab = createBottomTabNavigator();
 
@@ -22,14 +23,16 @@ export default function AppNavigator() {
   }
 
   return (
-    <Tab.Navigator 
-      screenOptions={{ 
+    <Tab.Navigator
+      screenOptions={{
         headerShown: false,
-        tabBarIcon: ({ focused, color, size }) => null, // Simple tabs without icons for now
+        tabBarShowLabel: false, // we render labels ourselves
+        tabBarStyle: { display: "none" }, // hide default bar
       }}
+      tabBar={(props) => <BoletoTabBar {...props} />}
     >
       <Tab.Screen name="Home" component={HomeTab} />
-      <Tab.Screen name="Discover" component={DiscoverTab} />
+      <Tab.Screen name="Search" component={DiscoverTab} />
       <Tab.Screen name="Tickets" component={TicketsTab} />
       <Tab.Screen name="Feed" component={SocialTab} />
       <Tab.Screen name="Profile" component={ProfileTab} />

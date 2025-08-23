@@ -323,36 +323,44 @@ export const mockApi = {
     // Social digest - mix of announcements, posts, and polls
     const socialDigest = [
       {
-        type: "announcement" as const,
         id: "ann_1",
-        eventId: "ev_1",
-        eventTitle: "Sunset Rooftop Party",
-        text: "Doors open at 9PM! Don't forget to bring ID.",
-        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2h ago
-        userName: "Event Organizer"
+        type: "announcement" as const,
+        title: "Doors open at 9PM!",
+        description: "Don't forget to bring ID.",
+        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2h ago
+        author: {
+          name: "Event Organizer",
+          avatar: undefined
+        },
+        event: {
+          name: "Sunset Rooftop Party",
+          date: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString()
+        }
       },
       {
-        type: "post" as const,
         id: "post_1",
-        eventId: "ev_1",
-        eventTitle: "Sunset Rooftop Party",
-        userName: "Ana Rodriguez",
-        text: "Who's ready for tonight? Can't wait! 🎉",
-        createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(), // 1h ago
-        likes: 12
+        type: "post" as const,
+        title: "Who's ready for tonight? Can't wait! 🎉",
+        timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(), // 1h ago
+        author: {
+          name: "Ana Rodriguez",
+          avatar: undefined
+        },
+        engagement: {
+          likes: 12,
+          comments: 3,
+          shares: 1
+        }
       },
       {
-        type: "poll" as const,
         id: "poll_1",
-        eventId: "ev_1",
-        eventTitle: "Sunset Rooftop Party",
-        question: "What music are you hoping to hear tonight?",
-        options: [
-          { id: "opt1", label: "House & Electronic", pct: 65, votes: 23 },
-          { id: "opt2", label: "Latin Pop", pct: 35, votes: 12 }
-        ],
-        createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(), // 30m ago
-        hasVoted: false
+        type: "poll" as const,
+        title: "What music are you hoping to hear tonight?",
+        timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(), // 30m ago
+        author: {
+          name: "DJ Mix Master",
+          avatar: undefined
+        }
       }
     ];
 
@@ -420,12 +428,54 @@ export const mockApi = {
       revenue: 400
     } : null;
 
+    // Events Near You - from discover events
+    const nearby = discoverEventsFixt.slice(0, 10).map(event => ({
+      id: event.id,
+      title: event.title,
+      startsAt: event.startsAt,
+      venue: event.venue,
+      coverUrl: event.coverUrl,
+      tiers: event.tiers
+    }));
+
+    // Released Photos - galleries that have been unlocked
+    const releasedGalleries = [
+      {
+        eventId: "ev_1",
+        eventTitle: "Indie Night Rooftop",
+        thumbUrls: [
+          "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400",
+          "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400", 
+          "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=400",
+          "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400",
+          "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400",
+          "https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=400"
+        ],
+        releasedAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString() // 3h ago
+      },
+      {
+        eventId: "ev_2", 
+        eventTitle: "EDM Summer Fest",
+        thumbUrls: [
+          "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400",
+          "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400",
+          "https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=400",
+          "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400"
+        ],
+        releasedAt: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString() // 8h ago
+      }
+    ];
+
     return {
+      city: user.city,
+      notifications: { unread: Math.floor(Math.random() * 5) },
       user,
       upcoming,
       socialDigest,
       discover,
       galleries,
+      nearby,
+      releasedGalleries,
       resume,
       promoterStats,
       unreadNotifications: Math.floor(Math.random() * 5)

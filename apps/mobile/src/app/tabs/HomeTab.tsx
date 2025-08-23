@@ -7,7 +7,7 @@ const Stack = createNativeStackNavigator();
 export default function HomeTab() {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="HomeScreen" component={HomeScreen} options={{ title: "Home" }} />
+      <Stack.Screen name="HomeScreen" component={HomeScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }

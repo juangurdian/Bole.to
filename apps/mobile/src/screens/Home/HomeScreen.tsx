@@ -1,225 +1,194 @@
-import React, { useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, RefreshControl, StyleSheet, TextInput } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React, { useState, useCallback } from "react";
+import {
+  View,
+  StyleSheet,
+  RefreshControl,
+  StatusBar,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
-import { useApi } from "../../api";
-import { useAuth } from "../../auth/useAuth";
-import Skeleton from "../../components/Skeleton";
-import ErrorState from "../../components/ErrorState";
-import Card from "../../components/Card";
-import Button from "../../components/Button";
+import Animated, {
+  useSharedValue,
+  useAnimatedScrollHandler,
+} from "react-native-reanimated";
 
-// Widget Components
-import HomeTopBar from "./widgets/HomeTopBar";
-import HomeHeroModule from "./widgets/HomeHeroModule";
-import HomeQuickActions from "./widgets/HomeQuickActions";
-import HomeUpcomingWidget from "./widgets/HomeUpcomingWidget";
-import HomeSocialDigestWidget from "./widgets/HomeSocialDigestWidget";
-import HomeDiscoverWidget from "./widgets/HomeDiscoverWidget";
-import HomeGalleryTeaserWidget from "./widgets/HomeGalleryTeaserWidget";
-import HomeResumeWidget from "./widgets/HomeResumeWidget";
+import { theme } from "../../theme";
+import { mockApi } from "../../mocks/api";
+import NewHomeTopBar from "./components/NewHomeTopBar";
+import QuickActionsRow from "./components/QuickActionsRow";
+import UpcomingSection from "./components/UpcomingSection";
+import EventsNearYouSection from "./components/EventsNearYouSection";
+import ReleasedPhotosSection from "./components/ReleasedPhotosSection";
+import SocialUpdatesSection from "./components/SocialUpdatesSection";
+import OfflineBanner from "../../components/OfflineBanner";
+import SkeletonRow from "../../components/SkeletonRow";
+import ErrorState from "../../components/ErrorState";
+
+const TOPBAR_H = theme.dimensions.topBarHeight;
 
 export default function HomeScreen({ navigation }: any) {
-  const { user } = useAuth();
-  const api = useApi();
-  
-  const homeQuery = useQuery({ 
-    queryKey: ["home-payload"], 
-    queryFn: api.getHomePayload,
-    refetchOnMount: true
-  });
-
+  const insets = useSafeAreaInsets();
+  const scrollY = useSharedValue(0);
   const [refreshing, setRefreshing] = useState(false);
 
-  const onRefresh = async () => {
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollY.value = event.contentOffset.y;
+    },
+  });
+
+  // Fetch home data using the comprehensive payload
+  const {
+    data,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
+    queryKey: ["home-payload"],
+    queryFn: mockApi.getHomePayload,
+    refetchOnMount: true,
+  });
+
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await homeQuery.refetch();
-    setRefreshing(false);
+    try {
+      await refetch();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetch]);
+
+  // Event handlers
+  const handleEventPress = (eventId: string) => {
+    navigation.navigate("EventStack", {
+      screen: "Event",
+      params: { id: eventId },
+    });
   };
 
-  if (homeQuery.isLoading && !refreshing) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <ScrollView style={styles.content}>
-          <Skeleton h={60} />
-          <Skeleton h={200} />
-          <Skeleton h={120} />
-          <Skeleton h={150} />
-        </ScrollView>
-      </SafeAreaView>
-    );
-  }
+  const handleGalleryPress = (eventId: string) => {
+    navigation.navigate("EventStack", {
+      screen: "Gallery",
+      params: { eventId },
+    });
+  };
 
-  if (homeQuery.isError) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <ErrorState onRetry={() => homeQuery.refetch()} />
-      </SafeAreaView>
-    );
-  }
+  const handleUpdatePress = (updateId: string) => {
+    navigation.navigate("FeedStack", {
+      screen: "Feed",
+      params: { focusId: updateId },
+    });
+  };
 
-  const data = homeQuery.data;
-  if (!data) return null;
+  // Top bar handlers
+  const openCityPicker = () => {
+    console.log("Open city picker");
+  };
 
-  const hasUpcomingWithin7Days = data.upcoming.some((event: any) => 
-    new Date(event.startsAt).getTime() - Date.now() < 7 * 24 * 60 * 60 * 1000
-  );
+  const setSearchOpen = (open: boolean) => {
+    console.log("Set search open:", open);
+  };
+
+  const handleOpenNotifications = () => {
+    navigation.navigate("Notifications");
+  };
+
+  // Quick actions handlers
+  const handleMyTickets = () => {
+    navigation.navigate("TicketsTab", { screen: "WalletScreen" });
+  };
+
+  const handleNearby = () => {
+    navigation.navigate("Discover", { nearby: true });
+  };
+
+  const handlePromotions = () => {
+    navigation.navigate("Promotions");
+  };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView 
-        style={styles.content}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor={theme.colors.bg} />
+      
+      {/* Pinned Top Bar */}
+      <NewHomeTopBar
+        style={{
+          position: "absolute",
+          top: insets.top,
+          left: 0,
+          right: 0,
+          zIndex: 10,
+        }}
+        scrollY={scrollY}
+        city={data?.city ?? "—"}
+        unread={data?.notifications?.unread ?? 0}
+        onPickCity={openCityPicker}
+        onOpenSearch={() => setSearchOpen(true)}
+        onOpenNotifications={handleOpenNotifications}
+      />
+
+      <Animated.ScrollView
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+        contentContainerStyle={{
+          paddingTop: insets.top + TOPBAR_H + 12,
+          paddingBottom: insets.bottom + 32,
+        }}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={theme.colors.text.primary}
+            titleColor={theme.colors.text.primary}
+          />
+        }
       >
-        {/* Top Bar */}
-        <HomeTopBar 
-          city={data.user.city}
-          unreadCount={data.unreadNotifications}
-          onSearchPress={() => navigation.navigate("Discover", { screen: "SearchScreen" })}
-          onNotificationsPress={() => navigation.navigate("Profile", { screen: "NotificationsScreen" })}
-          onProfilePress={() => navigation.navigate("Profile")}
-        />
-
-        {/* Hero Module - contextual */}
-        <HomeHeroModule 
-          hasUpcomingWithin7Days={hasUpcomingWithin7Days}
-          nextEvent={data.upcoming[0]}
-          city={data.user.city}
-          navigation={navigation}
-        />
-
+        <OfflineBanner />
+        
         {/* Quick Actions Row */}
-        <HomeQuickActions 
-          userRoles={data.user.roles}
-          navigation={navigation}
-        />
-
-        {/* Resume/Continue Checkout - show early if exists */}
-        {data.resume && (
-          <HomeResumeWidget 
-            resume={data.resume}
-            navigation={navigation}
+        <View style={{ paddingHorizontal: 16 }}>
+          <QuickActionsRow
+            onTickets={handleMyTickets}
+            onNearby={handleNearby}
+            onPromos={handlePromotions}
           />
-        )}
+        </View>
 
-        {/* Your Upcoming - priority if has events within 7 days */}
-        {hasUpcomingWithin7Days && data.upcoming.length > 0 && (
-          <HomeUpcomingWidget 
-            upcoming={data.upcoming}
-            navigation={navigation}
-          />
-        )}
-
-        {/* Social Updates */}
-        {data.socialDigest.length > 0 && (
-          <HomeSocialDigestWidget 
-            socialDigest={data.socialDigest}
-            navigation={navigation}
-          />
-        )}
-
-        {/* Gallery Teasers - pin if reveal today */}
-        {data.galleries.length > 0 && (
-          <HomeGalleryTeaserWidget 
-            galleries={data.galleries}
-            navigation={navigation}
-          />
-        )}
-
-        {/* Discover Near You */}
-        <HomeDiscoverWidget 
-          discover={data.discover}
-          city={data.user.city}
-          navigation={navigation}
-        />
-
-        {/* Your Upcoming - lower priority if no events within 7 days */}
-        {!hasUpcomingWithin7Days && data.upcoming.length > 0 && (
-          <HomeUpcomingWidget 
-            upcoming={data.upcoming}
-            navigation={navigation}
-          />
-        )}
-
-        {/* Promoter Tools - role gated */}
-        {data.promoterStats && (
-          <Card style={styles.promoterCard}>
-            <View style={styles.promoterHeader}>
-              <Text style={styles.sectionTitle}>📊 Promoter Dashboard</Text>
-            </View>
-            <View style={styles.promoterStats}>
-              <View style={styles.stat}>
-                <Text style={styles.statNumber}>{data.promoterStats.linkShares}</Text>
-                <Text style={styles.statLabel}>Link Shares</Text>
-              </View>
-              <View style={styles.stat}>
-                <Text style={styles.statNumber}>{data.promoterStats.conversions}</Text>
-                <Text style={styles.statLabel}>Conversions</Text>
-              </View>
-              <View style={styles.stat}>
-                <Text style={styles.statNumber}>${data.promoterStats.revenue}</Text>
-                <Text style={styles.statLabel}>Revenue</Text>
-              </View>
-            </View>
-            <Button 
-              title="Share Your Link" 
-              onPress={() => {}} 
-              style={styles.shareButton}
+        {isLoading ? (
+          <>
+            <SkeletonRow kind="tiles" />
+            <SkeletonRow kind="events" />
+            <SkeletonRow kind="galleries" />
+            <SkeletonRow kind="feed" />
+          </>
+        ) : isError ? (
+          <ErrorState onRetry={refetch} />
+        ) : (
+          <>
+            <UpcomingSection items={data?.upcoming || []} />
+            <EventsNearYouSection
+              items={data?.nearby || []}
+              onEventPress={handleEventPress}
             />
-          </Card>
+            <ReleasedPhotosSection
+              items={data?.releasedGalleries || []}
+              onGalleryPress={handleGalleryPress}
+            />
+            <SocialUpdatesSection
+              items={data?.socialDigest || []}
+              onUpdatePress={handleUpdatePress}
+            />
+          </>
         )}
-
-        <View style={styles.bottomSpacer} />
-      </ScrollView>
-    </SafeAreaView>
+      </Animated.ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
-  },
-  content: {
-    flex: 1,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#333",
-  },
-  promoterCard: {
-    marginHorizontal: 16,
-    marginVertical: 8,
-  },
-  promoterHeader: {
-    marginBottom: 16,
-  },
-  promoterStats: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginBottom: 16,
-  },
-  stat: {
-    alignItems: "center",
-  },
-  statNumber: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#007AFF",
-  },
-  statLabel: {
-    fontSize: 12,
-    color: "#666",
-    marginTop: 4,
-  },
-  shareButton: {
-    backgroundColor: "#007AFF",
-  },
-  bottomSpacer: {
-    height: 32,
+    backgroundColor: theme.colors.bg,
   },
 });
