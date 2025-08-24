@@ -1,6 +1,6 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import ProfileScreen from "../../screens/Profile/ProfileScreen";
+import NewProfileScreen from "../../screens/Profile/NewProfileScreen";
 import SettingsScreen from "../../screens/Settings/SettingsScreen";
 import NotificationsScreen from "../../screens/Settings/NotificationsScreen";
 import StaffEntryScreen from "../../screens/Staff/StaffEntryScreen";
@@ -15,7 +15,7 @@ const Stack = createNativeStackNavigator();
 export default function ProfileTab() {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="ProfileScreen" component={ProfileScreen} options={{ title: "Profile" }} />
+      <Stack.Screen name="ProfileScreen" component={NewProfileScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: "Settings" }} />
       <Stack.Screen name="EventScreen" component={EventScreen} options={{ title: "Event" }} />
       <Stack.Screen name="NotificationsScreen" component={NotificationsScreen} options={{ title: "Notifications" }} />

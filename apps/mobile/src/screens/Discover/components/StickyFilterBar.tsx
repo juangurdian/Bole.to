@@ -142,8 +142,8 @@ export default function StickyFilterBar({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "rgba(0,0,0,0.1)",
-    paddingVertical: theme.spacing.sm,
+    backgroundColor: "transparent",
+    paddingVertical: theme.spacing.md,
     flexDirection: "row",
     alignItems: "center",
   },

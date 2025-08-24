@@ -86,37 +86,43 @@ export default function DiscoverScreen({ navigation }: any) {
           colors={["rgba(124,92,255,0.25)", "rgba(0,224,255,0.15)", "transparent"]}
           style={styles.atmosphereGradient}
         />
-        <View style={[styles.headerContainer, { top: insets.top }]}>
-          <DiscoverHeader
-            city={query.city}
-            onCityChange={(city) => updateQuery({ city })}
-            onSearchPress={() => navigation.navigate("SearchScreen")}
-          />
-        </View>
-        <View style={[styles.stickyFilterContainer, { top: insets.top + 56 }]}>
-          <StickyFilterBar
-            selectedCategories={query.categories}
-            dateRange={query.dateRange}
-            isFree={query.price?.max === 0}
-            sort={query.sort}
-            hasFilters={hasFiltersApplied}
-            resultsCount={0}
-            onToggleCategory={toggleCategory}
-            onToggleDateRange={(range) => updateQuery({ dateRange: range })}
-            onToggleFree={(free) => updateQuery({ 
-              price: free ? { max: 0 } : null 
-            })}
-            onSortChange={(sort) => updateQuery({ sort })}
-            onClearFilters={clearFilters}
-          />
-        </View>
-        <View style={[styles.loadingContainer, { paddingTop: insets.top + 56 + 64 + 12 }]}>
-          <Skeleton h={60} />
-          <Skeleton h={40} />
-          <Skeleton h={40} />
-          <Skeleton h={120} />
-          <Skeleton h={200} />
-        </View>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top }]}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.headerWrapper}>
+            <DiscoverHeader
+              city={query.city}
+              onCityChange={(city) => updateQuery({ city })}
+              onSearchPress={() => navigation.navigate("SearchScreen")}
+            />
+          </View>
+          <View style={styles.filterWrapper}>
+            <StickyFilterBar
+              selectedCategories={query.categories}
+              dateRange={query.dateRange}
+              isFree={query.price?.max === 0}
+              sort={query.sort}
+              hasFilters={hasFiltersApplied}
+              resultsCount={0}
+              onToggleCategory={toggleCategory}
+              onToggleDateRange={(range) => updateQuery({ dateRange: range })}
+              onToggleFree={(free) => updateQuery({ 
+                price: free ? { max: 0 } : null 
+              })}
+              onSortChange={(sort) => updateQuery({ sort })}
+              onClearFilters={clearFilters}
+            />
+          </View>
+          <View style={styles.loadingContainer}>
+            <Skeleton h={60} />
+            <Skeleton h={40} />
+            <Skeleton h={40} />
+            <Skeleton h={120} />
+            <Skeleton h={200} />
+          </View>
+        </ScrollView>
       </View>
     );
   }
@@ -129,33 +135,37 @@ export default function DiscoverScreen({ navigation }: any) {
           colors={["rgba(124,92,255,0.25)", "rgba(0,224,255,0.15)", "transparent"]}
           style={styles.atmosphereGradient}
         />
-        <View style={[styles.headerContainer, { top: insets.top }]}>
-          <DiscoverHeader
-            city={query.city}
-            onCityChange={(city) => updateQuery({ city })}
-            onSearchPress={() => navigation.navigate("SearchScreen")}
-          />
-        </View>
-        <View style={[styles.stickyFilterContainer, { top: insets.top + 56 }]}>
-          <StickyFilterBar
-            selectedCategories={query.categories}
-            dateRange={query.dateRange}
-            isFree={query.price?.max === 0}
-            sort={query.sort}
-            hasFilters={hasFiltersApplied}
-            resultsCount={0}
-            onToggleCategory={toggleCategory}
-            onToggleDateRange={(range) => updateQuery({ dateRange: range })}
-            onToggleFree={(free) => updateQuery({ 
-              price: free ? { max: 0 } : null 
-            })}
-            onSortChange={(sort) => updateQuery({ sort })}
-            onClearFilters={clearFilters}
-          />
-        </View>
-        <View style={{ paddingTop: insets.top + 56 + 64 + 12 }}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top }]}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.headerWrapper}>
+            <DiscoverHeader
+              city={query.city}
+              onCityChange={(city) => updateQuery({ city })}
+              onSearchPress={() => navigation.navigate("SearchScreen")}
+            />
+          </View>
+          <View style={styles.filterWrapper}>
+            <StickyFilterBar
+              selectedCategories={query.categories}
+              dateRange={query.dateRange}
+              isFree={query.price?.max === 0}
+              sort={query.sort}
+              hasFilters={hasFiltersApplied}
+              resultsCount={0}
+              onToggleCategory={toggleCategory}
+              onToggleDateRange={(range) => updateQuery({ dateRange: range })}
+              onToggleFree={(free) => updateQuery({ 
+                price: free ? { max: 0 } : null 
+              })}
+              onSortChange={(sort) => updateQuery({ sort })}
+              onClearFilters={clearFilters}
+            />
+          </View>
           <ErrorState onRetry={() => discoverQuery.refetch()} />
-        </View>
+        </ScrollView>
       </View>
     );
   }
@@ -174,38 +184,10 @@ export default function DiscoverScreen({ navigation }: any) {
         style={styles.atmosphereGradient}
       />
       
-      {/* Header - Absolutely Positioned */}
-      <View style={[styles.headerContainer, { top: insets.top }]}>
-        <DiscoverHeader
-          city={query.city}
-          onCityChange={(city) => updateQuery({ city })}
-          onSearchPress={() => navigation.navigate("SearchScreen")}
-        />
-      </View>
-      
-      {/* Sticky Filter Bar */}
-      <View style={[styles.stickyFilterContainer, { top: insets.top + 56 }]}>
-        <StickyFilterBar
-          selectedCategories={query.categories}
-          dateRange={query.dateRange}
-          isFree={query.price?.max === 0}
-          sort={query.sort}
-          hasFilters={hasFiltersApplied}
-          resultsCount={data?.all.meta.total || 0}
-          onToggleCategory={toggleCategory}
-          onToggleDateRange={(range) => updateQuery({ dateRange: range })}
-          onToggleFree={(free) => updateQuery({ 
-            price: free ? { max: 0 } : null 
-          })}
-          onSortChange={(sort) => updateQuery({ sort })}
-          onClearFilters={clearFilters}
-        />
-      </View>
-      
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[styles.scrollContent, { 
-          paddingTop: insets.top + 56 + 64 + 12, // top inset + header height + filter bar height + spacing
+          paddingTop: insets.top,
           paddingBottom: insets.bottom + 90 + 24 // bottom inset + tab bar height + spacing
         }]}
         refreshControl={
@@ -218,6 +200,33 @@ export default function DiscoverScreen({ navigation }: any) {
         }
         showsVerticalScrollIndicator={false}
       >
+        {/* Header - Now inside ScrollView */}
+        <View style={styles.headerWrapper}>
+          <DiscoverHeader
+            city={query.city}
+            onCityChange={(city) => updateQuery({ city })}
+            onSearchPress={() => navigation.navigate("SearchScreen")}
+          />
+        </View>
+        
+        {/* Filter Bar - Now inside ScrollView */}
+        <View style={styles.filterWrapper}>
+          <StickyFilterBar
+            selectedCategories={query.categories}
+            dateRange={query.dateRange}
+            isFree={query.price?.max === 0}
+            sort={query.sort}
+            hasFilters={hasFiltersApplied}
+            resultsCount={data?.all.meta.total || 0}
+            onToggleCategory={toggleCategory}
+            onToggleDateRange={(range) => updateQuery({ dateRange: range })}
+            onToggleFree={(free) => updateQuery({ 
+              price: free ? { max: 0 } : null 
+            })}
+            onSortChange={(sort) => updateQuery({ sort })}
+            onClearFilters={clearFilters}
+          />
+        </View>
 
         {/* Sections */}
         {data && (
@@ -269,19 +278,16 @@ const styles = StyleSheet.create({
     height: 160,
     zIndex: 0,
   },
-  headerContainer: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    zIndex: 100,
+  headerWrapper: {
+    // No positioning needed - flows normally in ScrollView
+    paddingBottom: theme.spacing.xxl,
   },
-  stickyFilterContainer: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    zIndex: 99,
+  filterWrapper: {
     backgroundColor: "rgba(0,0,0,0.1)",
     backdropFilter: "blur(10px)",
+    marginTop: theme.spacing.sm,
+    marginBottom: theme.spacing.md,
+    paddingVertical: theme.spacing.xs,
   },
   scrollView: {
     flex: 1,
@@ -292,7 +298,6 @@ const styles = StyleSheet.create({
   loadingContainer: {
     padding: theme.spacing.lg,
     gap: theme.spacing.lg,
-    paddingTop: Platform.OS === 'ios' ? 44 : StatusBar.currentHeight || 0,
   },
   footer: {
     padding: theme.spacing.xl,

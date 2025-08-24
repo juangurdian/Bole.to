@@ -1680,5 +1680,237 @@ export const mockApi = {
       stories,
       posts
     };
+  },
+
+  async getProfilePayload() {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    const profile = {
+      id: "usr_001",
+      name: "Juan Sandino",
+      username: "juansandino",
+      bio: "Event enthusiast & photographer. Living life one concert at a time 🎵",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200",
+      verified: true,
+      location: "Managua, Nicaragua",
+      joinedDate: "March 2022"
+    };
+
+    const stats = {
+      followers: 1247,
+      following: 834,
+      events: 47,
+      photos: 312,
+      points: 8750,
+      level: "Gold Member"
+    };
+
+    const overview = {
+      recentEvents: [
+        {
+          id: "ev_recent_1",
+          title: "Sunset Rooftop Party",
+          date: "2 weeks ago",
+          coverUrl: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400"
+        },
+        {
+          id: "ev_recent_2", 
+          title: "EDM Festival 2024",
+          date: "1 month ago",
+          coverUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400"
+        },
+        {
+          id: "ev_recent_3",
+          title: "Jazz & Wine Night", 
+          date: "2 months ago",
+          coverUrl: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400"
+        }
+      ],
+      topPhotos: [
+        {
+          id: "photo_1",
+          url: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=300",
+          eventName: "Sunset Rooftop"
+        },
+        {
+          id: "photo_2", 
+          url: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300",
+          eventName: "EDM Festival"
+        },
+        {
+          id: "photo_3",
+          url: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300", 
+          eventName: "Jazz Night"
+        },
+        {
+          id: "photo_4",
+          url: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300",
+          eventName: "Music Fest"
+        },
+        {
+          id: "photo_5",
+          url: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=300",
+          eventName: "Concert Hall"
+        },
+        {
+          id: "photo_6",
+          url: "https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=300",
+          eventName: "Beach Party"
+        }
+      ],
+      achievements: [
+        {
+          id: "ach_1",
+          title: "Night Owl",
+          icon: "🦉",
+          unlockedAt: "1 week ago"
+        },
+        {
+          id: "ach_2",
+          title: "Social Butterfly", 
+          icon: "🦋",
+          unlockedAt: "2 weeks ago"
+        },
+        {
+          id: "ach_3",
+          title: "Photo Pro",
+          icon: "📸", 
+          unlockedAt: "1 month ago"
+        },
+        {
+          id: "ach_4",
+          title: "Party Legend",
+          icon: "🎉",
+          unlockedAt: "2 months ago"
+        }
+      ]
+    };
+
+    const events = [
+      {
+        id: "ev_1",
+        title: "Sunset Rooftop Party 2024",
+        date: "Dec 15, 2024",
+        venue: "Sky Lounge",
+        coverUrl: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400",
+        attendees: 247
+      },
+      {
+        id: "ev_2", 
+        title: "EDM Summer Festival",
+        date: "Nov 28, 2024", 
+        venue: "Festival Grounds",
+        coverUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400",
+        attendees: 1834
+      },
+      {
+        id: "ev_3",
+        title: "Jazz & Wine Evening",
+        date: "Oct 20, 2024",
+        venue: "Grand Hotel Ballroom", 
+        coverUrl: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400",
+        attendees: 156
+      }
+    ];
+
+    const photos = [
+      {
+        id: "photo_1",
+        url: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400",
+        eventName: "Sunset Rooftop",
+        date: "2 weeks ago"
+      },
+      {
+        id: "photo_2",
+        url: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400", 
+        eventName: "EDM Festival",
+        date: "1 month ago"
+      },
+      {
+        id: "photo_3",
+        url: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400",
+        eventName: "Jazz Night", 
+        date: "2 months ago"
+      },
+      {
+        id: "photo_4",
+        url: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400",
+        eventName: "Music Festival",
+        date: "3 months ago"
+      },
+      {
+        id: "photo_5", 
+        url: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=400",
+        eventName: "Concert Hall",
+        date: "4 months ago"
+      },
+      {
+        id: "photo_6",
+        url: "https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=400",
+        eventName: "Beach Party",
+        date: "5 months ago"
+      }
+    ];
+
+    const badges = [
+      {
+        id: "badge_1",
+        title: "Early Adopter",
+        description: "One of the first 1000 users",
+        icon: "🚀",
+        rarity: "legendary" as const,
+        unlockedAt: "March 2022"
+      },
+      {
+        id: "badge_2", 
+        title: "Social Star",
+        description: "Gained 1000+ followers",
+        icon: "⭐",
+        rarity: "epic" as const,
+        unlockedAt: "June 2023"
+      },
+      {
+        id: "badge_3",
+        title: "Event Explorer",
+        description: "Attended 25+ events",
+        icon: "🗺️", 
+        rarity: "rare" as const,
+        unlockedAt: "August 2023"
+      },
+      {
+        id: "badge_4",
+        title: "Photo Hunter",
+        description: "Uploaded 100+ photos", 
+        icon: "📷",
+        rarity: "rare" as const,
+        unlockedAt: "October 2023"
+      },
+      {
+        id: "badge_5",
+        title: "Night Owl",
+        description: "Attended 10 late night events",
+        icon: "🦉",
+        rarity: "common" as const, 
+        unlockedAt: "1 week ago"
+      },
+      {
+        id: "badge_6",
+        title: "Weekend Warrior", 
+        description: "Perfect weekend attendance",
+        icon: "⚔️",
+        rarity: "epic" as const,
+        unlockedAt: "2 months ago"
+      }
+    ];
+
+    return {
+      profile,
+      stats,
+      overview,
+      events,
+      photos,
+      badges
+    };
   }
 };
