@@ -1492,5 +1492,193 @@ export const mockApi = {
       past,
       myEvents
     };
+  },
+
+  async getFeedPayload(scope: "all" | "following" | "nearby" | "trending" = "all") {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    const user = {
+      id: "usr_001",
+      name: "John Doe",
+      city: "Managua"
+    };
+
+    // Stories data
+    const stories = [
+      {
+        id: "story_1",
+        userId: "usr_002",
+        userName: "Sarah Johnson",
+        userAvatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200",
+        hasNewStory: true,
+        isViewed: false
+      },
+      {
+        id: "story_2",
+        userId: "usr_003",
+        userName: "Mike Chen",
+        userAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200",
+        hasNewStory: true,
+        isViewed: false
+      },
+      {
+        id: "story_3",
+        userId: "usr_004",
+        userName: "Emma Davis",
+        userAvatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200",
+        hasNewStory: true,
+        isViewed: true
+      },
+      {
+        id: "story_4",
+        userId: "usr_005",
+        userName: "Alex Rodriguez",
+        userAvatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200",
+        hasNewStory: true,
+        isViewed: false
+      },
+      {
+        id: "story_5",
+        userId: "usr_006",
+        userName: "Lisa Wang",
+        userAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200",
+        hasNewStory: false,
+        isViewed: true
+      }
+    ];
+
+    // Feed posts based on scope
+    const basePosts = [
+      {
+        id: "post_1",
+        author: {
+          id: "usr_002",
+          name: "Sarah Johnson",
+          avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200",
+          verified: true
+        },
+        event: {
+          id: "ev_1",
+          name: "Sunset Rooftop Party",
+          coverUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400"
+        },
+        content: "Can't wait for tonight's rooftop party! Who else is coming? 🎉 The sunset view is going to be incredible!",
+        media: [
+          {
+            type: "image",
+            url: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800"
+          }
+        ],
+        likes: 245,
+        comments: 32,
+        shares: 8,
+        hasLiked: false,
+        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: "post_2",
+        author: {
+          id: "usr_003",
+          name: "Mike Chen",
+          avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200",
+          verified: false
+        },
+        event: {
+          id: "ev_2",
+          name: "EDM Night",
+          coverUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400"
+        },
+        content: "Last night was INSANE! Best DJ set I've heard all year 🔥🎵",
+        media: [
+          {
+            type: "image",
+            url: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800"
+          },
+          {
+            type: "image",
+            url: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800"
+          }
+        ],
+        likes: 892,
+        comments: 124,
+        shares: 45,
+        hasLiked: true,
+        createdAt: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: "post_3",
+        author: {
+          id: "usr_004",
+          name: "Emma Davis",
+          avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200",
+          verified: true
+        },
+        content: "Just got my tickets for next week's festival! Who's going? Let's meet up! 🎪✨",
+        likes: 156,
+        comments: 28,
+        shares: 5,
+        hasLiked: false,
+        createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: "post_4",
+        author: {
+          id: "usr_005",
+          name: "Alex Rodriguez",
+          avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200",
+          verified: false
+        },
+        event: {
+          id: "ev_3",
+          name: "Jazz & Wine Night",
+          coverUrl: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400"
+        },
+        content: "Perfect evening vibes at Jazz & Wine Night. The band is phenomenal! 🍷🎺",
+        media: [
+          {
+            type: "image",
+            url: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800"
+          }
+        ],
+        likes: 423,
+        comments: 67,
+        shares: 12,
+        hasLiked: false,
+        createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: "post_5",
+        author: {
+          id: "usr_006",
+          name: "Lisa Wang",
+          avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200",
+          verified: true
+        },
+        content: "Festival season is here! Check out my new event planning tips on the blog. Link in bio 💫",
+        likes: 567,
+        comments: 89,
+        shares: 34,
+        hasLiked: true,
+        createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+      }
+    ];
+
+    // Filter posts based on scope
+    let posts = basePosts;
+    if (scope === "following") {
+      posts = basePosts.filter(p => p.author.verified);
+    } else if (scope === "nearby") {
+      posts = basePosts.filter(p => p.event);
+    } else if (scope === "trending") {
+      posts = basePosts.sort((a, b) => b.likes - a.likes);
+    }
+
+    return {
+      city: user.city,
+      notifications: { unread: Math.floor(Math.random() * 5) },
+      stories,
+      posts
+    };
   }
 };

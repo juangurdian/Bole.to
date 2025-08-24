@@ -1,6 +1,6 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import FeedScreen from "../../screens/Feed/FeedScreen";
+import NewFeedScreen from "../../screens/Feed/NewFeedScreen";
 import EventScreen from "../../screens/Feed/EventScreen";
 import PostComposer from "../../screens/Social/PostComposer";
 import PollScreen from "../../screens/Social/PollScreen";
@@ -12,7 +12,7 @@ const Stack = createNativeStackNavigator();
 export default function SocialTab() {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="FeedScreen" component={FeedScreen} options={{ title: "Feed" }} />
+      <Stack.Screen name="FeedScreen" component={NewFeedScreen} options={{ headerShown: false }} />
       <Stack.Screen name="EventScreen" component={EventScreen} options={{ title: "Event" }} />
       <Stack.Screen name="PostComposer" component={PostComposer} options={{ title: "Create Post" }} />
       <Stack.Screen name="PollScreen" component={PollScreen} options={{ title: "Poll" }} />
