@@ -7,6 +7,7 @@ import {
   ScrollView,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { BlurView } from "expo-blur";
 import { theme } from "../../../theme";
 
 interface QuickAction {
@@ -69,26 +70,50 @@ export default function QuickActionsRow({
             key={action.id}
             style={[styles.actionButton, index === 0 && styles.firstAction]}
             onPress={action.onPress}
-            activeOpacity={0.8}
+            activeOpacity={0.9}
           >
             <View style={styles.actionCard}>
-              {/* Rim light gradient */}
+              {/* Enhanced rim gradient with glow effect */}
               <LinearGradient
-                colors={action.gradient}
+                colors={[...action.gradient, action.gradient[0] + "40"]}
                 style={styles.rimGradient}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
               />
               
-              <View style={styles.actionContent}>
-                <View style={styles.iconContainer}>
+              {/* Glass overlay for depth */}
+              <LinearGradient
+                colors={theme.effects.gradientOverlays.cardTop}
+                style={styles.glassTopOverlay}
+              />
+              
+              <BlurView
+                intensity={40}
+                tint="dark"
+                style={styles.actionContent}
+              >
+                <LinearGradient
+                  colors={action.gradient}
+                  style={styles.iconContainer}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                >
                   <Text style={styles.actionIcon}>{action.icon}</Text>
-                </View>
+                </LinearGradient>
+                
                 <View style={styles.actionText}>
                   <Text style={styles.actionTitle}>{action.title}</Text>
                   <Text style={styles.actionSubtitle}>{action.subtitle}</Text>
                 </View>
-              </View>
+                
+                {/* Bottom accent line */}
+                <LinearGradient
+                  colors={["transparent", action.gradient[0] + "60", "transparent"]}
+                  style={styles.bottomAccent}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                />
+              </BlurView>
             </View>
           </TouchableOpacity>
         ))}
@@ -108,7 +133,7 @@ const styles = StyleSheet.create({
   actionButton: {
     width: 140,
     height: 120,
-    borderRadius: 20,
+    borderRadius: 24,
     overflow: "visible",
   },
   firstAction: {
@@ -116,52 +141,83 @@ const styles = StyleSheet.create({
   },
   actionCard: {
     flex: 1,
-    backgroundColor: "#111623",
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.06)",
+    backgroundColor: theme.colors.surface.secondary,
+    borderRadius: 24,
+    borderWidth: 1.5,
+    borderColor: theme.effects.glass.secondary,
     position: "relative",
-    ...theme.shadows.md,
+    overflow: "hidden",
+    ...theme.shadows.xl,
   },
   rimGradient: {
     position: "absolute",
-    top: -2,
-    left: -2,
-    right: -2,
-    bottom: -2,
-    borderRadius: 22,
+    top: -3,
+    left: -3,
+    right: -3,
+    bottom: -3,
+    borderRadius: 27,
     zIndex: -1,
-    opacity: 0.8,
+    opacity: 0.6,
+  },
+  glassTopOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "40%",
+    zIndex: 1,
   },
   actionContent: {
     flex: 1,
     justifyContent: "space-between",
     alignItems: "flex-start",
     padding: theme.spacing.md,
+    backgroundColor: theme.effects.backdrop.dark,
+    position: "relative",
+    zIndex: 2,
   },
   iconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: theme.borderRadius.md,
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    width: 36,
+    height: 36,
+    borderRadius: theme.borderRadius.lg,
     justifyContent: "center",
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
   },
   actionIcon: {
-    fontSize: 16,
+    fontSize: 18,
+    textShadowColor: "rgba(0, 0, 0, 0.5)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   actionText: {
     alignSelf: "stretch",
   },
   actionTitle: {
     fontSize: theme.typography.sizes.sm,
-    fontWeight: theme.typography.weights.semibold,
+    fontWeight: theme.typography.weights.bold,
     color: theme.colors.text.primary,
     marginBottom: 2,
+    textShadowColor: "rgba(0, 0, 0, 0.8)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   actionSubtitle: {
     fontSize: theme.typography.sizes.xs,
-    color: "#A9B1C7",
+    color: theme.colors.text.secondary,
     lineHeight: theme.typography.lineHeights.tight * theme.typography.sizes.xs,
+    fontWeight: theme.typography.weights.medium,
+    opacity: 0.9,
+  },
+  bottomAccent: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 2,
   },
 });

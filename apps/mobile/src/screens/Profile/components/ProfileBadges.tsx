@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  FlatList,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { theme } from "../../../theme";
@@ -65,16 +64,23 @@ export default function ProfileBadges({ badges }: ProfileBadgesProps) {
     </View>
   );
 
+  const renderRows = () => {
+    const rows = [];
+    for (let i = 0; i < badges.length; i += 2) {
+      const rowItems = badges.slice(i, i + 2);
+      rows.push(
+        <View key={i} style={styles.row}>
+          {rowItems.map((item) => renderBadge({ item }))}
+        </View>
+      );
+    }
+    return rows;
+  };
+
   return (
-    <FlatList
-      data={badges}
-      renderItem={renderBadge}
-      keyExtractor={(item) => item.id}
-      numColumns={2}
-      contentContainerStyle={styles.container}
-      columnWrapperStyle={styles.row}
-      showsVerticalScrollIndicator={false}
-    />
+    <View style={styles.container}>
+      {renderRows()}
+    </View>
   );
 }
 

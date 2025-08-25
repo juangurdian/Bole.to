@@ -1,0 +1,1495 @@
+{
+  "info": {
+    "name": "Bole.to Unified Authentication API",
+    "description": "Complete authentication API collection for the Bole.to unified authentication system. Uses Gateway service with RS256 JWTs, PKCE OAuth flows, and JWKS verification. Includes all authentication flows, error scenarios, and service integration endpoints.",
+    "version": "2.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-refresh JWT token if needed",
+          "const tokenExpiry = pm.collectionVariables.get('token_expiry');",
+          "const refreshToken = pm.collectionVariables.get('refresh_token');",
+          "",
+          "if (tokenExpiry && refreshToken) {",
+          "    const now = new Date().getTime();",
+          "    const expiryTime = new Date(tokenExpiry).getTime();",
+          "    ",
+          "    // Refresh token 5 minutes before expiry",
+          "    if (now >= (expiryTime - 300000)) {",
+          "        pm.sendRequest({",
+          "            url: pm.collectionVariables.get('gateway_url') + '/auth/refresh',",
+          "            method: 'POST',",
+          "            header: {",
+          "                'Content-Type': 'application/json',",
+          "                'Accept': 'application/json'",
+          "            },",
+          "            body: {",
+          "                mode: 'raw',",
+          "                raw: JSON.stringify({",
+          "                    refreshToken: refreshToken",
+          "                })",
+          "            }",
+          "        }, function (err, response) {",
+          "            if (!err && response.code === 200) {",
+          "                const data = response.json().data;",
+          "                pm.collectionVariables.set('access_token', data.accessToken);",
+          "                const newExpiry = new Date(Date.now() + (data.expiresIn * 1000)).toISOString();",
+          "                pm.collectionVariables.set('token_expiry', newExpiry);",
+          "                console.log('JWT token auto-refreshed successfully');",
+          "            } else {",
+          "                console.log('Token refresh failed:', err || response.json());",
+          "            }",
+          "        });",
+          "    }",
+          "}",
+          "",
+          "// Add request tracing",
+          "pm.collectionVariables.set('request_id', pm.variables.replaceIn('{{$guid}}'));",
+          "pm.request.headers.add({",
+          "    key: 'X-Request-ID',",
+          "    value: pm.collectionVariables.get('request_id')",
+          "});"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global test for all requests",
+          "pm.test('Response time is acceptable', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+          "});",
+          "",
+          "pm.test('Response has required security headers', function () {",
+          "    pm.expect(pm.response.headers.get('X-Content-Type-Options')).to.equal('nosniff');",
+          "    pm.expect(pm.response.headers.get('X-Frame-Options')).to.equal('DENY');",
+          "    pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string');",
+          "});",
+          "",
+          "// Auto-extract JWT tokens for successful auth requests",
+          "if (pm.response.code === 200 && pm.response.json().data && pm.response.json().data.tokens) {",
+          "    const tokens = pm.response.json().data.tokens;",
+          "    pm.collectionVariables.set('access_token', tokens.accessToken);",
+          "    if (tokens.refreshToken) {",
+          "        pm.collectionVariables.set('refresh_token', tokens.refreshToken);",
+          "    }",
+          "    const expiry = new Date(Date.now() + (tokens.expiresIn * 1000)).toISOString();",
+          "    pm.collectionVariables.set('token_expiry', expiry);",
+          "    ",
+          "    // Decode and validate JWT structure (header only for testing)",
+          "    try {",
+          "        const tokenParts = tokens.accessToken.split('.');",
+          "        if (tokenParts.length === 3) {",
+          "            const header = JSON.parse(atob(tokenParts[0]));",
+          "            pm.test('JWT has correct algorithm and key ID', function () {",
+          "                pm.expect(header.alg).to.equal('RS256');",
+          "                pm.expect(header.kid).to.be.a('string');",
+          "                pm.expect(header.typ).to.equal('JWT');",
+          "            });",
+          "        }",
+          "    } catch (e) {",
+          "        console.log('JWT header validation skipped:', e.message);",
+          "    }",
+          "}",
+          "",
+          "// Store user information from successful auth responses",
+          "if (pm.response.code === 200 && pm.response.json().data && pm.response.json().data.user) {",
+          "    const user = pm.response.json().data.user;",
+          "    pm.collectionVariables.set('user_id', user.id);",
+          "    pm.collectionVariables.set('user_email', user.email);",
+          "    pm.collectionVariables.set('user_role', user.role);",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "gateway_url",
+      "value": "https://gateway.bole.to",
+      "type": "string",
+      "description": "Production Gateway URL"
+    },
+    {
+      "key": "staging_gateway_url",
+      "value": "https://gateway-staging.bole.to",
+      "type": "string",
+      "description": "Staging Gateway URL"
+    },
+    {
+      "key": "local_gateway_url",
+      "value": "http://localhost:3000",
+      "type": "string",
+      "description": "Local Gateway URL"
+    },
+    {
+      "key": "hi_events_url",
+      "value": "https://api.bole.to/v1",
+      "type": "string",
+      "description": "Hi.Events API URL (for reference)"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "token_expiry",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "test_email",
+      "value": "test@example.com",
+      "type": "string"
+    },
+    {
+      "key": "test_password",
+      "value": "TestPassword123!",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_email",
+      "value": "",
+      "type": "string",
+      "description": "Current user's email"
+    },
+    {
+      "key": "user_role",
+      "value": "",
+      "type": "string",
+      "description": "Current user's role"
+    },
+    {
+      "key": "request_id",
+      "value": "",
+      "type": "string",
+      "description": "Current request ID for tracing"
+    },
+    {
+      "key": "oauth_code_verifier",
+      "value": "",
+      "type": "string",
+      "description": "PKCE code verifier for OAuth flows"
+    },
+    {
+      "key": "oauth_code_challenge",
+      "value": "",
+      "type": "string",
+      "description": "PKCE code challenge for OAuth flows"
+    },
+    {
+      "key": "oauth_state",
+      "value": "",
+      "type": "string",
+      "description": "OAuth state parameter"
+    },
+    {
+      "key": "oauth_authorization_code",
+      "value": "",
+      "type": "string",
+      "description": "OAuth authorization code from callback"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login with Email/Password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login successful', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json().success).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test('Response contains JWT tokens', function () {",
+                  "    const data = pm.response.json().data;",
+                  "    pm.expect(data.tokens).to.be.an('object');",
+                  "    pm.expect(data.tokens.accessToken).to.be.a('string');",
+                  "    pm.expect(data.tokens.tokenType).to.equal('Bearer');",
+                  "    pm.expect(data.tokens.expiresIn).to.be.a('number');",
+                  "});",
+                  "",
+                  "pm.test('Response contains user information', function () {",
+                  "    const data = pm.response.json().data;",
+                  "    pm.expect(data.user).to.be.an('object');",
+                  "    pm.expect(data.user.id).to.be.a('string');",
+                  "    pm.expect(data.user.email).to.be.a('string');",
+                  "    pm.expect(data.user.role).to.be.a('string');",
+                  "});",
+                  "",
+                  "pm.test('User has appropriate permissions', function () {",
+                  "    const data = pm.response.json().data;",
+                  "    pm.expect(data.permissions).to.be.an('array');",
+                  "    pm.expect(data.permissions.length).to.be.above(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\",\n  \"rememberMe\": true,\n  \"deviceInfo\": {\n    \"deviceId\": \"postman-test-device\",\n    \"platform\": \"web\",\n    \"appVersion\": \"1.0.0\",\n    \"osVersion\": \"web\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/auth/login",
+              "host": ["{{gateway_url}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Register User (Organizer)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"organizer@example.com\",\n  \"password\": \"OrganizerPass123!\",\n  \"firstName\": \"Jane\",\n  \"lastName\": \"Smith\",\n  \"phone\": \"+1987654321\",\n  \"role\": \"organizer\",\n  \"companyName\": \"Events Inc.\",\n  \"acceptsTerms\": true,\n  \"acceptsMarketing\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login successful', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json().success).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test('Response contains user data', function () {",
+                  "    const user = pm.response.json().data.user;",
+                  "    pm.expect(user.id).to.be.a('string');",
+                  "    pm.expect(user.email).to.be.a('string');",
+                  "    pm.expect(user.firstName).to.be.a('string');",
+                  "    pm.expect(user.role).to.be.oneOf(['attendee', 'organizer', 'admin']);",
+                  "});",
+                  "",
+                  "pm.test('Response contains valid tokens', function () {",
+                  "    const tokens = pm.response.json().data.tokens;",
+                  "    pm.expect(tokens.accessToken).to.be.a('string');",
+                  "    pm.expect(tokens.tokenType).to.equal('Bearer');",
+                  "    pm.expect(tokens.expiresIn).to.be.a('number');",
+                  "});",
+                  "",
+                  "pm.test('Response contains permissions', function () {",
+                  "    const permissions = pm.response.json().data.permissions;",
+                  "    pm.expect(permissions).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\",\n  \"rememberMe\": true,\n  \"deviceInfo\": {\n    \"deviceId\": \"test_device_123\",\n    \"platform\": \"ios\",\n    \"appVersion\": \"1.0.0\",\n    \"osVersion\": \"17.0\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login with Invalid Credentials",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login fails with invalid credentials', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "    pm.expect(pm.response.json().success).to.be.false;",
+                  "});",
+                  "",
+                  "pm.test('Error code is correct', function () {",
+                  "    const error = pm.response.json().error;",
+                  "    pm.expect(error.code).to.equal('INVALID_CREDENTIALS');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"password\": \"WrongPassword123!\",\n  \"rememberMe\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Token refreshed successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json().success).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test('New access token received', function () {",
+                  "    const data = pm.response.json().data;",
+                  "    pm.expect(data.accessToken).to.be.a('string');",
+                  "    pm.expect(data.tokenType).to.equal('Bearer');",
+                  "    pm.expect(data.expiresIn).to.be.a('number');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/refresh",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "refresh"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Logout successful', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json().success).to.be.true;",
+                  "});",
+                  "",
+                  "// Clear stored tokens after logout",
+                  "pm.collectionVariables.set('access_token', '');",
+                  "pm.collectionVariables.set('refresh_token', '');",
+                  "pm.collectionVariables.set('token_expiry', '');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"allDevices\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Email & Phone Verification",
+      "item": [
+        {
+          "name": "Verify Email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Email verification successful', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json().success).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"verificationCode\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register/verify-email",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register", "verify-email"]
+            }
+          }
+        },
+        {
+          "name": "Verify Phone",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+1234567890\",\n  \"verificationCode\": \"654321\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register/verify-phone",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register", "verify-phone"]
+            }
+          }
+        },
+        {
+          "name": "Resend Email Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"type\": \"email\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register/resend-verification",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register", "resend-verification"]
+            }
+          }
+        },
+        {
+          "name": "Resend SMS Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"type\": \"sms\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register/resend-verification",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register", "resend-verification"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Social Authentication",
+      "item": [
+        {
+          "name": "Google OAuth",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Google OAuth successful', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json().success).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test('Response indicates linked provider', function () {",
+                  "    const data = pm.response.json().data;",
+                  "    pm.expect(data.linkedProvider).to.equal('google');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idToken\": \"eyJhbGciOiJSUzI1NiIsImtpZCI6IjE2NzAyNGFmZ...\",\n  \"deviceInfo\": {\n    \"deviceId\": \"test_device_123\",\n    \"platform\": \"ios\",\n    \"appVersion\": \"1.0.0\",\n    \"osVersion\": \"17.0\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/social/google",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "social", "google"]
+            }
+          }
+        },
+        {
+          "name": "Apple Sign In",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idToken\": \"eyJraWQiOiJBNkdVVEkya1ki...\",\n  \"authorizationCode\": \"c1234567890abcdef...\",\n  \"identityToken\": \"eyJraWQiOiJBNkdVVEkya1ki...\",\n  \"deviceInfo\": {\n    \"deviceId\": \"test_device_123\",\n    \"platform\": \"ios\",\n    \"appVersion\": \"1.0.0\",\n    \"osVersion\": \"17.0\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/social/apple",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "social", "apple"]
+            }
+          }
+        },
+        {
+          "name": "Facebook Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idToken\": \"dummy_token\",\n  \"accessToken\": \"EAABwzLixnjYBAO7V...\",\n  \"deviceInfo\": {\n    \"deviceId\": \"test_device_123\",\n    \"platform\": \"android\",\n    \"appVersion\": \"1.0.0\",\n    \"osVersion\": \"14.0\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/social/facebook",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "social", "facebook"]
+            }
+          }
+        },
+        {
+          "name": "Unlink Google Account",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/social/unlink/google",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "social", "unlink", "google"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Password Management",
+      "item": [
+        {
+          "name": "Forgot Password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Password reset request sent', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json().success).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{test_email}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/password/forgot",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "password", "forgot"]
+            }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"pwd_reset_1234567890abcdef\",\n  \"newPassword\": \"NewSecurePass123!\",\n  \"confirmPassword\": \"NewSecurePass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/password/reset",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "password", "reset"]
+            }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"{{test_password}}\",\n  \"newPassword\": \"NewPassword123!\",\n  \"confirmPassword\": \"NewPassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/password/change",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "password", "change"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Profile Management",
+      "item": [
+        {
+          "name": "Get Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Profile retrieved successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json().success).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test('Profile contains user data', function () {",
+                  "    const data = pm.response.json().data;",
+                  "    pm.expect(data.id).to.be.a('string');",
+                  "    pm.expect(data.email).to.be.a('string');",
+                  "    pm.expect(data.firstName).to.be.a('string');",
+                  "    pm.expect(data.role).to.be.oneOf(['attendee', 'organizer', 'admin']);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/profile",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John Updated\",\n  \"lastName\": \"Doe Updated\",\n  \"phone\": \"+1234567890\",\n  \"profile\": {\n    \"bio\": \"Updated bio for testing\",\n    \"dateOfBirth\": \"1990-01-01\",\n    \"location\": \"San Francisco, CA\",\n    \"preferences\": {\n      \"notifications\": true,\n      \"marketing\": false,\n      \"language\": \"en\",\n      \"timezone\": \"America/Los_Angeles\"\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/profile",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Upload Avatar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "src": "path/to/test-avatar.jpg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/profile/avatar",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "profile", "avatar"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Roles & Permissions",
+      "item": [
+        {
+          "name": "Get Available Roles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/roles",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "roles"]
+            }
+          }
+        },
+        {
+          "name": "Get User Permissions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Permissions retrieved successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json().success).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test('Response contains permissions array', function () {",
+                  "    const data = pm.response.json().data;",
+                  "    pm.expect(data.permissions).to.be.an('array');",
+                  "    pm.expect(data.role).to.be.a('string');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/permissions",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "permissions"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Session Management",
+      "item": [
+        {
+          "name": "Get Active Sessions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Sessions retrieved successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json().success).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test('Response contains sessions array', function () {",
+                  "    const data = pm.response.json().data;",
+                  "    pm.expect(data).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/sessions",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "sessions"]
+            }
+          }
+        },
+        {
+          "name": "Revoke Specific Session",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/sessions/sess_1234567890abcdef",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "sessions", "sess_1234567890abcdef"]
+            }
+          }
+        },
+        {
+          "name": "Revoke All Sessions",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/sessions",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "sessions"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Two-Factor Authentication",
+      "item": [
+        {
+          "name": "Setup 2FA",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('2FA setup initiated successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json().success).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test('Response contains 2FA setup data', function () {",
+                  "    const data = pm.response.json().data;",
+                  "    pm.expect(data.qrCode).to.be.a('string');",
+                  "    pm.expect(data.secret).to.be.a('string');",
+                  "    pm.expect(data.backupCodes).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/2fa/setup",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "2fa", "setup"]
+            }
+          }
+        },
+        {
+          "name": "Verify 2FA Setup",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/2fa/verify",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "2fa", "verify"]
+            }
+          }
+        },
+        {
+          "name": "Disable 2FA",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"{{test_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/2fa/disable",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "2fa", "disable"]
+            }
+          }
+        },
+        {
+          "name": "Get Backup Codes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/2fa/backup-codes",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "2fa", "backup-codes"]
+            }
+          }
+        },
+        {
+          "name": "Regenerate Backup Codes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"{{test_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/2fa/backup-codes",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "2fa", "backup-codes"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Device Management",
+      "item": [
+        {
+          "name": "Get Registered Devices",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/devices",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "devices"]
+            }
+          }
+        },
+        {
+          "name": "Register Device",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Device registered successfully', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    pm.expect(pm.response.json().success).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test('Response contains device data', function () {",
+                  "    const data = pm.response.json().data;",
+                  "    pm.expect(data.id).to.be.a('string');",
+                  "    pm.expect(data.deviceId).to.be.a('string');",
+                  "    pm.expect(data.platform).to.be.oneOf(['ios', 'android']);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deviceId\": \"test_device_123\",\n  \"platform\": \"ios\",\n  \"name\": \"Test iPhone\",\n  \"pushToken\": \"ExponentPushToken[test123]\",\n  \"appVersion\": \"1.0.0\",\n  \"osVersion\": \"17.0\",\n  \"biometricEnabled\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/devices",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "devices"]
+            }
+          }
+        },
+        {
+          "name": "Update Device",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Test iPhone\",\n  \"pushToken\": \"ExponentPushToken[updated123]\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/devices/dev_1234567890abcdef",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "devices", "dev_1234567890abcdef"]
+            }
+          }
+        },
+        {
+          "name": "Unregister Device",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/devices/dev_1234567890abcdef",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "devices", "dev_1234567890abcdef"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Account Management",
+      "item": [
+        {
+          "name": "Deactivate Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"{{test_password}}\",\n  \"reason\": \"temporary_break\",\n  \"feedback\": \"Taking a break from events for a while\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/account/deactivate",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "account", "deactivate"]
+            }
+          }
+        },
+        {
+          "name": "Reactivate Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/account/reactivate",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "account", "reactivate"]
+            }
+          }
+        },
+        {
+          "name": "Delete Account",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"{{test_password}}\",\n  \"confirmation\": \"DELETE_MY_ACCOUNT\",\n  \"reason\": \"no_longer_need\",\n  \"feedback\": \"No longer attending events\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/account/delete",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "account", "delete"]
+            }
+          }
+        },
+        {
+          "name": "Cancel Account Deletion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cancellationToken\": \"cancel_del_1234567890abcdef\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/account/cancel-deletion",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "account", "cancel-deletion"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rate Limiting & Error Tests",
+      "item": [
+        {
+          "name": "Test Rate Limiting (Login)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Rate limit headers present', function () {",
+                  "    if (pm.response.code === 429) {",
+                  "        pm.expect(pm.response.headers.get('X-RateLimit-Limit')).to.not.be.null;",
+                  "        pm.expect(pm.response.headers.get('X-RateLimit-Remaining')).to.not.be.null;",
+                  "        pm.expect(pm.response.headers.get('X-RateLimit-Reset')).to.not.be.null;",
+                  "        pm.expect(pm.response.headers.get('Retry-After')).to.not.be.null;",
+                  "    }",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Make multiple rapid requests to trigger rate limiting",
+                  "const attempts = 12; // Exceed the limit of 10 per 5 minutes",
+                  "",
+                  "for (let i = 0; i < attempts; i++) {",
+                  "    setTimeout(() => {",
+                  "        pm.sendRequest({",
+                  "            url: pm.collectionVariables.get('base_url') + '/auth/login',",
+                  "            method: 'POST',",
+                  "            header: {",
+                  "                'Content-Type': 'application/json'",
+                  "            },",
+                  "            body: {",
+                  "                mode: 'raw',",
+                  "                raw: JSON.stringify({",
+                  "                    email: 'rate-limit-test@example.com',",
+                  "                    password: 'wrongpassword'",
+                  "                })",
+                  "            }",
+                  "        }, function (err, response) {",
+                  "            if (response.code === 429) {",
+                  "                console.log('Rate limit triggered on attempt ' + (i + 1));",
+                  "            }",
+                  "        });",
+                  "    }, i * 100);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"rate-limit-test@example.com\",\n  \"password\": \"wrongpassword\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Test Validation Errors",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Validation error response format', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.be.false;",
+                  "    pm.expect(response.error.code).to.equal('VALIDATION_ERROR');",
+                  "    pm.expect(response.error.details).to.be.an('object');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"invalid-email\",\n  \"password\": \"123\",\n  \"firstName\": \"\",\n  \"role\": \"invalid_role\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Test Unauthorized Access",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Unauthorized error format', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.be.false;",
+                  "    pm.expect(response.error.code).to.be.oneOf(['MISSING_TOKEN', 'INVALID_TOKEN']);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/profile",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "profile"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

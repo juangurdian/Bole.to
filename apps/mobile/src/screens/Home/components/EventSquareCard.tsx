@@ -7,6 +7,7 @@ import {
   ImageBackground,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { BlurView } from "expo-blur";
 import { theme } from "../../../theme";
 
 interface EventSquareCardProps {
@@ -122,6 +123,7 @@ export default function EventSquareCard({ event, onPress }: EventSquareCardProps
       activeOpacity={0.9}
     >
       <View style={styles.card}>
+        {/* Main background with image or gradient */}
         {event.imageUrl ? (
           <ImageBackground
             source={{ uri: event.imageUrl }}
@@ -129,7 +131,7 @@ export default function EventSquareCard({ event, onPress }: EventSquareCardProps
             resizeMode="cover"
           >
             <LinearGradient
-              colors={["transparent", "rgba(0, 0, 0, 0.8)"]}
+              colors={theme.effects.gradientOverlays.cardBottom}
               style={styles.imageOverlay}
             />
           </ImageBackground>
@@ -137,39 +139,74 @@ export default function EventSquareCard({ event, onPress }: EventSquareCardProps
           <LinearGradient
             colors={theme.colors.gradient.accent}
             style={styles.placeholderBackground}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
           >
             <Text style={styles.placeholderIcon}>{"🎉"}</Text>
           </LinearGradient>
         )}
 
+        {/* Glassmorphism overlay for depth */}
+        <LinearGradient
+          colors={theme.effects.gradientOverlays.cardTop}
+          style={styles.glassOverlay}
+        />
+
         <View style={styles.content}>
           <View style={styles.header}>
-            <View style={[styles.statusBadge, { backgroundColor: getStatusColor() }]}>
-              <Text style={styles.statusText}>{String(getStatusText())}</Text>
-            </View>
+            <BlurView
+              intensity={80}
+              tint="dark"
+              style={[styles.statusBadge, { borderColor: getStatusColor() }]}
+            >
+              <LinearGradient
+                colors={[getStatusColor() + "40", getStatusColor() + "20"]}
+                style={styles.statusGradient}
+              >
+                <Text style={[styles.statusText, { color: getStatusColor() }]}>
+                  {String(getStatusText())}
+                </Text>
+              </LinearGradient>
+            </BlurView>
           </View>
 
           <View style={styles.footer}>
-            <View style={styles.eventInfo}>
-              <Text style={styles.eventName} numberOfLines={2}>
-                {String(event.name || "Event")}
-              </Text>
-              <Text style={styles.eventTime}>
-                {String(event.time ? formatTime(event.time) : "TBD")}
-              </Text>
-              <Text style={styles.eventVenue} numberOfLines={1}>
-                {String(event.venue || "Venue TBD")}
-              </Text>
-            </View>
-
-            <View style={styles.metadata}>
-              <Text style={styles.eventPrice}>{String(formatPrice())}</Text>
-              {event.attendeeCount && event.attendeeCount > 0 && (
-                <Text style={styles.attendeeCount}>
-                  {String(event.attendeeCount)} going
+            <BlurView
+              intensity={60}
+              tint="dark"
+              style={styles.infoContainer}
+            >
+              <View style={styles.eventInfo}>
+                <Text style={styles.eventName} numberOfLines={2}>
+                  {String(event.name || "Event")}
                 </Text>
-              )}
-            </View>
+                <View style={styles.timeVenueRow}>
+                  <Text style={styles.eventTime}>
+                    {String(event.time ? formatTime(event.time) : "TBD")}
+                  </Text>
+                  <Text style={styles.separator}>•</Text>
+                  <Text style={styles.eventVenue} numberOfLines={1}>
+                    {String(event.venue || "Venue TBD").split(' • ')[0]}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.metadata}>
+                <LinearGradient
+                  colors={theme.colors.gradient.primary}
+                  style={styles.priceGradient}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                >
+                  <Text style={styles.eventPrice}>{String(formatPrice())}</Text>
+                </LinearGradient>
+                {event.attendeeCount && event.attendeeCount > 0 && (
+                  <Text style={styles.attendeeCount}>
+                    {String(event.attendeeCount)} going
+                  </Text>
+                )}
+              </View>
+            </BlurView>
           </View>
         </View>
       </View>
@@ -185,18 +222,26 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.06)",
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: theme.effects.glass.secondary,
     overflow: "hidden",
     backgroundColor: theme.colors.surface.card,
-    ...theme.shadows.md,
+    ...theme.shadows.xl,
   },
   imageBackground: {
     flex: 1,
   },
   imageOverlay: {
     ...StyleSheet.absoluteFillObject,
+  },
+  glassOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "50%",
+    zIndex: 1,
   },
   placeholderBackground: {
     flex: 1,
@@ -211,6 +256,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     padding: theme.spacing.md,
     justifyContent: "space-between",
+    zIndex: 2,
   },
   header: {
     flexDirection: "row",
@@ -218,48 +264,89 @@ const styles = StyleSheet.create({
   },
   statusBadge: {
     paddingHorizontal: theme.spacing.sm,
-    paddingVertical: theme.spacing.xs / 2,
+    paddingVertical: theme.spacing.xs,
+    borderRadius: theme.borderRadius.md,
+    borderWidth: 1,
+    overflow: "hidden",
+    backgroundColor: theme.effects.backdrop.dark,
+  },
+  statusGradient: {
+    paddingHorizontal: theme.spacing.xs,
+    paddingVertical: 2,
     borderRadius: theme.borderRadius.sm,
   },
   statusText: {
     fontSize: theme.typography.sizes.xs,
-    fontWeight: theme.typography.weights.semibold,
-    color: theme.colors.text.primary,
+    fontWeight: theme.typography.weights.bold,
+    textAlign: "center",
+    textShadowColor: "rgba(0, 0, 0, 0.8)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   footer: {
     justifyContent: "flex-end",
   },
+  infoContainer: {
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.md,
+    backgroundColor: theme.effects.backdrop.dark,
+    overflow: "hidden",
+  },
   eventInfo: {
-    marginBottom: theme.spacing.xs,
+    marginBottom: theme.spacing.sm,
+  },
+  timeVenueRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 4,
+  },
+  separator: {
+    color: theme.colors.text.tertiary,
+    marginHorizontal: theme.spacing.xs,
+    fontSize: theme.typography.sizes.xs,
   },
   eventName: {
     fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.semibold,
+    fontWeight: theme.typography.weights.bold,
     color: theme.colors.text.primary,
     lineHeight: theme.typography.lineHeights.tight * theme.typography.sizes.md,
-    marginBottom: 2,
+    textShadowColor: "rgba(0, 0, 0, 0.8)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   eventTime: {
     fontSize: theme.typography.sizes.xs,
     color: theme.colors.text.secondary,
-    marginBottom: 2,
+    fontWeight: theme.typography.weights.medium,
   },
   eventVenue: {
     fontSize: theme.typography.sizes.xs,
     color: theme.colors.text.secondary,
+    flex: 1,
+    fontWeight: theme.typography.weights.medium,
   },
   metadata: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
+  priceGradient: {
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs / 2,
+    borderRadius: theme.borderRadius.sm,
+  },
   eventPrice: {
     fontSize: theme.typography.sizes.sm,
-    fontWeight: theme.typography.weights.semibold,
+    fontWeight: theme.typography.weights.bold,
     color: theme.colors.text.primary,
+    textShadowColor: "rgba(0, 0, 0, 0.8)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   attendeeCount: {
     fontSize: theme.typography.sizes.xs,
     color: theme.colors.text.tertiary,
+    fontWeight: theme.typography.weights.medium,
+    opacity: 0.9,
   },
 });

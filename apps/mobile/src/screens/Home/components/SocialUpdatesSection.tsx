@@ -8,6 +8,7 @@ import {
   Image,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { BlurView } from "expo-blur";
 import { theme } from "../../../theme";
 import SectionHeader from "./SectionHeader";
 
@@ -93,22 +94,40 @@ export default function SocialUpdatesSection({
       key={update.id}
       style={styles.updateCard}
       onPress={() => onUpdatePress(update.id)}
-      activeOpacity={0.8}
+      activeOpacity={0.9}
     >
       <View style={styles.cardSurface}>
-        <View style={styles.cardHeader}>
+        {/* Glass overlay for depth */}
+        <LinearGradient
+          colors={theme.effects.gradientOverlays.cardTop}
+          style={styles.glassOverlay}
+        />
+        <BlurView
+          intensity={60}
+          tint="dark"
+          style={styles.cardHeader}
+        >
           <View style={styles.authorInfo}>
             {update.author.avatar ? (
-              <Image 
-                source={{ uri: update.author.avatar }} 
-                style={styles.authorAvatar}
-              />
+              <View style={styles.avatarContainer}>
+                <Image 
+                  source={{ uri: update.author.avatar }} 
+                  style={styles.authorAvatar}
+                />
+                <LinearGradient
+                  colors={theme.colors.gradient.primary}
+                  style={styles.avatarBorder}
+                />
+              </View>
             ) : (
-              <View style={styles.authorAvatarPlaceholder}>
+              <LinearGradient
+                colors={theme.colors.gradient.accent}
+                style={styles.authorAvatarPlaceholder}
+              >
                 <Text style={styles.authorInitials}>
                   {update.author.name.charAt(0)}
                 </Text>
-              </View>
+              </LinearGradient>
             )}
             <View style={styles.authorDetails}>
               <Text style={styles.authorName} numberOfLines={1}>
@@ -120,10 +139,13 @@ export default function SocialUpdatesSection({
             </View>
           </View>
           
-          <View style={styles.updateType}>
+          <LinearGradient
+            colors={theme.colors.gradient.warm}
+            style={styles.updateType}
+          >
             <Text style={styles.typeIcon}>{getUpdateIcon(update.type)}</Text>
-          </View>
-        </View>
+          </LinearGradient>
+        </BlurView>
 
         <View style={styles.cardContent}>
           <Text style={styles.updateTitle} numberOfLines={2}>
@@ -137,11 +159,16 @@ export default function SocialUpdatesSection({
           )}
 
           {update.event && (
-            <View style={styles.eventTag}>
+            <LinearGradient
+              colors={theme.colors.gradient.accent}
+              style={styles.eventTag}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            >
               <Text style={styles.eventTagText}>
                 {update.event.name}
               </Text>
-            </View>
+            </LinearGradient>
           )}
         </View>
 
@@ -161,7 +188,11 @@ export default function SocialUpdatesSection({
         )}
 
         {update.engagement && (
-          <View style={styles.engagement}>
+          <BlurView
+            intensity={40}
+            tint="dark"
+            style={styles.engagement}
+          >
             <View style={styles.engagementItem}>
               <Text style={styles.engagementIcon}>❤️</Text>
               <Text style={styles.engagementCount}>
@@ -180,7 +211,7 @@ export default function SocialUpdatesSection({
                 {update.engagement.shares}
               </Text>
             </View>
-          </View>
+          </BlurView>
         )}
       </View>
     </TouchableOpacity>
@@ -215,79 +246,117 @@ const styles = StyleSheet.create({
   },
   updateCard: {
     width: 280,
-    borderRadius: 16,
+    borderRadius: 20,
     overflow: "hidden",
   },
   cardSurface: {
-    backgroundColor: "#111623",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.06)",
-    borderRadius: 16,
+    backgroundColor: theme.colors.surface.secondary,
+    borderWidth: 1.5,
+    borderColor: theme.effects.glass.secondary,
+    borderRadius: 20,
     padding: theme.spacing.md,
-    ...theme.shadows.md,
+    position: "relative",
+    ...theme.shadows.xl,
+  },
+  glassOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "25%",
+    zIndex: 1,
   },
   cardHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: theme.spacing.sm,
+    backgroundColor: theme.effects.backdrop.dark,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.sm,
+    overflow: "hidden",
+    zIndex: 2,
   },
   authorInfo: {
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
   },
+  avatarContainer: {
+    position: "relative",
+    marginRight: theme.spacing.sm,
+  },
   authorAvatar: {
     width: 32,
     height: 32,
     borderRadius: theme.borderRadius.round,
-    marginRight: theme.spacing.sm,
+  },
+  avatarBorder: {
+    position: "absolute",
+    top: -2,
+    left: -2,
+    right: -2,
+    bottom: -2,
+    borderRadius: theme.borderRadius.round + 2,
+    zIndex: -1,
   },
   authorAvatarPlaceholder: {
     width: 32,
     height: 32,
     borderRadius: theme.borderRadius.round,
-    backgroundColor: theme.colors.surface.secondary,
     justifyContent: "center",
     alignItems: "center",
     marginRight: theme.spacing.sm,
   },
   authorInitials: {
     fontSize: theme.typography.sizes.sm,
-    fontWeight: theme.typography.weights.semibold,
+    fontWeight: theme.typography.weights.bold,
     color: theme.colors.text.primary,
+    textShadowColor: "rgba(0, 0, 0, 0.8)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   authorDetails: {
     flex: 1,
   },
   authorName: {
     fontSize: theme.typography.sizes.sm,
-    fontWeight: theme.typography.weights.medium,
+    fontWeight: theme.typography.weights.bold,
     color: theme.colors.text.primary,
     marginBottom: 2,
+    textShadowColor: "rgba(0, 0, 0, 0.8)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   updateTime: {
     fontSize: theme.typography.sizes.xs,
     color: theme.colors.text.tertiary,
   },
   updateType: {
-    width: 24,
-    height: 24,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     justifyContent: "center",
     alignItems: "center",
   },
   typeIcon: {
     fontSize: 16,
+    textShadowColor: "rgba(0, 0, 0, 0.8)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   cardContent: {
     marginBottom: theme.spacing.sm,
   },
   updateTitle: {
     fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.semibold,
+    fontWeight: theme.typography.weights.bold,
     color: theme.colors.text.primary,
     lineHeight: theme.typography.lineHeights.tight * theme.typography.sizes.md,
     marginBottom: theme.spacing.xs,
+    textShadowColor: "rgba(0, 0, 0, 0.8)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   updateDescription: {
     fontSize: theme.typography.sizes.sm,
@@ -297,15 +366,17 @@ const styles = StyleSheet.create({
   },
   eventTag: {
     alignSelf: "flex-start",
-    backgroundColor: theme.colors.surface.secondary,
     paddingHorizontal: theme.spacing.sm,
-    paddingVertical: theme.spacing.xs / 2,
-    borderRadius: theme.borderRadius.sm,
+    paddingVertical: theme.spacing.xs,
+    borderRadius: theme.borderRadius.md,
   },
   eventTagText: {
     fontSize: theme.typography.sizes.xs,
-    fontWeight: theme.typography.weights.medium,
+    fontWeight: theme.typography.weights.bold,
     color: theme.colors.text.primary,
+    textShadowColor: "rgba(0, 0, 0, 0.8)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   mediaContainer: {
     position: "relative",
@@ -336,6 +407,10 @@ const styles = StyleSheet.create({
   engagement: {
     flexDirection: "row",
     gap: theme.spacing.md,
+    backgroundColor: theme.effects.backdrop.dark,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.sm,
+    overflow: "hidden",
   },
   engagementItem: {
     flexDirection: "row",

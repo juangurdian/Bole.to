@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
-  FlatList,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { theme } from "../../../theme";
@@ -69,13 +68,9 @@ export default function ProfileEvents({ events, onEventPress }: ProfileEventsPro
   );
 
   return (
-    <FlatList
-      data={events}
-      renderItem={renderEvent}
-      keyExtractor={(item) => item.id}
-      contentContainerStyle={styles.container}
-      showsVerticalScrollIndicator={false}
-    />
+    <View style={styles.container}>
+      {events.map((item) => renderEvent({ item }))}
+    </View>
   );
 }
 

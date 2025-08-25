@@ -135,6 +135,13 @@ export const theme = {
       shadowRadius: 8,
       elevation: 8,
     },
+    xl: {
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.4,
+      shadowRadius: 16,
+      elevation: 16,
+    },
     nav: {
       shadowColor: "#000",
       shadowOffset: { width: 0, height: 8 },
@@ -148,6 +155,52 @@ export const theme = {
       shadowOpacity: 0.4,
       shadowRadius: 12,
       elevation: 12,
+    },
+    glowWarm: {
+      shadowColor: "#FF7A59",
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0.3,
+      shadowRadius: 16,
+      elevation: 12,
+    },
+    glowAccent: {
+      shadowColor: "#22D3EE",
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0.25,
+      shadowRadius: 20,
+      elevation: 12,
+    },
+    depth: {
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.58,
+      shadowRadius: 32,
+      elevation: 24,
+    },
+  },
+  
+  // Modern glassmorphism and advanced effects
+  effects: {
+    glass: {
+      primary: "rgba(255, 255, 255, 0.08)",
+      secondary: "rgba(255, 255, 255, 0.04)",
+      tertiary: "rgba(255, 255, 255, 0.02)",
+    },
+    blur: {
+      light: "rgba(255, 255, 255, 0.1)",
+      medium: "rgba(255, 255, 255, 0.15)",
+      heavy: "rgba(255, 255, 255, 0.2)",
+    },
+    backdrop: {
+      dark: "rgba(10, 13, 20, 0.7)",
+      darker: "rgba(10, 13, 20, 0.85)",
+      darkest: "rgba(10, 13, 20, 0.95)",
+    },
+    gradientOverlays: {
+      cardTop: ["rgba(255, 255, 255, 0.08)", "transparent"],
+      cardBottom: ["transparent", "rgba(0, 0, 0, 0.4)"],
+      atmosphericTop: ["rgba(124, 92, 255, 0.2)", "rgba(0, 224, 255, 0.1)", "transparent"],
+      atmosphericBottom: ["transparent", "rgba(124, 92, 255, 0.05)", "rgba(0, 224, 255, 0.03)"],
     },
   },
   

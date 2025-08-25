@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
-  FlatList,
   Dimensions,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
@@ -53,16 +52,23 @@ export default function ProfilePhotos({ photos, onPhotoPress }: ProfilePhotosPro
     </TouchableOpacity>
   );
 
+  const renderRows = () => {
+    const rows = [];
+    for (let i = 0; i < photos.length; i += 3) {
+      const rowItems = photos.slice(i, i + 3);
+      rows.push(
+        <View key={i} style={styles.row}>
+          {rowItems.map((item) => renderPhoto({ item }))}
+        </View>
+      );
+    }
+    return rows;
+  };
+
   return (
-    <FlatList
-      data={photos}
-      renderItem={renderPhoto}
-      keyExtractor={(item) => item.id}
-      numColumns={3}
-      contentContainerStyle={styles.container}
-      columnWrapperStyle={styles.row}
-      showsVerticalScrollIndicator={false}
-    />
+    <View style={styles.container}>
+      {renderRows()}
+    </View>
   );
 }
 

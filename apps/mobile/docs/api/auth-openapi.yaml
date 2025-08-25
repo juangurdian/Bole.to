@@ -1,0 +1,1262 @@
+openapi: 3.0.3
+info:
+  title: Bole.to Unified Authentication API
+  description: |
+    Unified authentication system for the Bole.to event ticketing platform powered by Gateway service.
+    
+    ## System Architecture
+    - **Gateway (NestJS)**: Authentication service that issues RS256 JWTs and handles OAuth flows
+    - **Hi.Events (Laravel)**: User database and source of truth for user data
+    - **Mobile Apps**: React Native/Expo apps with OAuth PKCE flows and biometric authentication
+    - **Service Integration**: JWKS endpoint for service-to-service JWT verification
+    
+    ## Authentication Flow
+    1. Client authenticates via Gateway endpoints (email/password or OAuth)
+    2. Gateway validates credentials with Hi.Events backend
+    3. Gateway issues RS256 JWT tokens with user claims from Hi.Events
+    4. Services verify JWTs using Gateway's JWKS endpoint
+    5. User profile data fetched from Hi.Events via Gateway proxy
+    
+    ## Security Features
+    - RS256 JWT signatures with rotating keys
+    - OAuth 2.0 with PKCE for mobile clients
+    - Biometric authentication support
+    - Rate limiting and account lockout protection
+    - Service-to-service JWT verification via JWKS
+    
+    ## Mobile Optimization
+    - PKCE OAuth flows for native mobile apps
+    - Deep link handling for OAuth callbacks
+    - Offline JWT validation capabilities
+    - Secure token storage in device keychain
+    - Biometric authentication integration
+    
+  version: 2.0.0
+  contact:
+    name: Bole.to API Support
+    url: https://bole.to/support
+    email: api-support@bole.to
+  license:
+    name: Proprietary
+    url: https://bole.to/terms
+    
+servers:
+  - url: https://gateway.bole.to
+    description: Production Gateway
+  - url: https://gateway-staging.bole.to
+    description: Staging Gateway  
+  - url: http://localhost:3000
+    description: Development Gateway
+
+security:
+  - BearerAuth: []
+  - ApiKeyAuth: []
+
+paths:
+  # Public Authentication Endpoints
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: User login with credentials
+      description: |
+        Authenticate user with email/password and return RS256 JWT tokens.
+        Gateway validates credentials with Hi.Events backend and issues JWTs.
+        Supports device fingerprinting for enhanced security.
+      operationId: loginUser
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            examples:
+              basic:
+                summary: Basic login
+                value:
+                  email: "john.doe@example.com"
+                  password: "SecurePass123!"
+                  rememberMe: true
+              with_device:
+                summary: Login with device info
+                value:
+                  email: "john.doe@example.com"
+                  password: "SecurePass123!"
+                  rememberMe: true
+                  deviceInfo:
+                    deviceId: "device_abc123"
+                    platform: "ios"
+                    appVersion: "1.0.0"
+                    osVersion: "17.0"
+      responses:
+        '200':
+          description: Login successful with RS256 JWT tokens
+          headers:
+            Set-Cookie:
+              description: Refresh token (httpOnly cookie)
+              schema:
+                type: string
+                example: "refreshToken=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...; HttpOnly; Secure; SameSite=Strict; Max-Age=604800"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+              example:
+                success: true
+                data:
+                  user:
+                    id: "usr_1234567890abcdef"
+                    email: "john.doe@example.com"
+                    firstName: "John"
+                    lastName: "Doe"
+                    role: "attendee"
+                    emailVerified: true
+                    phoneVerified: true
+                    profile:
+                      avatar: "https://api.bole.to/avatars/usr_1234567890abcdef.jpg"
+                      bio: "Event enthusiast"
+                  tokens:
+                    accessToken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImtleTEifQ..."
+                    tokenType: "Bearer"
+                    expiresIn: 3600
+                    refreshExpiresIn: 604800
+                  permissions:
+                    - "events:read"
+                    - "tickets:manage"
+                    - "profile:manage"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: "INVALID_CREDENTIALS"
+                  message: "Invalid email or password"
+                  details: {}
+        '423':
+          description: Account locked due to too many failed attempts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: "ACCOUNT_LOCKED"
+                  message: "Account temporarily locked due to multiple failed login attempts"
+                  details:
+                    lockoutExpiry: "2024-12-31T23:59:59Z"
+                    attemptsRemaining: 0
+        '429':
+          $ref: '#/components/responses/RateLimit'
+      x-rate-limit:
+        limit: 10
+        window: 300
+
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh access token
+      description: |
+        Refresh expired access token using refresh token with rotation.
+        Gateway issues new RS256 JWT and rotates refresh token for security.
+      operationId: refreshToken
+      security: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+                  description: Refresh token (alternative to cookie)
+                  example: "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9..."
+      responses:
+        '200':
+          description: Token refreshed successfully with rotation
+          headers:
+            Set-Cookie:
+              description: New rotated refresh token
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      accessToken:
+                        type: string
+                        example: "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImtleTEifQ..."
+                      tokenType:
+                        type: string
+                        example: "Bearer"
+                      expiresIn:
+                        type: integer
+                        example: 3600
+        '401':
+          description: Invalid or expired refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          $ref: '#/components/responses/RateLimit'
+      x-rate-limit:
+        limit: 50
+        window: 300
+
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: User logout with token revocation
+      description: |
+        Logout user and revoke current session tokens.
+        Optionally logout from all devices by revoking all refresh tokens.
+      operationId: logoutUser
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                allDevices:
+                  type: boolean
+                  description: Whether to logout from all devices
+                  default: false
+                  example: false
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Logged out successfully"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-rate-limit:
+        limit: 20
+        window: 300
+
+  # OAuth Endpoints with PKCE
+  /auth/oauth/{provider}/callback:
+    post:
+      tags:
+        - OAuth Authentication
+      summary: OAuth callback with PKCE code exchange
+      description: |
+        Exchange OAuth authorization code for JWT tokens using PKCE flow.
+        Supports Google, Apple, and other OAuth providers with mobile-optimized flows.
+      operationId: oauthCallback
+      security: []
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [google, apple, facebook]
+          example: google
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - code
+                - codeVerifier
+                - redirectUri
+              properties:
+                code:
+                  type: string
+                  description: OAuth authorization code
+                  example: "4/0AX4XfWi..."
+                codeVerifier:
+                  type: string
+                  description: PKCE code verifier
+                  example: "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"
+                redirectUri:
+                  type: string
+                  format: uri
+                  description: OAuth redirect URI
+                  example: "com.bole.to://oauth/callback"
+                deviceInfo:
+                  $ref: '#/components/schemas/DeviceInfo'
+            examples:
+              google_pkce:
+                summary: Google OAuth with PKCE
+                value:
+                  code: "4/0AX4XfWi..."
+                  codeVerifier: "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"
+                  redirectUri: "com.bole.to://oauth/callback"
+                  deviceInfo:
+                    deviceId: "device_abc123"
+                    platform: "ios"
+                    appVersion: "1.0.0"
+                    osVersion: "17.0"
+      responses:
+        '200':
+          description: OAuth authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Invalid OAuth credentials or PKCE verification failed
+        '429':
+          $ref: '#/components/responses/RateLimit'
+      x-rate-limit:
+        limit: 10
+        window: 300
+
+  # JWKS Endpoint for Service-to-Service Verification
+  /.well-known/jwks.json:
+    get:
+      tags:
+        - JWT Verification
+      summary: JSON Web Key Set for JWT verification
+      description: |
+        Public key set for verifying RS256 JWT signatures.
+        Services use this endpoint to verify tokens issued by Gateway.
+        Keys are automatically rotated for security.
+      operationId: getJWKS
+      security: []
+      responses:
+        '200':
+          description: JWKS retrieved successfully
+          headers:
+            Cache-Control:
+              description: Caching policy for JWKS
+              schema:
+                type: string
+                example: "public, max-age=3600"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  keys:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        kty:
+                          type: string
+                          example: "RSA"
+                        use:
+                          type: string
+                          example: "sig"
+                        kid:
+                          type: string
+                          example: "key1"
+                        alg:
+                          type: string
+                          example: "RS256"
+                        n:
+                          type: string
+                          example: "0vx7agoebGcQSuuPiLJXZptN9nndrQmbPFRP_gHPeAU..."
+                        e:
+                          type: string
+                          example: "AQAB"
+              example:
+                keys:
+                  - kty: "RSA"
+                    use: "sig" 
+                    kid: "key1"
+                    alg: "RS256"
+                    n: "0vx7agoebGcQSuuPiLJXZptN9nndrQmbPFRP_gHPeAU..."
+                    e: "AQAB"
+        '500':
+          $ref: '#/components/responses/ServerError'
+      x-cache:
+        ttl: 3600
+
+  # Protected User Endpoints (Proxied to Hi.Events)
+  /me:
+    get:
+      tags:
+        - User Profile
+      summary: Get user profile
+      description: |
+        Get current user's profile information from Hi.Events via Gateway proxy.
+        JWT must be valid and Gateway will fetch user data from Hi.Events backend.
+      operationId: getUserProfile
+      responses:
+        '200':
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+              example:
+                success: true
+                data:
+                  id: "usr_1234567890abcdef"
+                  email: "john.doe@example.com"
+                  firstName: "John"
+                  lastName: "Doe"
+                  phone: "+1234567890"
+                  role: "attendee"
+                  emailVerified: true
+                  phoneVerified: true
+                  profile:
+                    avatar: "https://api.bole.to/avatars/usr_1234567890abcdef.jpg"
+                    bio: "Event enthusiast"
+                    dateOfBirth: "1990-01-01"
+                    location: "San Francisco, CA"
+                    preferences:
+                      notifications: true
+                      marketing: false
+                      language: "en"
+                      timezone: "America/Los_Angeles"
+                  socialAccounts:
+                    - provider: "google"
+                      linkedAt: "2024-01-01T00:00:00Z"
+                    - provider: "apple"
+                      linkedAt: "2024-01-15T00:00:00Z"
+                  createdAt: "2024-01-01T00:00:00Z"
+                  updatedAt: "2024-01-15T12:00:00Z"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # Social Account Management
+  /auth/link/{provider}:
+    post:
+      tags:
+        - Social Authentication
+      summary: Link social account
+      description: |
+        Link a social authentication provider to the current user account.
+        User must be authenticated with a valid JWT.
+      operationId: linkSocialAccount
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [google, apple, facebook]
+          example: google
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - idToken
+              properties:
+                idToken:
+                  type: string
+                  description: Social provider ID token
+                  example: "eyJhbGciOiJSUzI1NiIsImtpZCI6IjE2NzAyNGFmZ..."
+      responses:
+        '200':
+          description: Social account linked successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Google account linked successfully"
+                  data:
+                    type: object
+                    properties:
+                      provider:
+                        type: string
+                        example: "google"
+                      linkedAt:
+                        type: string
+                        format: date-time
+                        example: "2024-01-15T12:00:00Z"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Social account already linked to another user
+      x-rate-limit:
+        limit: 5
+        window: 300
+
+  /auth/link/{provider}:
+    delete:
+      tags:
+        - Social Authentication
+      summary: Unlink social account
+      description: |
+        Unlink a social authentication provider from the current user account.
+        User must be authenticated with a valid JWT.
+      operationId: unlinkSocialAccount
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [google, apple, facebook]
+          example: google
+      responses:
+        '200':
+          description: Social account unlinked successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Google account unlinked successfully"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Social account not linked to user
+      x-rate-limit:
+        limit: 5
+        window: 300
+
+  # Administrative Endpoints
+  /auth/keys/rotate:
+    post:
+      tags:
+        - Administration
+      summary: Rotate RSA signing keys
+      description: |
+        Manually trigger RSA key rotation for JWT signing.
+        Only accessible by administrators. Old keys remain valid for verification
+        during rotation period to prevent service disruption.
+      operationId: rotateSigningKeys
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Key rotation initiated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Key rotation initiated successfully"
+                  data:
+                    type: object
+                    properties:
+                      newKeyId:
+                        type: string
+                        example: "key2"
+                      rotationTime:
+                        type: string
+                        format: date-time
+                        example: "2024-01-15T12:00:00Z"
+                      gracePeriodEnds:
+                        type: string
+                        format: date-time
+                        example: "2024-01-15T18:00:00Z"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Admin access required
+      x-rate-limit:
+        limit: 1
+        window: 3600
+
+  /auth/tokens/active:
+    get:
+      tags:
+        - Administration
+      summary: Debug active sessions
+      description: |
+        Get debug information about active sessions and tokens.
+        Only accessible by administrators for debugging purposes.
+      operationId: getActiveTokens
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: query
+          schema:
+            type: string
+          description: Filter by specific user ID
+          example: "usr_1234567890abcdef"
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+          description: Number of sessions to return
+      responses:
+        '200':
+          description: Active sessions retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      sessions:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            sessionId:
+                              type: string
+                              example: "sess_1234567890abcdef"
+                            userId:
+                              type: string
+                              example: "usr_1234567890abcdef"
+                            deviceId:
+                              type: string
+                              example: "device_abc123"
+                            platform:
+                              type: string
+                              example: "ios"
+                            issuedAt:
+                              type: string
+                              format: date-time
+                              example: "2024-01-15T10:00:00Z"
+                            expiresAt:
+                              type: string
+                              format: date-time
+                              example: "2024-01-15T11:00:00Z"
+                            lastActivity:
+                              type: string
+                              format: date-time
+                              example: "2024-01-15T10:30:00Z"
+                      pagination:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                            example: 150
+                          page:
+                            type: integer
+                            example: 1
+                          limit:
+                            type: integer
+                            example: 50
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Admin access required
+      x-rate-limit:
+        limit: 10
+        window: 300
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: RS256 JWT access token for authentication
+    
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for service-to-service communication
+
+  schemas:
+    # Request Schemas
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: "john.doe@example.com"
+        password:
+          type: string
+          format: password
+          example: "SecurePass123!"
+        rememberMe:
+          type: boolean
+          default: false
+          example: true
+        deviceInfo:
+          $ref: '#/components/schemas/DeviceInfo'
+
+    # OAuth PKCE Request Schema
+    OAuthPKCERequest:
+      type: object
+      required:
+        - code
+        - codeVerifier
+        - redirectUri
+      properties:
+        code:
+          type: string
+          description: OAuth authorization code
+          example: "4/0AX4XfWi..."
+        codeVerifier:
+          type: string
+          description: PKCE code verifier (43-128 characters)
+          minLength: 43
+          maxLength: 128
+          example: "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"
+        redirectUri:
+          type: string
+          format: uri
+          description: OAuth redirect URI
+          example: "com.bole.to://oauth/callback"
+        deviceInfo:
+          $ref: '#/components/schemas/DeviceInfo'
+
+    # Response Schemas  
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            user:
+              $ref: '#/components/schemas/User'
+            tokens:
+              type: object
+              properties:
+                accessToken:
+                  type: string
+                  description: RS256 JWT access token with 'kid' header
+                  example: "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImtleTEifQ..."
+                tokenType:
+                  type: string
+                  example: "Bearer"
+                expiresIn:
+                  type: integer
+                  description: Access token expiry in seconds
+                  example: 3600
+                refreshExpiresIn:
+                  type: integer
+                  description: Refresh token expiry in seconds
+                  example: 604800
+            permissions:
+              type: array
+              items:
+                type: string
+              example:
+                - "events:read"
+                - "tickets:manage"
+                - "profile:manage"
+
+    OAuthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            user:
+              $ref: '#/components/schemas/User'
+            tokens:
+              type: object
+              properties:
+                accessToken:
+                  type: string
+                  description: RS256 JWT access token
+                  example: "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImtleTEifQ..."
+                tokenType:
+                  type: string
+                  example: "Bearer"
+                expiresIn:
+                  type: integer
+                  example: 3600
+            isNewUser:
+              type: boolean
+              description: Whether this is a newly created account via OAuth
+              example: false
+            linkedProvider:
+              type: string
+              example: "google"
+
+    UserProfileResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/UserProfile'
+
+    # Entity Schemas
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "usr_1234567890abcdef"
+        email:
+          type: string
+          format: email
+          example: "john.doe@example.com"
+        firstName:
+          type: string
+          example: "John"
+        lastName:
+          type: string
+          example: "Doe"
+        role:
+          type: string
+          enum: [attendee, organizer, admin]
+          example: "attendee"
+        emailVerified:
+          type: boolean
+          example: true
+        phoneVerified:
+          type: boolean
+          example: true
+        profile:
+          type: object
+          properties:
+            avatar:
+              type: string
+              format: uri
+              nullable: true
+              example: "https://api.bole.to/avatars/usr_1234567890abcdef.jpg"
+            bio:
+              type: string
+              nullable: true
+              example: "Event enthusiast"
+
+    UserProfile:
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            phone:
+              type: string
+              nullable: true
+              example: "+1234567890"
+            profile:
+              type: object
+              properties:
+                avatar:
+                  type: string
+                  format: uri
+                  nullable: true
+                bio:
+                  type: string
+                  nullable: true
+                dateOfBirth:
+                  type: string
+                  format: date
+                  nullable: true
+                location:
+                  type: string
+                  nullable: true
+                preferences:
+                  type: object
+                  properties:
+                    notifications:
+                      type: boolean
+                    marketing:
+                      type: boolean
+                    language:
+                      type: string
+                    timezone:
+                      type: string
+            socialAccounts:
+              type: array
+              items:
+                type: object
+                properties:
+                  provider:
+                    type: string
+                    enum: [google, apple, facebook]
+                  linkedAt:
+                    type: string
+                    format: date-time
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+
+    DeviceInfo:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          description: Unique device identifier
+          example: "device_abc123"
+        platform:
+          type: string
+          enum: [ios, android, web]
+          example: "ios"
+        appVersion:
+          type: string
+          example: "1.0.0"
+        osVersion:
+          type: string
+          example: "17.0"
+
+    # JWT Claims Schema (for service documentation)
+    JWTClaims:
+      type: object
+      description: JWT payload claims issued by Gateway
+      properties:
+        iss:
+          type: string
+          description: JWT issuer (Gateway)
+          example: "https://gateway.bole.to"
+        sub:
+          type: string
+          description: Subject (user ID)
+          example: "usr_1234567890abcdef"
+        aud:
+          type: string
+          description: Intended audience
+          example: "bole.to"
+        exp:
+          type: integer
+          description: Expiration timestamp
+          example: 1640999400
+        iat:
+          type: integer
+          description: Issued at timestamp
+          example: 1640995800
+        jti:
+          type: string
+          description: JWT ID (unique token identifier)
+          example: "jwt_abcdef123456"
+        email:
+          type: string
+          format: email
+          example: "john.doe@example.com"
+        role:
+          type: string
+          example: "attendee"
+        permissions:
+          type: array
+          items:
+            type: string
+          example: ["events:read", "tickets:manage", "profile:manage"]
+        verified:
+          type: boolean
+          description: Whether user's email is verified
+          example: true
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: "VALIDATION_ERROR"
+            message:
+              type: string
+              example: "Invalid input data"
+            details:
+              type: object
+              additionalProperties: true
+
+  responses:
+    BadRequest:
+      description: Bad request - invalid input
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            validation_error:
+              summary: Validation error
+              value:
+                success: false
+                error:
+                  code: "VALIDATION_ERROR"
+                  message: "Invalid input data"
+                  details:
+                    email: ["Invalid email format"]
+                    password: ["Password must be at least 8 characters"]
+            pkce_error:
+              summary: PKCE verification failed
+              value:
+                success: false
+                error:
+                  code: "PKCE_VERIFICATION_FAILED"
+                  message: "Invalid code verifier"
+                  details:
+                    codeVerifier: ["Code verifier does not match code challenge"]
+
+    Unauthorized:
+      description: Unauthorized - invalid or missing authentication
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            missing_token:
+              summary: Missing authentication token
+              value:
+                success: false
+                error:
+                  code: "MISSING_TOKEN"
+                  message: "Authentication token is required"
+                  details: {}
+            invalid_token:
+              summary: Invalid authentication token
+              value:
+                success: false
+                error:
+                  code: "INVALID_TOKEN"
+                  message: "Invalid or expired authentication token"
+                  details:
+                    keyId: "key1"
+            jwt_verification_failed:
+              summary: JWT signature verification failed
+              value:
+                success: false
+                error:
+                  code: "JWT_VERIFICATION_FAILED" 
+                  message: "Token signature verification failed"
+                  details:
+                    reason: "Key not found in JWKS"
+
+    Forbidden:
+      description: Forbidden - insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: "INSUFFICIENT_PERMISSIONS"
+              message: "You don't have permission to access this resource"
+              details:
+                requiredPermission: "admin:keys:rotate"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: "NOT_FOUND"
+              message: "The requested resource was not found"
+              details: {}
+
+    Conflict:
+      description: Conflict - resource already exists
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: "EMAIL_ALREADY_EXISTS"
+              message: "An account with this email already exists"
+              details:
+                email: "john.doe@example.com"
+
+    RateLimit:
+      description: Rate limit exceeded
+      headers:
+        X-RateLimit-Limit:
+          description: Request limit per window
+          schema:
+            type: integer
+            example: 10
+        X-RateLimit-Remaining:
+          description: Requests remaining in window
+          schema:
+            type: integer
+            example: 0
+        X-RateLimit-Reset:
+          description: Window reset time in UTC epoch seconds
+          schema:
+            type: integer
+            example: 1640995200
+        Retry-After:
+          description: Seconds to wait before retrying
+          schema:
+            type: integer
+            example: 300
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: "RATE_LIMIT_EXCEEDED"
+              message: "Too many requests. Please try again later."
+              details:
+                retryAfter: 300
+
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: "INTERNAL_SERVER_ERROR"
+              message: "An unexpected error occurred"
+              details:
+                requestId: "req_1234567890abcdef"
+
+tags:
+  - name: Authentication
+    description: Core authentication endpoints for login and token management
+  - name: OAuth Authentication
+    description: OAuth 2.0 with PKCE for mobile authentication flows
+  - name: JWT Verification  
+    description: JWKS endpoint for service-to-service JWT verification
+  - name: User Profile
+    description: User profile management (proxied to Hi.Events)
+  - name: Social Authentication
+    description: Social account linking and unlinking
+  - name: Administration
+    description: Administrative endpoints for key rotation and debugging
+
+x-gateway-architecture:
+  description: |
+    The Gateway service acts as the authentication layer between clients and Hi.Events:
+    
+    1. **Authentication Flow**: 
+       - Clients authenticate via Gateway endpoints
+       - Gateway validates credentials with Hi.Events backend
+       - Gateway issues RS256 JWTs with user claims
+    
+    2. **Token Verification**:
+       - Services verify JWT signatures using Gateway's JWKS endpoint
+       - Gateway rotates signing keys automatically for security
+       - Old keys remain valid during rotation grace period
+    
+    3. **User Data**: 
+       - Hi.Events remains the source of truth for user data
+       - Gateway proxies user profile requests to Hi.Events
+       - JWT claims include essential user information
+    
+    4. **OAuth Integration**:
+       - Gateway handles OAuth flows with PKCE for mobile clients
+       - Social account linking managed through Gateway
+       - Deep link support for mobile OAuth callbacks
+
+x-mobile-integration:
+  pkce-flow:
+    description: |
+      PKCE (Proof Key for Code Exchange) flow for mobile OAuth:
+      
+      1. Generate code verifier and challenge in mobile app
+      2. Redirect to OAuth provider with challenge
+      3. Receive authorization code via deep link
+      4. Exchange code + verifier for JWT via Gateway
+  
+  deep-links:
+    oauth-callback: "com.bole.to://oauth/callback"
+    password-reset: "com.bole.to://reset-password"
+  
+  biometric-integration:
+    description: |
+      Biometric authentication using device capabilities:
+      
+      1. Store JWT securely in device keychain
+      2. Require biometric authentication to access stored tokens
+      3. Fallback to device passcode if biometrics unavailable
+      4. Re-authenticate periodically for security
+
+x-service-integration:
+  jwks-verification:
+    description: |
+      Service-to-service JWT verification workflow:
+      
+      1. Service receives request with JWT in Authorization header
+      2. Extract 'kid' from JWT header to identify signing key
+      3. Fetch public key from Gateway's JWKS endpoint
+      4. Verify JWT signature using RS256 algorithm
+      5. Validate claims (exp, iss, aud) before processing request
+  
+  caching-strategy:
+    description: |
+      JWKS caching recommendations:
+      
+      - Cache JWKS response for up to 1 hour
+      - Implement cache invalidation on verification failures
+      - Use exponential backoff for JWKS fetch failures
+      - Always validate cache-control headers
+
+x-security-considerations:
+  jwt-security:
+    - RS256 signatures with 2048-bit RSA keys
+    - Automatic key rotation every 24 hours
+    - Short-lived access tokens (1 hour expiry)
+    - Refresh token rotation on each use
+  
+  mobile-security:
+    - PKCE prevents authorization code interception
+    - Deep link validation prevents malicious redirects  
+    - Biometric authentication for token access
+    - Certificate pinning recommended for API calls
+  
+  service-security:
+    - Always verify JWT signatures using JWKS
+    - Validate all JWT claims before processing
+    - Implement proper error handling for verification failures
+    - Use secure communication (TLS 1.3) for all API calls
