@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   Dimensions,
   StatusBar,
+  Linking,
+  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -329,6 +331,146 @@ export default function EventScreen({ route, navigation }: any) {
               ))}
             </View>
           )}
+
+          {/* Locked Social Section */}
+          <View style={styles.lockedSocialSection}>
+            <View style={styles.lockedOverlay}>
+              <LinearGradient
+                colors={["rgba(17,22,35,0.95)", "rgba(21,27,44,0.95)"]}
+                style={styles.lockedCard}
+              >
+                <View style={styles.lockedHeader}>
+                  <Feather name="lock" size={24} color={theme.colors.text.tertiary} />
+                  <Text style={styles.lockedTitle}>Event Social Feed</Text>
+                </View>
+                
+                {/* Mock Social Posts (Blurred) */}
+                <View style={styles.mockSocialPosts}>
+                  <View style={[styles.mockPost, { opacity: 0.3 }]}>
+                    <View style={styles.mockAvatar} />
+                    <View style={styles.mockPostContent}>
+                      <View style={styles.mockTextLine} />
+                      <View style={[styles.mockTextLine, { width: '60%' }]} />
+                    </View>
+                  </View>
+                  
+                  <View style={[styles.mockPost, { opacity: 0.2 }]}>
+                    <View style={styles.mockAvatar} />
+                    <View style={styles.mockPostContent}>
+                      <View style={styles.mockTextLine} />
+                      <View style={[styles.mockTextLine, { width: '80%' }]} />
+                    </View>
+                  </View>
+                </View>
+
+                <View style={styles.lockedAction}>
+                  <Feather name="users" size={16} color={theme.colors.text.secondary} />
+                  <Text style={styles.lockedActionText}>Purchase a ticket to unlock social features</Text>
+                </View>
+              </LinearGradient>
+            </View>
+          </View>
+
+          {/* Attendees Preview Section */}
+          <View style={styles.attendeesSection}>
+            <LinearGradient
+              colors={["rgba(17,22,35,0.95)", "rgba(21,27,44,0.95)"]}
+              style={styles.attendeesCard}
+            >
+              <View style={styles.attendeesHeader}>
+                <Text style={styles.sectionTitle}>Who's Going</Text>
+                <View style={styles.attendeesCount}>
+                  <Text style={styles.attendeesCountText}>245+ going</Text>
+                </View>
+              </View>
+
+              <View style={styles.attendeesPreview}>
+                {/* Mock Attendee Avatars */}
+                {[1, 2, 3, 4, 5, 6].map((index) => (
+                  <View key={index} style={[styles.attendeeAvatar, { zIndex: 10 - index }]}>
+                    <LinearGradient
+                      colors={index % 2 === 0 ? theme.colors.gradient.primary : theme.colors.gradient.accent}
+                      style={styles.attendeeAvatarGradient}
+                    >
+                      <Text style={styles.attendeeInitial}>
+                        {String.fromCharCode(64 + index)}
+                      </Text>
+                    </LinearGradient>
+                  </View>
+                ))}
+                <View style={styles.moreAttendeesIndicator}>
+                  <Text style={styles.moreAttendeesText}>+239</Text>
+                </View>
+              </View>
+
+              <TouchableOpacity style={styles.attendeesAction}>
+                <Feather name="eye-off" size={16} color={theme.colors.text.secondary} />
+                <Text style={styles.attendeesActionText}>Purchase a ticket to see who's going</Text>
+              </TouchableOpacity>
+            </LinearGradient>
+          </View>
+
+          {/* Map Location Section */}
+          <View style={styles.mapSection}>
+            <LinearGradient
+              colors={["rgba(17,22,35,0.95)", "rgba(21,27,44,0.95)"]}
+              style={styles.mapCard}
+            >
+              <View style={styles.mapHeader}>
+                <Text style={styles.sectionTitle}>Location</Text>
+                <TouchableOpacity 
+                  style={styles.directionsButton}
+                  onPress={() => {
+                    const address = encodeURIComponent(`${event.venue.name}, ${event.venue.city}`);
+                    const url = Platform.OS === 'ios' 
+                      ? `maps://app?q=${address}`
+                      : `geo:0,0?q=${address}`;
+                    Linking.openURL(url);
+                  }}
+                >
+                  <Feather name="navigation" size={16} color={theme.colors.gradient.primary[0]} />
+                  <Text style={styles.directionsText}>Directions</Text>
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity 
+                style={styles.mapContainer}
+                onPress={() => {
+                  const address = encodeURIComponent(`${event.venue.name}, ${event.venue.city}`);
+                  const url = Platform.OS === 'ios' 
+                    ? `maps://app?q=${address}`
+                    : `geo:0,0?q=${address}`;
+                  Linking.openURL(url);
+                }}
+                activeOpacity={0.8}
+              >
+                {/* Mock Map View */}
+                <LinearGradient
+                  colors={[theme.colors.surface.tertiary, theme.colors.surface.secondary]}
+                  style={styles.mockMap}
+                >
+                  <View style={styles.mapPin}>
+                    <LinearGradient
+                      colors={theme.colors.gradient.warm}
+                      style={styles.mapPinGradient}
+                    >
+                      <Feather name="map-pin" size={20} color={theme.colors.white} />
+                    </LinearGradient>
+                  </View>
+                  
+                  {/* Mock map elements */}
+                  <View style={styles.mapOverlay}>
+                    <Text style={styles.tapToOpenText}>Tap to open in Maps</Text>
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              <View style={styles.venueDetails}>
+                <Text style={styles.mapVenueName}>{event.venue.name}</Text>
+                <Text style={styles.mapVenueAddress}>{event.venue.city}</Text>
+              </View>
+            </LinearGradient>
+          </View>
 
           {/* Bottom Spacing for FAB */}
           <View style={{ height: 120 }} />
@@ -695,5 +837,233 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.sizes.md,
     fontWeight: theme.typography.weights.semibold,
     color: theme.colors.white,
+  },
+  // Locked Social Section
+  lockedSocialSection: {
+    marginTop: theme.spacing.xl,
+    marginBottom: theme.spacing.lg,
+  },
+  lockedOverlay: {
+    position: "relative",
+  },
+  lockedCard: {
+    padding: theme.spacing.xl,
+    borderRadius: theme.borderRadius.xl,
+    borderWidth: 1,
+    borderColor: theme.colors.border.primary,
+    position: "relative",
+  },
+  lockedHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: theme.spacing.lg,
+  },
+  lockedTitle: {
+    fontSize: theme.typography.sizes.lg,
+    fontWeight: "600" as const,
+    color: theme.colors.text.secondary,
+    marginLeft: theme.spacing.md,
+  },
+  mockSocialPosts: {
+    marginBottom: theme.spacing.lg,
+  },
+  mockPost: {
+    flexDirection: "row",
+    marginBottom: theme.spacing.md,
+    alignItems: "flex-start",
+  },
+  mockAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: theme.colors.surface.tertiary,
+    marginRight: theme.spacing.md,
+  },
+  mockPostContent: {
+    flex: 1,
+  },
+  mockTextLine: {
+    height: 12,
+    backgroundColor: theme.colors.surface.tertiary,
+    borderRadius: 6,
+    marginBottom: theme.spacing.xs,
+  },
+  lockedAction: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: theme.spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border.secondary,
+  },
+  lockedActionText: {
+    fontSize: theme.typography.sizes.sm,
+    color: theme.colors.text.secondary,
+    marginLeft: theme.spacing.sm,
+  },
+  // Attendees Section
+  attendeesSection: {
+    marginBottom: theme.spacing.lg,
+  },
+  attendeesCard: {
+    padding: theme.spacing.xl,
+    borderRadius: theme.borderRadius.xl,
+    borderWidth: 1,
+    borderColor: theme.colors.border.primary,
+  },
+  attendeesHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: theme.spacing.lg,
+  },
+  attendeesCount: {
+    backgroundColor: "rgba(0,224,255,0.1)",
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.xs,
+    borderRadius: theme.borderRadius.sm,
+    borderWidth: 1,
+    borderColor: "rgba(0,224,255,0.2)",
+  },
+  attendeesCountText: {
+    fontSize: theme.typography.sizes.sm,
+    color: theme.colors.gradient.accent[0],
+    fontWeight: "500" as const,
+  },
+  attendeesPreview: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: theme.spacing.lg,
+  },
+  attendeeAvatar: {
+    marginRight: -theme.spacing.sm,
+  },
+  attendeeAvatarGradient: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: theme.colors.bg,
+  },
+  attendeeInitial: {
+    fontSize: theme.typography.sizes.sm,
+    fontWeight: "700" as const,
+    color: theme.colors.white,
+  },
+  moreAttendeesIndicator: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: theme.colors.surface.tertiary,
+    borderWidth: 2,
+    borderColor: theme.colors.bg,
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: theme.spacing.sm,
+  },
+  moreAttendeesText: {
+    fontSize: theme.typography.sizes.xs,
+    color: theme.colors.text.secondary,
+    fontWeight: "500" as const,
+  },
+  attendeesAction: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: theme.spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border.secondary,
+  },
+  attendeesActionText: {
+    fontSize: theme.typography.sizes.sm,
+    color: theme.colors.text.secondary,
+    marginLeft: theme.spacing.sm,
+  },
+  // Map Section
+  mapSection: {
+    marginBottom: theme.spacing.lg,
+  },
+  mapCard: {
+    padding: theme.spacing.xl,
+    borderRadius: theme.borderRadius.xl,
+    borderWidth: 1,
+    borderColor: theme.colors.border.primary,
+  },
+  mapHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: theme.spacing.lg,
+  },
+  directionsButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: "rgba(124,92,255,0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(124,92,255,0.2)",
+  },
+  directionsText: {
+    fontSize: theme.typography.sizes.sm,
+    color: theme.colors.gradient.primary[0],
+    fontWeight: "500" as const,
+    marginLeft: theme.spacing.xs,
+  },
+  mapContainer: {
+    marginBottom: theme.spacing.md,
+  },
+  mockMap: {
+    height: 200,
+    borderRadius: theme.borderRadius.md,
+    justifyContent: "center",
+    alignItems: "center",
+    position: "relative",
+    overflow: "hidden",
+  },
+  mapPin: {
+    position: "absolute",
+    zIndex: 2,
+  },
+  mapPinGradient: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 3,
+    borderColor: theme.colors.white,
+  },
+  mapOverlay: {
+    position: "absolute",
+    bottom: theme.spacing.md,
+    left: theme.spacing.md,
+    right: theme.spacing.md,
+    backgroundColor: "rgba(10,13,20,0.8)",
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    borderRadius: theme.borderRadius.sm,
+  },
+  tapToOpenText: {
+    fontSize: theme.typography.sizes.sm,
+    color: theme.colors.text.primary,
+    textAlign: "center",
+    fontWeight: "500" as const,
+  },
+  venueDetails: {
+    alignItems: "center",
+  },
+  mapVenueName: {
+    fontSize: theme.typography.sizes.md,
+    fontWeight: "600" as const,
+    color: theme.colors.text.primary,
+    marginBottom: 4,
+  },
+  mapVenueAddress: {
+    fontSize: theme.typography.sizes.sm,
+    color: theme.colors.text.secondary,
   },
 });
