@@ -2,21 +2,24 @@
   {
     "id": "ev_1",
     "title": "Sunset Rooftop Party",
-    "coverUrl": null,
+    "description": "Join us for an unforgettable evening as we celebrate under the stars! Experience breathtaking sunset views from the city's premier rooftop venue, featuring craft cocktails, live DJ sets, and the perfect atmosphere for making new connections.",
+    "coverUrl": "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800",
     "startsAt": "2025-10-01T02:00:00.000Z",
     "venue": { "name": "Skyline", "city": "Managua" }
   },
   {
-    "id": "ev_2",
+    "id": "ev_2", 
     "title": "Indie Night Live",
-    "coverUrl": null,
+    "description": "Discover the local indie music scene in León's historic theater. Three amazing indie bands will perform original music in an intimate acoustic setting perfect for music lovers.",
+    "coverUrl": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800",
     "startsAt": "2025-10-08T01:00:00.000Z",
     "venue": { "name": "El Teatro", "city": "León" }
   },
   {
     "id": "ev_3",
     "title": "Beach Festival 2025",
-    "coverUrl": null,
+    "description": "Nicaragua's biggest beach festival returns! Two days of international artists, food trucks, beach volleyball, and endless summer vibes on the beautiful Pacific coast.",
+    "coverUrl": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800",
     "startsAt": "2025-10-15T20:00:00.000Z",
     "venue": { "name": "Costa Brava", "city": "San Juan del Sur" }
   }

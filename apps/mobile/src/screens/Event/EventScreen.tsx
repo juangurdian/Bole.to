@@ -226,6 +226,18 @@ export default function EventScreen({ route, navigation }: any) {
               </View>
 
               {/* Quick Actions */}
+              {/* Event Description */}
+              {event.description && (
+                <View style={styles.eventDescription}>
+                  <Text style={styles.descriptionText} numberOfLines={3}>
+                    {event.description}
+                  </Text>
+                  <TouchableOpacity style={styles.readMoreButton}>
+                    <Text style={styles.readMoreText}>Read more</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+
               <View style={styles.quickActions}>
                 <TouchableOpacity style={styles.actionButton}>
                   <LinearGradient
@@ -257,13 +269,6 @@ export default function EventScreen({ route, navigation }: any) {
             </LinearGradient>
           </View>
 
-          {/* Description Card */}
-          {event.description && (
-            <View style={styles.descriptionCard}>
-              <Text style={styles.sectionTitle}>About</Text>
-              <Text style={styles.description}>{event.description}</Text>
-            </View>
-          )}
 
           {/* Tickets Section */}
           {tiers.length > 0 && (
@@ -280,51 +285,53 @@ export default function EventScreen({ route, navigation }: any) {
                     }
                     style={styles.ticketGradient}
                   >
-                    <View style={styles.ticketHeader}>
-                      <View>
-                        <Text style={styles.ticketName}>{tier.name}</Text>
-                        <View style={styles.ticketPrice}>
-                          <Text style={styles.priceSymbol}>$</Text>
-                          <Text style={styles.priceAmount}>{tier.price.amount}</Text>
-                          <Text style={styles.priceCurrency}>{tier.price.currency}</Text>
+                    <View style={styles.compactTicketRow}>
+                      <View style={styles.ticketInfo}>
+                        <View style={styles.ticketNameRow}>
+                          <Text style={styles.ticketName}>{tier.name}</Text>
+                          <Text style={styles.compactAvailability}>
+                            {tier.remaining} left
+                          </Text>
+                        </View>
+                        {(tier as any).description && (
+                          <Text style={styles.ticketDescription} numberOfLines={1}>
+                            {(tier as any).description}
+                          </Text>
+                        )}
+                      </View>
+
+                      <View style={styles.ticketActions}>
+                        <View style={styles.priceAndQuantity}>
+                          <View style={styles.ticketPrice}>
+                            <Text style={styles.priceSymbol}>$</Text>
+                            <Text style={styles.priceAmount}>{tier.price.amount}</Text>
+                          </View>
+                          
+                          <View style={styles.compactQuantitySection}>
+                            <TouchableOpacity
+                              style={[styles.compactQuantityButton, (!selectedTiers[tier.id] || selectedTiers[tier.id] === 0) && styles.quantityButtonDisabled]}
+                              onPress={() => updateQuantity(tier.id, -1)}
+                              disabled={!selectedTiers[tier.id] || selectedTiers[tier.id] === 0}
+                            >
+                              <Feather name="minus" size={16} color={theme.colors.white} />
+                            </TouchableOpacity>
+                            
+                            <Text style={styles.compactQuantityText}>{selectedTiers[tier.id] || 0}</Text>
+                            
+                            <TouchableOpacity
+                              style={[styles.compactQuantityButton, styles.quantityButtonAdd]}
+                              onPress={() => updateQuantity(tier.id, 1)}
+                            >
+                              <LinearGradient
+                                colors={theme.colors.gradient.primary}
+                                style={styles.compactQuantityButtonGradient}
+                              >
+                                <Feather name="plus" size={16} color={theme.colors.white} />
+                              </LinearGradient>
+                            </TouchableOpacity>
+                          </View>
                         </View>
                       </View>
-                      
-                      <View style={styles.availabilityBadge}>
-                        <Text style={styles.availabilityText}>
-                          {tier.remaining} left
-                        </Text>
-                      </View>
-                    </View>
-
-                    {tier.description && (
-                      <Text style={styles.ticketDescription}>{tier.description}</Text>
-                    )}
-
-                    <View style={styles.quantitySection}>
-                      <TouchableOpacity
-                        style={[styles.quantityButton, (!selectedTiers[tier.id] || selectedTiers[tier.id] === 0) && styles.quantityButtonDisabled]}
-                        onPress={() => updateQuantity(tier.id, -1)}
-                        disabled={!selectedTiers[tier.id] || selectedTiers[tier.id] === 0}
-                      >
-                        <Feather name="minus" size={20} color={theme.colors.white} />
-                      </TouchableOpacity>
-                      
-                      <View style={styles.quantityDisplay}>
-                        <Text style={styles.quantityText}>{selectedTiers[tier.id] || 0}</Text>
-                      </View>
-                      
-                      <TouchableOpacity
-                        style={[styles.quantityButton, styles.quantityButtonAdd]}
-                        onPress={() => updateQuantity(tier.id, 1)}
-                      >
-                        <LinearGradient
-                          colors={theme.colors.gradient.primary}
-                          style={styles.quantityButtonGradient}
-                        >
-                          <Feather name="plus" size={20} color={theme.colors.white} />
-                        </LinearGradient>
-                      </TouchableOpacity>
                     </View>
                   </LinearGradient>
                 </View>
@@ -545,7 +552,7 @@ const styles = StyleSheet.create({
   retryText: {
     color: theme.colors.text.primary,
     fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.medium,
+    fontWeight: "500" as const,
   },
   fixedHeader: {
     position: "absolute",
@@ -566,7 +573,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: theme.typography.sizes.lg,
-    fontWeight: theme.typography.weights.semibold,
+    fontWeight: "600" as const,
     color: theme.colors.white,
     flex: 1,
     marginHorizontal: theme.spacing.lg,
@@ -616,7 +623,7 @@ const styles = StyleSheet.create({
   },
   eventTitle: {
     fontSize: theme.typography.sizes.xxl,
-    fontWeight: theme.typography.weights.bold,
+    fontWeight: "700" as const,
     color: theme.colors.white,
     marginBottom: theme.spacing.lg,
   },
@@ -641,7 +648,7 @@ const styles = StyleSheet.create({
   metaText: {
     fontSize: theme.typography.sizes.md,
     color: theme.colors.text.primary,
-    fontWeight: theme.typography.weights.medium,
+    fontWeight: "500" as const,
   },
   venueRow: {
     flexDirection: "row",
@@ -656,7 +663,7 @@ const styles = StyleSheet.create({
   },
   venueName: {
     fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.semibold,
+    fontWeight: "600" as const,
     color: theme.colors.text.primary,
     marginBottom: 4,
   },
@@ -690,7 +697,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: theme.typography.sizes.lg,
-    fontWeight: theme.typography.weights.semibold,
+    fontWeight: "600" as const,
     color: theme.colors.white,
     marginBottom: theme.spacing.md,
   },
@@ -721,7 +728,7 @@ const styles = StyleSheet.create({
   },
   ticketName: {
     fontSize: theme.typography.sizes.lg,
-    fontWeight: theme.typography.weights.semibold,
+    fontWeight: "600" as const,
     color: theme.colors.white,
     marginBottom: theme.spacing.xs,
   },
@@ -736,7 +743,7 @@ const styles = StyleSheet.create({
   },
   priceAmount: {
     fontSize: theme.typography.sizes.xxl,
-    fontWeight: theme.typography.weights.bold,
+    fontWeight: "700" as const,
     color: theme.colors.gradient.primary[0],
   },
   priceCurrency: {
@@ -755,7 +762,7 @@ const styles = StyleSheet.create({
   availabilityText: {
     fontSize: theme.typography.sizes.sm,
     color: theme.colors.gradient.accent[0],
-    fontWeight: theme.typography.weights.medium,
+    fontWeight: "500" as const,
   },
   ticketDescription: {
     fontSize: theme.typography.sizes.sm,
@@ -794,7 +801,7 @@ const styles = StyleSheet.create({
   },
   quantityText: {
     fontSize: theme.typography.sizes.xl,
-    fontWeight: theme.typography.weights.bold,
+    fontWeight: "700" as const,
     color: theme.colors.white,
   },
   floatingCheckout: {
@@ -822,7 +829,7 @@ const styles = StyleSheet.create({
   },
   checkoutAmount: {
     fontSize: theme.typography.sizes.xxl,
-    fontWeight: theme.typography.weights.bold,
+    fontWeight: "700" as const,
     color: theme.colors.white,
   },
   checkoutButton: {
@@ -835,7 +842,7 @@ const styles = StyleSheet.create({
   },
   checkoutButtonText: {
     fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.semibold,
+    fontWeight: "600" as const,
     color: theme.colors.white,
   },
   // Locked Social Section
@@ -1065,5 +1072,84 @@ const styles = StyleSheet.create({
   mapVenueAddress: {
     fontSize: theme.typography.sizes.sm,
     color: theme.colors.text.secondary,
+  },
+  // Event Description in Info Card
+  eventDescription: {
+    marginTop: theme.spacing.lg,
+    paddingTop: theme.spacing.lg,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border.secondary,
+  },
+  descriptionText: {
+    fontSize: theme.typography.sizes.md,
+    color: theme.colors.text.secondary,
+    lineHeight: 22,
+    marginBottom: theme.spacing.sm,
+  },
+  readMoreButton: {
+    alignSelf: "flex-start",
+  },
+  readMoreText: {
+    fontSize: theme.typography.sizes.sm,
+    color: theme.colors.gradient.primary[0],
+    fontWeight: "500" as const,
+  },
+  // Compact Ticket Layout
+  compactTicketRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  ticketInfo: {
+    flex: 1,
+    marginRight: theme.spacing.lg,
+  },
+  ticketNameRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: theme.spacing.xs,
+  },
+  compactAvailability: {
+    fontSize: theme.typography.sizes.xs,
+    color: theme.colors.text.tertiary,
+    backgroundColor: "rgba(255,255,255,0.05)",
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: 2,
+    borderRadius: theme.borderRadius.sm,
+  },
+  ticketActions: {
+    alignItems: "flex-end",
+  },
+  priceAndQuantity: {
+    alignItems: "flex-end",
+  },
+  compactQuantitySection: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: theme.spacing.sm,
+    gap: theme.spacing.sm,
+  },
+  compactQuantityButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: theme.colors.surface.tertiary,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  compactQuantityButtonGradient: {
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 14,
+  },
+  compactQuantityText: {
+    fontSize: theme.typography.sizes.md,
+    fontWeight: "600" as const,
+    color: theme.colors.white,
+    minWidth: 24,
+    textAlign: "center",
   },
 });

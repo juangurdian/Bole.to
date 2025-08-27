@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, StyleSheet, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useAuth } from "../../auth/useAuth";
+import { useAuth } from "../../auth/MockAuthProvider";
 import Button from "../../components/Button";
 
 export default function LoginScreen() {

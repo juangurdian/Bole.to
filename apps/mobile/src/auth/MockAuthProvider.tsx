@@ -5,6 +5,7 @@ interface User {
   name: string;
   email: string;
   avatar?: string;
+  city?: string;
 }
 
 interface AuthContextType {
@@ -30,6 +31,7 @@ export function MockAuthProvider({ children }: { children: React.ReactNode }) {
           id: "mock-user-1",
           name: "Test User",
           email: "test@example.com",
+          city: "Managua",
         });
       }
       setIsLoading(false);
@@ -45,6 +47,7 @@ export function MockAuthProvider({ children }: { children: React.ReactNode }) {
       id: "mock-user-1",
       name: "Test User",
       email: email,
+      city: "Managua",
     });
     setIsLoading(false);
   };
@@ -64,6 +67,7 @@ export function MockAuthProvider({ children }: { children: React.ReactNode }) {
       id: "mock-user-new",
       name: name,
       email: email,
+      city: "Managua",
     });
     setIsLoading(false);
   };
@@ -79,6 +83,15 @@ export function useMockAuth() {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error("useMockAuth must be used within MockAuthProvider");
+  }
+  return context;
+}
+
+// Export as useAuth as well for compatibility
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within MockAuthProvider");
   }
   return context;
 }

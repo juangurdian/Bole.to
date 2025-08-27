@@ -3,8 +3,9 @@ import { View, Text, ScrollView, RefreshControl, StyleSheet, StatusBar, Platform
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
+import type { NavigationProp } from "@react-navigation/native";
 import { useApi } from "../../api";
-import { useAuth } from "../../auth/useAuth";
+import { useAuth } from "../../auth/MockAuthProvider";
 import { theme } from "../../theme";
 import Skeleton from "../../components/Skeleton";
 import ErrorState from "../../components/ErrorState";
@@ -15,7 +16,11 @@ import StickyFilterBar from "./components/StickyFilterBar";
 import DiscoverSections from "./components/DiscoverSections";
 import AllEventsList from "./components/AllEventsList";
 
-export default function DiscoverScreen({ navigation }: any) {
+interface DiscoverScreenProps {
+  navigation: NavigationProp<any>;
+}
+
+export default function DiscoverScreen({ navigation }: DiscoverScreenProps) {
   const { user } = useAuth();
   const api = useApi();
   const insets = useSafeAreaInsets();
