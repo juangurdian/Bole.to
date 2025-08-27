@@ -5,7 +5,8 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from 'expo-status-bar';
 import AppNavigator from "./src/app/AppNavigator";
 import { ApiProvider } from "./src/api";
-import { AuthProvider } from "./src/auth/useAuth";
+// import { AuthProvider } from "./src/auth/useAuth";
+import { MockAuthProvider as AuthProvider } from "./src/auth/MockAuthProvider";
 import OfflineBanner from "./src/components/OfflineBanner";
 
 const qc = new QueryClient();

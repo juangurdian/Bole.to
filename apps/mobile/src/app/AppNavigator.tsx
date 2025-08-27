@@ -1,6 +1,7 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { useAuth } from "../auth/useAuth";
+// import { useAuth } from "../auth/useAuth";
+import { useMockAuth as useAuth } from "../auth/MockAuthProvider";
 import LoginScreen from "../screens/Auth/LoginScreen";
 import HomeTab from "./tabs/HomeTab";
 import DiscoverTab from "./tabs/DiscoverTab";
