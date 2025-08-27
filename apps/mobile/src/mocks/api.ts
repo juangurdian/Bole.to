@@ -1504,47 +1504,57 @@ export const mockApi = {
       city: "Managua"
     };
 
-    // Stories data
-    const stories = [
+    // User's events (tickets purchased or attending)
+    const userEvents = [
       {
-        id: "story_1",
-        userId: "usr_002",
-        userName: "Sarah Johnson",
-        userAvatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200",
-        hasNewStory: true,
-        isViewed: false
+        id: "ev_1",
+        eventName: "Sunset Rooftop Party",
+        eventDate: "Tonight",
+        eventImage: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400",
+        venueShort: "Sky Lounge",
+        isToday: true,
+        isPast: false,
+        daysUntil: 0
       },
       {
-        id: "story_2",
-        userId: "usr_003",
-        userName: "Mike Chen",
-        userAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200",
-        hasNewStory: true,
-        isViewed: false
+        id: "ev_2",
+        eventName: "EDM Night",
+        eventDate: "Tomorrow",
+        eventImage: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400",
+        venueShort: "Club Neon",
+        isToday: false,
+        isPast: false,
+        daysUntil: 1
       },
       {
-        id: "story_3",
-        userId: "usr_004",
-        userName: "Emma Davis",
-        userAvatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200",
-        hasNewStory: true,
-        isViewed: true
+        id: "ev_3",
+        eventName: "Jazz & Wine Night",
+        eventDate: "Dec 15",
+        eventImage: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400",
+        venueShort: "The Gallery",
+        isToday: false,
+        isPast: false,
+        daysUntil: 3
       },
       {
-        id: "story_4",
-        userId: "usr_005",
-        userName: "Alex Rodriguez",
-        userAvatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200",
-        hasNewStory: true,
-        isViewed: false
+        id: "ev_4",
+        eventName: "Summer Music Festival",
+        eventDate: "Dec 20",
+        eventImage: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400",
+        venueShort: "Central Park",
+        isToday: false,
+        isPast: false,
+        daysUntil: 8
       },
       {
-        id: "story_5",
-        userId: "usr_006",
-        userName: "Lisa Wang",
-        userAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200",
-        hasNewStory: false,
-        isViewed: true
+        id: "ev_5",
+        eventName: "Comedy Night",
+        eventDate: "Dec 10",
+        eventImage: "https://images.unsplash.com/photo-1527224857830-43a7acc85260?w=400",
+        venueShort: "Laugh Track",
+        isToday: false,
+        isPast: true,
+        daysUntil: -2
       }
     ];
 
@@ -1677,7 +1687,7 @@ export const mockApi = {
     return {
       city: user.city,
       notifications: { unread: Math.floor(Math.random() * 5) },
-      stories,
+      userEvents,
       posts
     };
   },

@@ -20,7 +20,7 @@ import Animated, {
 import { theme } from "../../theme";
 import { mockApi } from "../../mocks/api";
 import NewHomeTopBar from "../Home/components/NewHomeTopBar";
-import FeedStories from "./components/FeedStories";
+import UserEventsRail from "./components/UserEventsRail";
 import FeedFiltersNew from "./components/FeedFiltersNew";
 import FeedPost from "./components/FeedPost";
 import FeedComposerButton from "./components/FeedComposerButton";
@@ -81,12 +81,19 @@ export default function NewFeedScreen({ navigation }: any) {
     navigation.navigate("ProfileScreen", { id: userId });
   };
 
-  const handleStoryPress = (storyId: string) => {
-    navigation.navigate("StoryViewerScreen", { id: storyId });
+  const handleUserEventPress = (eventId: string) => {
+    if (eventId === "all") {
+      // Navigate to user's tickets/events list
+      navigation.navigate("Tickets");
+    } else {
+      // Navigate to specific event feed
+      navigation.navigate("EventScreen", { id: eventId });
+    }
   };
 
-  const handleAddStory = () => {
-    navigation.navigate("StoryCreatorScreen");
+  const handleExploreEvents = () => {
+    // Navigate to discover/explore events
+    navigation.navigate("Search");
   };
 
   // Top bar handlers
@@ -140,11 +147,11 @@ export default function NewFeedScreen({ navigation }: any) {
     <>
       <OfflineBanner />
       
-      {/* Stories Section */}
-      <FeedStories
-        stories={data?.stories || []}
-        onStoryPress={handleStoryPress}
-        onAddStory={handleAddStory}
+      {/* User Events Rail - Replaces Stories */}
+      <UserEventsRail
+        events={data?.userEvents || []}
+        onEventPress={handleUserEventPress}
+        onExplorePress={handleExploreEvents}
       />
       
       {/* Filter Pills */}
