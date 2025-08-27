@@ -34,7 +34,7 @@ export default function EventSquareCard({ event, onPress }: EventSquareCardProps
       <View style={styles.container}>
         <View style={styles.card}>
           <View style={[styles.placeholderBackground, { backgroundColor: theme.colors.surface.secondary }]}>
-            <Text style={styles.placeholderIcon}>{"🎉"}</Text>
+            <Text style={styles.placeholderIcon}>🎉</Text>
           </View>
         </View>
       </View>
@@ -138,35 +138,35 @@ export default function EventSquareCard({ event, onPress }: EventSquareCardProps
             colors={theme.colors.gradient.accent}
             style={styles.placeholderBackground}
           >
-            <Text style={styles.placeholderIcon}>{"🎉"}</Text>
+            <Text style={styles.placeholderIcon}>🎉</Text>
           </LinearGradient>
         )}
 
         <View style={styles.content}>
           <View style={styles.header}>
             <View style={[styles.statusBadge, { backgroundColor: getStatusColor() }]}>
-              <Text style={styles.statusText}>{String(getStatusText())}</Text>
+              <Text style={styles.statusText}>{getStatusText()}</Text>
             </View>
           </View>
 
           <View style={styles.footer}>
             <View style={styles.eventInfo}>
               <Text style={styles.eventName} numberOfLines={2}>
-                {String(event.name || "Event")}
+                {event.name || "Event"}
               </Text>
               <Text style={styles.eventTime}>
-                {String(event.time ? formatTime(event.time) : "TBD")}
+                {event.time ? formatTime(event.time) : "TBD"}
               </Text>
               <Text style={styles.eventVenue} numberOfLines={1}>
-                {String(event.venue || "Venue TBD")}
+                {event.venue || "Venue TBD"}
               </Text>
             </View>
 
             <View style={styles.metadata}>
-              <Text style={styles.eventPrice}>{String(formatPrice())}</Text>
+              <Text style={styles.eventPrice}>{formatPrice()}</Text>
               {event.attendeeCount && event.attendeeCount > 0 && (
                 <Text style={styles.attendeeCount}>
-                  {String(event.attendeeCount)} going
+                  {event.attendeeCount} going
                 </Text>
               )}
             </View>
