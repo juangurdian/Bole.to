@@ -11,7 +11,7 @@ export default function DiscoverTab() {
   return (
     <Stack.Navigator>
       <Stack.Screen name="DiscoverScreen" component={DiscoverScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="EventScreen" component={EventScreen} options={{ title: "Event" }} />
+      <Stack.Screen name="EventScreen" component={EventScreen} options={{ headerShown: false }} />
       <Stack.Screen name="CheckoutScreen" component={CheckoutScreen} options={{ title: "Checkout (Mock)" }} />
       <Stack.Screen name="OrderConfirmationScreen" component={OrderConfirmationScreen} options={{ title: "Order" }} />
     </Stack.Navigator>

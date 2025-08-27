@@ -8,7 +8,9 @@ import EventPickerScreen from "../../screens/Staff/EventPickerScreen";
 import SyncScreen from "../../screens/Staff/SyncScreen";
 import ScannerScreen from "../../screens/Staff/ScannerScreen";
 import ManualLookupScreen from "../../screens/Staff/ManualLookupScreen";
-import EventScreen from "../../screens/Feed/EventScreen";
+import EventScreen from "../../screens/Event/EventScreen";
+import CheckoutScreen from "../../screens/Checkout/CheckoutScreen";
+import OrderConfirmationScreen from "../../screens/Orders/OrderConfirmationScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -17,7 +19,9 @@ export default function ProfileTab() {
     <Stack.Navigator>
       <Stack.Screen name="ProfileScreen" component={NewProfileScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: "Settings" }} />
-      <Stack.Screen name="EventScreen" component={EventScreen} options={{ title: "Event" }} />
+      <Stack.Screen name="EventScreen" component={EventScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="CheckoutScreen" component={CheckoutScreen} options={{ title: "Checkout" }} />
+      <Stack.Screen name="OrderConfirmationScreen" component={OrderConfirmationScreen} options={{ title: "Order Confirmation" }} />
       <Stack.Screen name="NotificationsScreen" component={NotificationsScreen} options={{ title: "Notifications" }} />
       <Stack.Screen name="StaffEntryScreen" component={StaffEntryScreen} options={{ title: "Staff Mode" }} />
       <Stack.Screen name="EventPickerScreen" component={EventPickerScreen} options={{ title: "Select Event" }} />

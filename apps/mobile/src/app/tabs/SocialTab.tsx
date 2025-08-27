@@ -1,11 +1,14 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import NewFeedScreen from "../../screens/Feed/NewFeedScreen";
-import EventScreen from "../../screens/Feed/EventScreen";
+import EventScreen from "../../screens/Event/EventScreen";
+import FeedEventScreen from "../../screens/Feed/EventScreen";
 import PostComposer from "../../screens/Social/PostComposer";
 import PollScreen from "../../screens/Social/PollScreen";
 import CaptureScreen from "../../screens/Camera/CaptureScreen";
 import GalleryScreen from "../../screens/Camera/GalleryScreen";
+import CheckoutScreen from "../../screens/Checkout/CheckoutScreen";
+import OrderConfirmationScreen from "../../screens/Orders/OrderConfirmationScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -13,11 +16,14 @@ export default function SocialTab() {
   return (
     <Stack.Navigator>
       <Stack.Screen name="FeedScreen" component={NewFeedScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="EventScreen" component={EventScreen} options={{ title: "Event" }} />
+      <Stack.Screen name="EventScreen" component={EventScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="FeedEventScreen" component={FeedEventScreen} options={{ title: "Event Feed" }} />
       <Stack.Screen name="PostComposer" component={PostComposer} options={{ title: "Create Post" }} />
       <Stack.Screen name="PollScreen" component={PollScreen} options={{ title: "Poll" }} />
       <Stack.Screen name="CaptureScreen" component={CaptureScreen} options={{ title: "Take Photo" }} />
       <Stack.Screen name="GalleryScreen" component={GalleryScreen} options={{ title: "Event Gallery" }} />
+      <Stack.Screen name="CheckoutScreen" component={CheckoutScreen} options={{ title: "Checkout" }} />
+      <Stack.Screen name="OrderConfirmationScreen" component={OrderConfirmationScreen} options={{ title: "Order Confirmation" }} />
     </Stack.Navigator>
   );
 }

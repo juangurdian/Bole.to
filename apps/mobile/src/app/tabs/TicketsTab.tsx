@@ -2,6 +2,9 @@ import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import TicketsScreen from "../../screens/Tickets/TicketsScreen";
 import TicketScreen from "../../screens/Wallet/TicketScreen";
+import EventScreen from "../../screens/Event/EventScreen";
+import CheckoutScreen from "../../screens/Checkout/CheckoutScreen";
+import OrderConfirmationScreen from "../../screens/Orders/OrderConfirmationScreen";
 import EventEditorWizard from "../../screens/MyEvents/EventEditorWizard";
 import EventPreviewScreen from "../../screens/MyEvents/EventPreviewScreen";
 import ProductEditorScreen from "../../screens/MyEvents/ProductEditorScreen";
@@ -23,6 +26,21 @@ export default function TicketsTab() {
         name="TicketScreen" 
         component={TicketScreen} 
         options={{ title: "Ticket" }} 
+      />
+      <Stack.Screen 
+        name="EventScreen" 
+        component={EventScreen} 
+        options={{ headerShown: false }} 
+      />
+      <Stack.Screen 
+        name="CheckoutScreen" 
+        component={CheckoutScreen} 
+        options={{ title: "Checkout" }} 
+      />
+      <Stack.Screen 
+        name="OrderConfirmationScreen" 
+        component={OrderConfirmationScreen} 
+        options={{ title: "Order Confirmation" }} 
       />
       <Stack.Screen 
         name="EventEditorWizard" 
