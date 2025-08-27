@@ -30,7 +30,7 @@ export default function LoginScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.title}>Welcome to Bole.to</Text>
-        <Text style={styles.subtitle}>Mock Mode - Enter any credentials</Text>
+        <Text style={styles.subtitle}>Sign in to continue</Text>
         
         <View style={styles.form}>
           <TextInput

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { GatewayAuthService } from "./gateway-auth-service";
 import { saveToken, getToken, removeToken, saveUser, getUser, removeUser } from "./token";
 
 interface User {
@@ -19,6 +20,20 @@ interface User {
   }>;
 }
 
+interface DeviceInfo {
+  deviceId: string;
+  platform: 'ios' | 'android' | 'web';
+  appVersion: string;
+  osVersion: string;
+}
+
+interface AuthTokens {
+  accessToken: string;
+  tokenType: string;
+  expiresIn: number;
+  refreshExpiresIn?: number;
+}
+
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
@@ -31,27 +46,10 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-// Mock user for development
-const MOCK_USER: User = {
-  id: "user_123",
-  firstName: "John",
-  lastName: "Doe",
-  email: "john@bole.to",
-  role: "attendee",
-  emailVerified: true,
-  phoneVerified: false,
-  profile: {
-    avatar: "https://i.pravatar.cc/150?u=john@bole.to",
-    bio: "Event enthusiast and music lover 🎵"
-  },
-  socialAccounts: [
-    { provider: "google", linkedAt: "2024-01-15T10:00:00Z" }
-  ]
-};
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const gatewayAuth = GatewayAuthService.getInstance();
 
   useEffect(() => {
     checkAuthState();
@@ -60,16 +58,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const checkAuthState = async () => {
     try {
       const token = await getToken();
-      const savedUser = await getUser();
-      
-      if (token && savedUser) {
-        // Mock: restore user from storage
-        setUser(savedUser);
+      if (token) {
+        // Verify token is still valid by fetching user profile
+        const userData = await gatewayAuth.getProfile();
+        setUser(userData);
       } else {
         setUser(null);
       }
     } catch (error) {
       console.error("Error checking auth state:", error);
+      // Clear invalid tokens
+      await removeToken();
+      await removeUser();
       setUser(null);
     } finally {
       setIsLoading(false);
@@ -79,28 +79,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string, rememberMe: boolean = false) => {
     try {
       setIsLoading(true);
+      const { user: loggedInUser, tokens } = await gatewayAuth.login({
+        email,
+        password,
+        rememberMe
+      });
       
-      // Mock: Accept any credentials for development
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Create mock user with provided email
-      const mockUser = {
-        ...MOCK_USER,
-        email: email,
-        firstName: email.split('@')[0],
-      };
-      
-      // Mock token
-      const mockToken = `mock_token_${Date.now()}`;
-      
-      await saveToken(mockToken);
-      await saveUser(mockUser);
-      setUser(mockUser);
-      
-      console.log('Mock login successful for:', email);
+      await saveToken(tokens.accessToken);
+      await saveUser(loggedInUser);
+      setUser(loggedInUser);
     } catch (error) {
-      console.error('Mock login failed:', error);
+      console.error('Login failed:', error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -110,40 +99,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async (allDevices: boolean = false) => {
     try {
       setIsLoading(true);
-      
-      // Mock: Simulate logout delay
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
+      await gatewayAuth.logout(allDevices);
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Continue with local logout even if server request fails
+    } finally {
       await removeToken();
       await removeUser();
       setUser(null);
-      
-      console.log('Mock logout successful');
-    } catch (error) {
-      console.error('Mock logout error:', error);
-    } finally {
       setIsLoading(false);
     }
   };
 
   const refreshUser = async () => {
     try {
-      // Mock: Simulate refresh
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
-      if (user) {
-        const updatedUser = {
-          ...user,
-          profile: {
-            ...user.profile,
-            bio: user.profile?.bio + " ✨"
-          }
-        };
-        await saveUser(updatedUser);
-        setUser(updatedUser);
-      }
+      const userData = await gatewayAuth.getProfile();
+      await saveUser(userData);
+      setUser(userData);
     } catch (error) {
-      console.error('Mock refresh user failed:', error);
+      console.error('Failed to refresh user:', error);
       throw error;
     }
   };
@@ -151,29 +125,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const authenticateWithOAuth = async (provider: string, authorizationCode: string) => {
     try {
       setIsLoading(true);
+      const { user: loggedInUser, tokens } = await gatewayAuth.authenticateWithOAuthCallback(
+        provider,
+        authorizationCode
+      );
       
-      // Mock: Simulate OAuth flow
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      const mockOAuthUser = {
-        ...MOCK_USER,
-        email: `${provider}.user@bole.to`,
-        firstName: provider.charAt(0).toUpperCase() + provider.slice(1),
-        lastName: "User",
-        socialAccounts: [
-          { provider, linkedAt: new Date().toISOString() }
-        ]
-      };
-      
-      const mockToken = `mock_oauth_token_${Date.now()}`;
-      
-      await saveToken(mockToken);
-      await saveUser(mockOAuthUser);
-      setUser(mockOAuthUser);
-      
-      console.log(`Mock OAuth login successful for ${provider}`);
+      await saveToken(tokens.accessToken);
+      await saveUser(loggedInUser);
+      setUser(loggedInUser);
     } catch (error) {
-      console.error('Mock OAuth authentication failed:', error);
+      console.error('OAuth authentication failed:', error);
       throw error;
     } finally {
       setIsLoading(false);

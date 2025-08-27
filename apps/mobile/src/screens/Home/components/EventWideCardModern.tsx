@@ -211,7 +211,7 @@ export default function EventWideCardModern({ event, onPress }: EventWideCardMod
                 <View style={styles.locationContainer}>
                   <Text style={styles.locationIcon}>📍</Text>
                   <Text style={styles.locationText} numberOfLines={1}>
-                    {event.venue} • {event.city}
+                    {event.venue} {" • "} {event.city}
                   </Text>
                 </View>
               </View>

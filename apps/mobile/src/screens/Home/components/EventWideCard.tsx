@@ -124,7 +124,7 @@ export default function EventWideCard({ event, onPress }: EventWideCardProps) {
               {event.title}
             </Text>
             <Text style={styles.venue} numberOfLines={1}>
-              {event.venue.name} • {event.venue.city}
+              {event.venue.name} {" • "} {event.venue.city}
             </Text>
           </View>
 

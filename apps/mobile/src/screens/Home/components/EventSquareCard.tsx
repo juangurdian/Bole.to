@@ -184,9 +184,9 @@ export default function EventSquareCard({ event, onPress }: EventSquareCardProps
                   <Text style={styles.eventTime}>
                     {String(event.time ? formatTime(event.time) : "TBD")}
                   </Text>
-                  <Text style={styles.separator}>•</Text>
+                  <Text style={styles.separator}>{" • "}</Text>
                   <Text style={styles.eventVenue} numberOfLines={1}>
-                    {String(event.venue || "Venue TBD").split(' • ')[0]}
+                    {String(event.venue || "Venue TBD").split(" • ")[0]}
                   </Text>
                 </View>
               </View>

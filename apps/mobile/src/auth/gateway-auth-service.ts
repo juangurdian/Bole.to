@@ -372,17 +372,31 @@ export class GatewayAuthService {
 
   // Biometric authentication support
   async isBiometricAvailable(): Promise<boolean> {
-    const hasHardware = await LocalAuthentication.hasHardwareAsync();
-    const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-    return hasHardware && isEnrolled;
+    try {
+      const hasHardware = await LocalAuthentication.hasHardwareAsync();
+      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+      return hasHardware && isEnrolled;
+    } catch (error) {
+      console.warn('Biometric authentication not available:', error);
+      return false;
+    }
   }
 
   async authenticateWithBiometrics(reason: string): Promise<boolean> {
-    const result = await LocalAuthentication.authenticateAsync({
-      promptMessage: reason,
-      fallbackLabel: 'Use Passcode',
-    });
-    
-    return result.success;
+    try {
+      if (!(await this.isBiometricAvailable())) {
+        return false;
+      }
+
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: reason,
+        fallbackLabel: 'Use Passcode',
+      });
+      
+      return result.success;
+    } catch (error) {
+      console.warn('Biometric authentication failed:', error);
+      return false;
+    }
   }
 }
