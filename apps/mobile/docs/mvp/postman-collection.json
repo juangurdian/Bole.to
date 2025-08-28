@@ -1,0 +1,862 @@
+{
+  "info": {
+    "name": "Bole.to API - Phase 1 MVP",
+    "description": "Complete API collection for Bole.to Phase 1 MVP implementation. Includes all endpoints for authentication, event discovery, ticket purchasing, and payment processing.",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://staging-api.bole.to",
+      "type": "string",
+      "description": "Base URL for the staging API"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string",
+      "description": "JWT authentication token"
+    },
+    {
+      "key": "accountId",
+      "value": "",
+      "type": "string",
+      "description": "Selected account ID for multi-tenant access"
+    },
+    {
+      "key": "eventId",
+      "value": "1",
+      "type": "string",
+      "description": "Sample event ID for testing"
+    },
+    {
+      "key": "orderShortId",
+      "value": "",
+      "type": "string",
+      "description": "Order short ID from order creation"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@bole.to\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Authenticate user and receive JWT token with available accounts"
+          },
+          "response": [
+            {
+              "name": "Successful Login",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"test@bole.to\",\n  \"password\": \"password123\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"data\": {\n    \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...\",\n    \"user\": {\n      \"id\": 1,\n      \"email\": \"test@bole.to\",\n      \"first_name\": \"Test\",\n      \"last_name\": \"User\"\n    },\n    \"accounts\": [\n      {\n        \"id\": 1,\n        \"name\": \"Test Event Company\",\n        \"slug\": \"test-event-company\"\n      }\n    ]\n  }\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (responseCode.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('token', response.data.token);",
+                  "    if (response.data.accounts.length > 0) {",
+                  "        pm.environment.set('accountId', response.data.accounts[0].id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Select Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"account_id\": {{accountId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/select-account",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "select-account"
+              ]
+            },
+            "description": "Switch to a specific account context for multi-tenant users"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (responseCode.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('token', response.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "refresh"
+              ]
+            },
+            "description": "Refresh an expiring JWT token"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (responseCode.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('token', response.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Logout user and invalidate JWT token"
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Profile",
+      "item": [
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me"
+              ]
+            },
+            "description": "Get authenticated user's profile information"
+          }
+        },
+        {
+          "name": "Update User Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Updated\",\n  \"last_name\": \"Name\",\n  \"timezone\": \"America/New_York\",\n  \"locale\": \"en\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me"
+              ]
+            },
+            "description": "Update authenticated user's profile information"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Event Discovery",
+      "item": [
+        {
+          "name": "Get Events (All)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "events"
+              ]
+            },
+            "description": "Get all public events without filters"
+          }
+        },
+        {
+          "name": "Get Events (Filtered)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/events?query=music&city=New York&category_ids[]=1&start_date=2025-09-01&end_date=2025-12-31&price_min=0&price_max=100&page=1&per_page=12",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "events"
+              ],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "music",
+                  "description": "Text search in titles and descriptions"
+                },
+                {
+                  "key": "city",
+                  "value": "New York",
+                  "description": "Filter by city name"
+                },
+                {
+                  "key": "category_ids[]",
+                  "value": "1",
+                  "description": "Filter by category ID"
+                },
+                {
+                  "key": "start_date",
+                  "value": "2025-09-01",
+                  "description": "Events starting after this date"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2025-12-31",
+                  "description": "Events ending before this date"
+                },
+                {
+                  "key": "price_min",
+                  "value": "0",
+                  "description": "Minimum ticket price"
+                },
+                {
+                  "key": "price_max",
+                  "value": "100",
+                  "description": "Maximum ticket price"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "per_page",
+                  "value": "12",
+                  "description": "Items per page"
+                }
+              ]
+            },
+            "description": "Get events with comprehensive filtering options"
+          }
+        },
+        {
+          "name": "Get Event Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/events/{{eventId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "events",
+                "{{eventId}}"
+              ]
+            },
+            "description": "Get detailed information about a specific event including tickets"
+          }
+        },
+        {
+          "name": "Get Event Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "categories"
+              ]
+            },
+            "description": "Get all available event categories for filtering"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Order Management",
+      "item": [
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"quantity\": 2\n    },\n    {\n      \"product_id\": 2,\n      \"quantity\": 1\n    }\n  ],\n  \"promo_code\": \"SUMMER2025\",\n  \"affiliate_code\": \"PARTNER123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/public/events/{{eventId}}/order",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "events",
+                "{{eventId}}",
+                "order"
+              ]
+            },
+            "description": "Create a new order for event tickets"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (responseCode.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('orderShortId', response.data.short_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Order Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/events/{{eventId}}/order/{{orderShortId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "events",
+                "{{eventId}}",
+                "order",
+                "{{orderShortId}}"
+              ]
+            },
+            "description": "Get order details by short ID"
+          }
+        },
+        {
+          "name": "Get User Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/orders?status=upcoming&page=1&per_page=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "upcoming",
+                  "description": "Filter by status: upcoming, past, all"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20",
+                  "description": "Items per page"
+                }
+              ]
+            },
+            "description": "Get all orders for the authenticated user"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payment Processing",
+      "item": [
+        {
+          "name": "Create Payment Intent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"return_url\": \"https://app.bole.to/order/confirmation\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/public/events/{{eventId}}/order/{{orderShortId}}/stripe/payment_intent",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "events",
+                "{{eventId}}",
+                "order",
+                "{{orderShortId}}",
+                "stripe",
+                "payment_intent"
+              ]
+            },
+            "description": "Create a Stripe payment intent for order completion"
+          }
+        },
+        {
+          "name": "Get Payment Intent Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/events/{{eventId}}/order/{{orderShortId}}/stripe/payment_intent",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "events",
+                "{{eventId}}",
+                "order",
+                "{{orderShortId}}",
+                "stripe",
+                "payment_intent"
+              ]
+            },
+            "description": "Get the current status of a payment intent"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Check-in System",
+      "item": [
+        {
+          "name": "Get Check-in List",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/check-in-lists/CIL-ABC123",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "check-in-lists",
+                "CIL-ABC123"
+              ]
+            },
+            "description": "Get check-in list details for staff access"
+          }
+        },
+        {
+          "name": "Get Check-in List Attendees",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/check-in-lists/CIL-ABC123/attendees?search=john&page=1&per_page=50",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "check-in-lists",
+                "CIL-ABC123",
+                "attendees"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "john",
+                  "description": "Search by name or email"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "per_page",
+                  "value": "50",
+                  "description": "Items per page"
+                }
+              ]
+            },
+            "description": "Get attendees for a specific check-in list"
+          }
+        },
+        {
+          "name": "Create Check-in",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attendee_public_id\": \"ATT-DEF456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/public/check-in-lists/CIL-ABC123/check-ins",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "check-in-lists",
+                "CIL-ABC123",
+                "check-ins"
+              ]
+            },
+            "description": "Check in an attendee using their public ID or QR code"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Promo Codes",
+      "item": [
+        {
+          "name": "Get Promo Code",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/events/{{eventId}}/promo-codes/SUMMER2025",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "events",
+                "{{eventId}}",
+                "promo-codes",
+                "SUMMER2025"
+              ]
+            },
+            "description": "Get promo code details for validation and discount information"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Event Questions",
+      "item": [
+        {
+          "name": "Get Event Questions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/events/{{eventId}}/questions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "events",
+                "{{eventId}}",
+                "questions"
+              ]
+            },
+            "description": "Get registration questions for an event"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Organizer",
+      "item": [
+        {
+          "name": "Get Public Organizer",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/organizers/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "organizers",
+                "1"
+              ]
+            },
+            "description": "Get public organizer information"
+          }
+        },
+        {
+          "name": "Contact Organizer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"subject\": \"Question about event\",\n  \"message\": \"I have a question about your upcoming event...\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/public/organizers/1/contact",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "organizers",
+                "1",
+                "contact"
+              ]
+            },
+            "description": "Send a message to event organizer"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "API Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/healthz",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "healthz"
+              ]
+            },
+            "description": "Check API health status"
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Set common headers for all requests",
+          "pm.request.headers.add({key: 'Accept', value: 'application/json'});"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global test for response time",
+          "pm.test('Response time is less than 5000ms', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+          "});",
+          "",
+          "// Global test for content type",
+          "pm.test('Content-Type is application/json', function () {",
+          "    const contentType = pm.response.headers.get('Content-Type');",
+          "    if (contentType) {",
+          "        pm.expect(contentType).to.include('application/json');",
+          "    }",
+          "});"
+        ]
+      }
+    }
+  ]
+}

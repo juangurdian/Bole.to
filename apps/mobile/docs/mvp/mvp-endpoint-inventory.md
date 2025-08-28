@@ -4,9 +4,9 @@
 
 | Feature | Endpoint | Auth | Request Params | Response | Pagination/Filters | Status | Notes |
 |---------|----------|------|----------------|----------|-------------------|--------|-------|
-| User Login | POST `/auth/login` | N | `email`, `password`, `account_id?` | JWT token + accounts | - | Ready | Multi-tenant support |
-| User Logout | GET/POST `/auth/logout` | Y | - | Success message | - | Ready | JWT required |
-| Refresh Token | POST `/auth/refresh` | Y | - | New JWT token | - | Ready | - |
+| User Login | POST `/auth/login` | N | `email`, `password`, `account_id?` | JWT token + accounts | - | ✅ Implemented | Multi-tenant support, mobile integrated |
+| User Logout | GET/POST `/auth/logout` | Y | - | Success message | - | ✅ Implemented | JWT required |
+| Refresh Token | POST `/auth/refresh` | Y | - | New JWT token | - | ✅ Implemented | Auto-refresh in mobile app |
 | Register Account | POST `/auth/register` | N | Account + user details | Account + token | - | Ready | Creates account + user |
 | Forgot Password | POST `/auth/forgot-password` | N | `email` | Success message | - | Ready | - |
 | Reset Password | POST `/auth/reset-password/{token}` | N | `password`, `password_confirmation` | Success message | - | Ready | - |
@@ -15,32 +15,34 @@
 
 | Feature | Endpoint | Auth | Request Params | Response | Pagination/Filters | Status | Notes |
 |---------|----------|------|----------------|----------|-------------------|--------|-------|
-| Get Current User | GET `/users/me` | Y | - | User details | - | Ready | - |
-| Update Profile | PUT `/users/me` | Y | User fields | Updated user | - | Ready | - |
+| Get Current User | GET `/users/me` | Y | - | User details | - | ✅ Implemented | Mobile profile screen integrated |
+| Update Profile | PUT `/users/me` | Y | User fields | Updated user | - | ✅ Implemented | Mobile profile editing working |
 
 ## Event Discovery Endpoints
 
 | Feature | Endpoint | Auth | Request Params | Response | Pagination/Filters | Status | Notes |
 |---------|----------|------|----------------|----------|-------------------|--------|-------|
-| Get Public Event | GET `/public/events/{id}` | N | `promo_code?` | Event details + products | - | Ready | Live events only for anon users |
+| Get Public Event | GET `/public/events/{id}` | N | `promo_code?` | Event details + products | - | ✅ Implemented | Event details screen working |
 | Get Events (Organizer) | GET `/events` | Y (Organizer+) | - | Event list | Yes (standard Laravel) | Ready | Account-scoped events |
 | Get Organizer Events (Public) | GET `/public/organizers/{id}/events` | N | - | Event list | Yes | Ready | Public organizer events |
+| **Get All Events (Public)** | GET `/public/events` | N | Filters: `query`, `category_ids[]`, `city`, `start_date`, `end_date`, `price_min`, `price_max`, `is_free`, pagination | Event list with pagination | Yes | ✅ Implemented | New endpoint for event discovery |
 
 ## Product/Ticket Endpoints
 
 | Feature | Endpoint | Auth | Request Params | Response | Pagination/Filters | Status | Notes |
 |---------|----------|------|----------------|----------|-------------------|--------|-------|
 | Get Event Products | GET `/events/{id}/products` | Y | - | Product list | - | Ready | Organizer access |
-| Get Public Event Products | GET `/public/events/{id}/products` | N | - | Event details (includes products) | - | Ready | Via GetEventPublic |
+| Get Public Event Products | GET `/public/events/{id}/products` | N | - | Event details (includes products) | - | ✅ Implemented | Via GetEventPublic, mobile checkout working |
 
 ## Order/Purchase Endpoints
 
 | Feature | Endpoint | Auth | Request Params | Response | Pagination/Filters | Status | Notes |
 |---------|----------|------|----------------|----------|-------------------|--------|-------|
-| Create Order | POST `/public/events/{id}/order` | N | `products[]`, `promo_code?`, `affiliate_code?` | Order details | - | Ready | Public order creation |
+| Create Order | POST `/public/events/{id}/order` | N | `products[]`, `promo_code?`, `affiliate_code?` | Order details with short_id | - | ✅ Implemented | Mobile checkout creating orders |
 | Complete Order | PUT `/public/events/{id}/order/{order_short_id}` | N | Payment details | Completed order | - | Ready | Payment completion |
-| Get Order (Public) | GET `/public/events/{id}/order/{order_short_id}` | N | - | Order details | - | Ready | By short_id |
+| Get Order (Public) | GET `/public/events/{id}/order/{order_short_id}` | N | - | Order details | - | ✅ Implemented | Order confirmation screen working |
 | Offline Payment | POST `/public/events/{id}/order/{order_short_id}/await-offline-payment` | N | - | Order status | - | Ready | For offline payment methods |
+| **Get User Orders** | GET `/users/me/orders` | Y | - | User's order history | Yes | ✅ Implemented | New endpoint for ticket wallet |
 
 ## Attendee/Ticket Wallet Endpoints
 
@@ -62,8 +64,8 @@
 
 | Feature | Endpoint | Auth | Request Params | Response | Pagination/Filters | Status | Notes |
 |---------|----------|------|----------------|----------|-------------------|--------|-------|
-| Create Payment Intent | POST `/public/events/{id}/order/{order_short_id}/stripe/payment_intent` | N | Order details | Stripe client_secret | - | Ready | Stripe integration |
-| Get Payment Intent | GET `/public/events/{id}/order/{order_short_id}/stripe/payment_intent` | N | - | Payment intent status | - | Ready | Payment status check |
+| Create Payment Intent | POST `/public/events/{id}/order/{order_short_id}/stripe/payment_intent` | N | Order details | Stripe client_secret + payment intent | - | ✅ Implemented | Mobile Stripe integration working |
+| Get Payment Intent | GET `/public/events/{id}/order/{order_short_id}/stripe/payment_intent` | N | - | Payment intent status | - | ✅ Implemented | Payment status verification working |
 
 ## Promo Code Endpoints
 
@@ -76,6 +78,7 @@
 | Feature | Endpoint | Auth | Request Params | Response | Pagination/Filters | Status | Notes |
 |---------|----------|------|----------------|----------|-------------------|--------|-------|
 | Get Public Questions | GET `/public/events/{id}/questions` | N | - | Question list | - | Ready | Event registration questions |
+| **Get Event Categories** | GET `/public/categories` | N | - | Category list | - | ✅ Implemented | New endpoint for event categorization |
 
 ## Organizer Endpoints
 
@@ -105,11 +108,21 @@
 - **Consistent error responses** via ResponseCodes class
 - **Public vs Private resources** - different response shapes for public consumption
 
-## Missing MVP Endpoints
+## Phase 1 Implementation Complete ✅
 
-The following endpoints may be needed but are not immediately available:
+All critical MVP endpoints have been implemented and integrated with the mobile app:
 
-1. **Event Search/Filter** - Public endpoint for event discovery with filters
-2. **User Registration** - Separate user registration (vs account creation)
-3. **My Orders/Tickets** - Authenticated endpoint to get user's orders/tickets
-4. **Event Categories** - Public endpoint for event categories
+**✅ Completed in Phase 1:**
+1. ✅ **Event Search/Filter** - `/api/public/events` with comprehensive filtering
+2. ✅ **My Orders/Tickets** - `/api/users/me/orders` endpoint integrated
+3. ✅ **Event Categories** - `/api/public/categories` endpoint available
+4. ✅ **Stripe Payment Flow** - Complete payment intent integration
+5. ✅ **Mobile Authentication** - JWT auth with account selection
+6. ✅ **Event Discovery** - Full event browsing with filters
+7. ✅ **Ticket Wallet** - User ticket management interface
+
+**Ready for Phase 2:**
+- User Registration flow (separate from account creation)
+- QR Check-in system endpoints (available, mobile integration pending)
+- Advanced event management features
+- Social features and messaging systems

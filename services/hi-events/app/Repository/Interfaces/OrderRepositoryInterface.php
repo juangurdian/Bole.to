@@ -29,4 +29,12 @@ interface OrderRepositoryInterface extends RepositoryInterface
     public function findByShortId(string $orderShortId): ?OrderDomainObject;
 
     public function findOrdersAssociatedWithProducts(int $eventId, array $productIds, array $orderStatuses): Collection;
+
+    public function findOrdersWithFilters(
+        array $where,
+        array $whereRaw = [],
+        array $whereRawBindings = [],
+        array $orderBy = [],
+        QueryParamsDTO $params = null
+    ): LengthAwarePaginator;
 }

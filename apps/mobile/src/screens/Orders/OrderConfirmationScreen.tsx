@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
@@ -9,12 +9,19 @@ import Button from "../../components/Button";
 import Card from "../../components/Card";
 
 export default function OrderConfirmationScreen({ route, navigation }: any) {
-  const { orderId } = route.params;
+  const { orderId, orderShortId, eventId } = route.params;
   const api = useApi();
   
   const orderQuery = useQuery({ 
     queryKey: ["order", orderId], 
     queryFn: () => api.getOrder(orderId) 
+  });
+
+  // Query payment intent status to show payment confirmation
+  const paymentIntentQuery = useQuery({ 
+    queryKey: ["paymentIntent", eventId, orderShortId], 
+    queryFn: () => orderShortId && eventId ? api.getPaymentIntent(eventId, orderShortId) : null,
+    enabled: !!orderShortId && !!eventId
   });
 
   if (orderQuery.isLoading) {
@@ -38,6 +45,7 @@ export default function OrderConfirmationScreen({ route, navigation }: any) {
   }
 
   const order = orderQuery.data!;
+  const paymentIntent = paymentIntentQuery.data;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -46,7 +54,7 @@ export default function OrderConfirmationScreen({ route, navigation }: any) {
           <Text style={styles.successEmoji}>🎉</Text>
           <Text style={styles.successTitle}>Order Confirmed!</Text>
           <Text style={styles.successSubtitle}>
-            Your tickets have been added to your wallet
+            Your payment was successful and tickets have been added to your wallet
           </Text>
         </View>
 
@@ -86,6 +94,36 @@ export default function OrderConfirmationScreen({ route, navigation }: any) {
             </Text>
           </View>
         </Card>
+
+        {paymentIntent && (
+          <Card>
+            <Text style={styles.sectionTitle}>Payment Confirmation</Text>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Payment Status:</Text>
+              <Text style={[styles.detailValue, styles.statusPaid]}>
+                {paymentIntent.status?.toUpperCase() || 'PAID'}
+              </Text>
+            </View>
+            {paymentIntent.id && (
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Payment ID:</Text>
+                <Text style={[styles.detailValue, styles.paymentId]}>
+                  {paymentIntent.id}
+                </Text>
+              </View>
+            )}
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Payment Method:</Text>
+              <Text style={styles.detailValue}>💳 Card Payment</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Amount Charged:</Text>
+              <Text style={[styles.detailValue, styles.statusPaid]}>
+                ${paymentIntent.amount} {paymentIntent.currency?.toUpperCase()}
+              </Text>
+            </View>
+          </Card>
+        )}
 
         <Card>
           <Text style={styles.sectionTitle}>Tickets</Text>
@@ -214,6 +252,15 @@ const styles = StyleSheet.create({
   statusConfirmed: {
     color: "#28a745",
     fontWeight: "600",
+  },
+  statusPaid: {
+    color: "#007AFF",
+    fontWeight: "600",
+  },
+  paymentId: {
+    fontFamily: "monospace",
+    fontSize: 12,
+    color: "#666",
   },
   ticketRow: {
     flexDirection: "row",

@@ -159,4 +159,45 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                 ->get()
         );
     }
+
+    public function findOrdersWithFilters(
+        array $where,
+        array $whereRaw = [],
+        array $whereRawBindings = [],
+        array $orderBy = [],
+        QueryParamsDTO $params = null
+    ): LengthAwarePaginator {
+        // Apply basic where conditions
+        foreach ($where as $field => $value) {
+            $this->model = $this->model->where($field, $value);
+        }
+
+        // Apply raw where conditions for complex filtering
+        $bindingIndex = 0;
+        foreach ($whereRaw as $rawCondition) {
+            $conditionBindings = [];
+            // Extract bindings for this condition based on parameter count
+            $parameterCount = substr_count($rawCondition, '?');
+            for ($i = 0; $i < $parameterCount; $i++) {
+                if (isset($whereRawBindings[$bindingIndex])) {
+                    $conditionBindings[] = $whereRawBindings[$bindingIndex];
+                    $bindingIndex++;
+                }
+            }
+            $this->model = $this->model->whereRaw($rawCondition, $conditionBindings);
+        }
+
+        // Apply ordering
+        foreach ($orderBy as $field => $direction) {
+            $this->model = $this->model->orderBy($field, $direction);
+        }
+
+        // Default pagination params if not provided
+        $params = $params ?? new QueryParamsDTO();
+
+        return $this->model->paginate(
+            perPage: $params->per_page ?? 20,
+            page: $params->page ?? 1
+        );
+    }
 }

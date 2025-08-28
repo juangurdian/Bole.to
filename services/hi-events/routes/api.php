@@ -50,6 +50,8 @@ use HiEvents\Http\Actions\Events\GetEventAction;
 use HiEvents\Http\Actions\Events\GetEventPublicAction;
 use HiEvents\Http\Actions\Events\GetEventsAction;
 use HiEvents\Http\Actions\Events\GetOrganizerEventsPublicAction;
+use HiEvents\Http\Actions\Events\GetPublicEventsDiscoveryAction;
+use HiEvents\Http\Actions\Events\GetEventCategoriesPublicAction;
 use HiEvents\Http\Actions\Events\Images\CreateEventImageAction;
 use HiEvents\Http\Actions\Events\Images\DeleteEventImageAction;
 use HiEvents\Http\Actions\Events\Images\GetEventImagesAction;
@@ -80,6 +82,7 @@ use HiEvents\Http\Actions\Orders\Public\DownloadOrderInvoicePublicAction;
 use HiEvents\Http\Actions\Orders\Public\GetOrderActionPublic;
 use HiEvents\Http\Actions\Orders\Public\TransitionOrderToOfflinePaymentPublicAction;
 use HiEvents\Http\Actions\Orders\ResendOrderConfirmationAction;
+use HiEvents\Http\Actions\Orders\GetUserOrdersAction;
 use HiEvents\Http\Actions\Organizers\CreateOrganizerAction;
 use HiEvents\Http\Actions\Organizers\EditOrganizerAction;
 use HiEvents\Http\Actions\Organizers\GetOrganizerAction;
@@ -177,6 +180,7 @@ $router->middleware(['auth:api'])->group(
         // Users
         $router->get('/users/me', GetMeAction::class);
         $router->put('/users/me', UpdateMeAction::class);
+        $router->get('/users/me/orders', GetUserOrdersAction::class);
         $router->post('/users', CreateUserAction::class);
         $router->get('/users', GetUsersAction::class);
         $router->get('/users/{user_id}', GetUserAction::class);
@@ -338,7 +342,11 @@ $router->middleware(['auth:api'])->group(
 $router->prefix('/public')->group(
     function (Router $router): void {
         // Events
+        $router->get('/events', GetPublicEventsDiscoveryAction::class);
         $router->get('/events/{event_id}', GetEventPublicAction::class);
+        
+        // Categories
+        $router->get('/categories', GetEventCategoriesPublicAction::class);
 
         // Organizers
         $router->get('/organizers/{organizer_id}', GetPublicOrganizerAction::class);

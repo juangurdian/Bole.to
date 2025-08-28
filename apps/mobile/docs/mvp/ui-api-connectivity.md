@@ -4,35 +4,35 @@
 
 | UI Screen/Component | User Story | API Call(s) | Auth Needed | Error/Empty States | Immediate Wiring | Gaps & Fixes |
 |---------------------|------------|-------------|-------------|-------------------|------------------|--------------|
-| **LoginScreen** | User logs in with email/password | `POST /auth/login` | N | Invalid credentials, network errors | **Yes** | Need to handle multi-tenant `account_id` |
-| **Profile/NewProfileScreen** | User views their profile | `GET /users/me` | Y (JWT) | Unauthenticated, load errors | **Yes** | Direct mapping available |
-| **SignupScreen** | User creates account | `POST /auth/register` | N | Validation errors, email exists | **Partial** | Need account creation flow vs user-only |
+| **LoginScreen** | User logs in with email/password | `POST /auth/login` | N | Invalid credentials, network errors | ✅ **Implemented** | Multi-tenant account selection working |
+| **Profile/NewProfileScreen** | User views their profile | `GET /users/me` | Y (JWT) | Unauthenticated, load errors | ✅ **Implemented** | Profile screen fully integrated |
+| **SignupScreen** | User creates account | `POST /auth/register` | N | Validation errors, email exists | **Ready** | Account creation flow available |
 
 ## Event Discovery & Browse
 
 | UI Screen/Component | User Story | API Call(s) | Auth Needed | Error/Empty States | Immediate Wiring | Gaps & Fixes |
 |---------------------|------------|-------------|-------------|-------------------|------------------|--------------|
-| **DiscoverScreen** | Browse public events with filters | `GET /public/organizers/{id}/events` | N | No events, network error | **Partial** | Need unified event discovery endpoint |
-| **Home/EventsNearYouSection** | See events near user location | Custom endpoint needed | N | No nearby events | **No** | Missing public event search/filter API |
-| **Discover/EventCard** | View event summary in list | Part of event list response | N | Image load failures | **Yes** | Map response to UI expectations |
-| **DiscoverHeader** | Search events by text/filters | Search endpoint needed | N | No results | **No** | Missing text search endpoint |
+| **DiscoverScreen** | Browse public events with filters | `GET /public/events` | N | No events, network error | ✅ **Implemented** | Event discovery with filters working |
+| **Home/EventsNearYouSection** | See events near user location | `GET /public/events?city={city}` | N | No nearby events | ✅ **Implemented** | Location-based event filtering |
+| **Discover/EventCard** | View event summary in list | Part of event list response | N | Image load failures | ✅ **Implemented** | Event cards rendering properly |
+| **DiscoverHeader** | Search events by text/filters | `GET /public/events?query={query}` | N | No results | ✅ **Implemented** | Text search and filters working |
 
 ## Event Details & Purchase
 
 | UI Screen/Component | User Story | API Call(s) | Auth Needed | Error/Empty States | Immediate Wiring | Gaps & Fixes |
 |---------------------|------------|-------------|-------------|-------------------|------------------|--------------|
-| **EventScreen** | View event details & tickets | `GET /public/events/{id}` | N | Event not found, private | **Yes** | Direct mapping available |
-| **EventScreen (Products)** | See available ticket types | Included in event response | N | Sold out, no tickets | **Yes** | Products included in EventResourcePublic |
-| **CheckoutScreen** | Purchase tickets | `POST /public/events/{id}/order` | N | Validation, payment errors | **Yes** | Order creation ready |
-| **CheckoutScreen (Payment)** | Complete payment | `PUT /public/events/{id}/order/{order_short_id}` + Stripe | N | Payment failures | **Yes** | Stripe integration available |
+| **EventScreen** | View event details & tickets | `GET /public/events/{id}` | N | Event not found, private | ✅ **Implemented** | Event details fully working |
+| **EventScreen (Products)** | See available ticket types | Included in event response | N | Sold out, no tickets | ✅ **Implemented** | Ticket types displaying correctly |
+| **CheckoutScreen** | Purchase tickets | `POST /public/events/{id}/order` | N | Validation, payment errors | ✅ **Implemented** | Order creation and validation working |
+| **CheckoutScreen (Payment)** | Complete payment | Stripe Payment Intent API | N | Payment failures | ✅ **Implemented** | Full Stripe integration with native UI |
 
 ## Ticket Wallet & Management
 
 | UI Screen/Component | User Story | API Call(s) | Auth Needed | Error/Empty States | Immediate Wiring | Gaps & Fixes |
 |---------------------|------------|-------------|-------------|-------------------|------------------|--------------|
-| **TicketsScreen** | View my purchased tickets | Need authenticated endpoint | Y | No tickets | **No** | Missing "my orders/tickets" endpoint |
-| **Wallet/TicketScreen** | View individual ticket with QR | `GET /public/events/{id}/attendees/{attendee_short_id}` | N | Invalid ticket | **Yes** | Public attendee endpoint available |
-| **TicketsScreen (Past/Upcoming)** | Filter tickets by date | Client-side filtering | Y | Empty sections | **Partial** | Need my tickets endpoint first |
+| **TicketsScreen** | View my purchased tickets | `GET /users/me/orders` | Y | No tickets | ✅ **Implemented** | Ticket wallet fully functional |
+| **Wallet/TicketScreen** | View individual ticket with QR | From user orders response | Y | Invalid ticket | ✅ **Implemented** | Individual ticket display working |
+| **TicketsScreen (Past/Upcoming)** | Filter tickets by date | Client-side filtering | Y | Empty sections | ✅ **Implemented** | Date-based filtering implemented |
 
 ## QR Check-in & Scanning
 
@@ -76,7 +76,7 @@
 
 ### Mock API Usage
 ```typescript
-const api = useApi(); // Currently uses mockApi
+const api = useApi(); // Now uses realApiService with staging-api.bole.to
 const { data } = useQuery({
   queryKey: ["event", id],
   queryFn: () => api.getEvent(id)
@@ -86,7 +86,7 @@ const { data } = useQuery({
 ### Authentication Context
 ```typescript
 const { user, isAuthenticated } = useAuth();
-// Currently using MockAuthProvider
+// Now using RealAuthProvider with JWT authentication
 ```
 
 ### Error Handling Patterns
@@ -97,21 +97,23 @@ const { user, isAuthenticated } = useAuth();
 
 ## Priority Wiring Assessment
 
-### P1 (Immediate - This Week)
-- **Login/Auth** - Direct mapping to Hi.Events auth
-- **Event Details** - Public event endpoint ready
-- **Ticket Purchase** - Order creation flow ready
-- **QR Check-in** - Public check-in endpoints ready
+### ✅ P1 (Completed - Phase 1 MVP)
+- ✅ **Login/Auth** - JWT authentication with account selection working
+- ✅ **Event Details** - Event details screen fully integrated
+- ✅ **Ticket Purchase** - Complete order creation and Stripe payment flow
+- ✅ **Event Discovery** - Unified public events endpoint with search and filters
+- ✅ **My Tickets** - User orders endpoint integrated with ticket wallet
+- ✅ **Profile Management** - User profile viewing and editing working
 
-### P2 (Minor Changes Needed)
-- **Event Discovery** - Need unified public search endpoint
-- **My Tickets** - Need authenticated tickets endpoint
-- **Profile Management** - Map user fields correctly
+### Ready for P2 (Next Phase)
+- **QR Check-in** - Backend endpoints ready, mobile integration pending
+- **Advanced Event Management** - Organizer features available
+- **Promo Codes** - Backend support ready for checkout integration
 
-### P3 (Deferred/Complex)
-- **Social Features** - Not in Hi.Events, may need separate service
-- **Payment Methods Storage** - Not in Hi.Events core
-- **Advanced Search** - May need elasticsearch integration
+### P3 (Future Enhancements)
+- **Social Features** - Requires separate microservice
+- **Payment Methods Storage** - Enhanced payment management
+- **Advanced Analytics** - Event and sales reporting features
 
 ## Authentication Strategy
 
@@ -121,4 +123,4 @@ const { user, isAuthenticated } = useAuth();
 3. **Account Context** - Handle multi-tenant account_id in auth flow
 4. **Token Refresh** - Use `/auth/refresh` endpoint
 
-No Gateway service needed initially - mobile app can call Hi.Events API directly with proper CORS configuration.
+Gateway service at `https://staging-api.bole.to` is operational and handling all mobile API requests with proper CORS configuration.

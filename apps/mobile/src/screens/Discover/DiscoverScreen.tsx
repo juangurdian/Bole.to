@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import type { NavigationProp } from "@react-navigation/native";
 import { useApi } from "../../api";
-import { useAuth } from "../../auth/MockAuthProvider";
+import { useAuth } from "../../auth/useAuth";
 import { theme } from "../../theme";
 import Skeleton from "../../components/Skeleton";
 import ErrorState from "../../components/ErrorState";
@@ -26,7 +26,7 @@ export default function DiscoverScreen({ navigation }: DiscoverScreenProps) {
   const insets = useSafeAreaInsets();
   
   const [query, setQuery] = useState({
-    city: user?.city || "Managua",
+    city: user?.account?.domain || "Managua", // Use account domain or default city
     dateRange: "all" as "all" | "tonight" | "weekend",
     categories: [] as string[],
     price: null as { min?: number; max?: number } | null,
@@ -39,7 +39,7 @@ export default function DiscoverScreen({ navigation }: DiscoverScreenProps) {
   const discoverQuery = useQuery({
     queryKey: ["discover", query],
     queryFn: () => api.discover(query),
-    keepPreviousData: true
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   // Infinite query for "all events" list

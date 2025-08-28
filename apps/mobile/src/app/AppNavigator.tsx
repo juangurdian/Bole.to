@@ -1,7 +1,6 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-// import { useAuth } from "../auth/useAuth";
-import { useMockAuth as useAuth } from "../auth/MockAuthProvider";
+import { useAuth } from "../auth/useAuth";
 import LoginScreen from "../screens/Auth/LoginScreen";
 import HomeTab from "./tabs/HomeTab";
 import DiscoverTab from "./tabs/DiscoverTab";
@@ -13,13 +12,13 @@ import BoletoTabBar from "../components/nav/BoletoTabBar";
 const Tab = createBottomTabNavigator();
 
 export default function AppNavigator() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, isAuthenticated } = useAuth();
 
   if (isLoading) {
     return null; // Could show a loading screen here
   }
 
-  if (!user) {
+  if (!isAuthenticated) {
     return <LoginScreen />;
   }
 

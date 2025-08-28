@@ -1,0 +1,34 @@
+# DigitalOcean Configuration
+do_token = "your_digitalocean_api_token_here"
+region   = "nyc1"  # or "sfo3", "ams3", "sgp1", etc.
+
+# Cloudflare Configuration
+cloudflare_api_token = "your_cloudflare_api_token_here"
+
+# Application Configuration
+app_key    = "base64:your_laravel_app_key_here"  # Generate with: php artisan key:generate
+jwt_secret = "your_jwt_secret_key_here"         # Generate with: php artisan jwt:secret
+
+# GitHub Repository (update with your actual repo)
+github_repo = "https://github.com/your-org/bole-to.git"
+
+# Payment Configuration (Stripe - use test keys for staging)
+stripe_public_key = "pk_test_your_stripe_public_key"
+stripe_secret_key = "sk_test_your_stripe_secret_key"
+
+# Email Configuration (example using Mailgun)
+mail_host         = "smtp.mailgun.org"
+mail_port         = "587"
+mail_username     = "postmaster@mg.yourdomain.com"
+mail_password     = "your_mailgun_password"
+mail_from_address = "noreply@bole.to"
+
+# Cost Optimization Settings
+enable_production_features = false          # Keep false for staging to minimize costs
+database_size             = "db-s-1vcpu-1gb"  # Smallest size for staging
+app_instance_size         = "basic-xxs"       # Smallest size for staging
+
+# Example with production-ready settings (higher cost):
+# enable_production_features = true
+# database_size             = "db-s-2vcpu-4gb"
+# app_instance_size         = "professional-xs"

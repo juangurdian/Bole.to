@@ -14,7 +14,8 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { theme } from "../../theme";
-import { mockApi } from "../../mocks/api";
+import { useApi } from "../../api";
+import { useAuth } from "../../auth/useAuth";
 import NewHomeTopBar from "../Home/components/NewHomeTopBar";
 import TicketSegmented from "./components/TicketSegmented";
 import TicketQuickActions from "./components/TicketQuickActions";
@@ -33,6 +34,8 @@ export type TicketsTab = "tickets" | "events";
 
 export default function TicketsScreen({ navigation }: any) {
   const insets = useSafeAreaInsets();
+  const api = useApi();
+  const { user, isAuthenticated } = useAuth();
   const scrollY = useSharedValue(0);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedTab, setSelectedTab] = useState<TicketsTab>("tickets");
@@ -43,7 +46,7 @@ export default function TicketsScreen({ navigation }: any) {
     },
   });
 
-  // Fetch tickets data using mock API
+  // Fetch tickets data using real API
   const {
     data,
     isLoading,
@@ -51,7 +54,8 @@ export default function TicketsScreen({ navigation }: any) {
     refetch,
   } = useQuery({
     queryKey: ["tickets-payload"],
-    queryFn: mockApi.getTicketsPayload,
+    queryFn: api.getTicketsPayload,
+    enabled: isAuthenticated, // Only fetch if user is logged in
     refetchOnMount: true,
   });
 

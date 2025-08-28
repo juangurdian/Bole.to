@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useAuth } from "../../auth/MockAuthProvider";
+import { useAuth } from "../../auth/useAuth";
 import Card from "../../components/Card";
 import Button from "../../components/Button";
 import ListItem from "../../components/ListItem";

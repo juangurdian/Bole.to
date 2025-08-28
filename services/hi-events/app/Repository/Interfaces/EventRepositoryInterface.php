@@ -17,4 +17,12 @@ interface EventRepositoryInterface extends RepositoryInterface
     public function findEventsForOrganizer(int $organizerId, int $accountId, QueryParamsDTO $params): LengthAwarePaginator;
 
     public function findEvents(array $where, QueryParamsDTO $params): LengthAwarePaginator;
+
+    public function findEventsWithFilters(
+        array $where,
+        array $whereRaw = [],
+        array $whereRawBindings = [],
+        array $orderBy = [],
+        QueryParamsDTO $params = null
+    ): LengthAwarePaginator;
 }
