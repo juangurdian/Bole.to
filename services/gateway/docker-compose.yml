@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  gateway:
+    build: .
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DATABASE_URL=postgresql://gateway:password@postgres:5432/gateway_db
+      - REDIS_URL=redis://redis:6379
+      - JWT_ISSUER=https://api.bole.to
+      - JWT_AUDIENCE=boleto-mobile
+      - HIEVENTS_API_URL=http://hi-events:8000/api
+      - CORS_ORIGINS=http://localhost:3000,exp://localhost:19000,com.bole.to://
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./src:/app/src
+    command: npm run dev
+    restart: unless-stopped
+    networks:
+      - gateway-network
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=gateway_db
+      - POSTGRES_USER=gateway
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    volumes:
+      - gateway_postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql
+    restart: unless-stopped
+    networks:
+      - gateway-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - gateway_redis_data:/data
+    restart: unless-stopped
+    networks:
+      - gateway-network
+
+  # Optional: PostgreSQL admin interface
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@bole.to
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    networks:
+      - gateway-network
+    profiles:
+      - tools
+
+  # Optional: Redis admin interface
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - gateway-network
+    profiles:
+      - tools
+
+volumes:
+  gateway_postgres_data:
+  gateway_redis_data:
+
+networks:
+  gateway-network:
+    driver: bridge
