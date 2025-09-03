@@ -1,78 +1,118 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { saveToken, getToken, removeToken, saveUser, getUser, removeUser } from "./token";
-
-interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: string;
-  emailVerified: boolean;
-  phoneVerified: boolean;
-  profile?: {
-    avatar?: string;
-    bio?: string;
-  };
-  socialAccounts?: Array<{
-    provider: string;
-    linkedAt: string;
-  }>;
-}
+import { Alert } from "react-native";
+import { GatewayAuthService, User as GatewayUser, GatewayError } from "./gateway-auth-service";
+import { deepLinkHandler, initializeDeepLinking, cleanupDeepLinking } from "./deep-link-handler";
+import { googleProvider, appleProvider, getAvailableProviders } from "./oauth-providers";
 
 interface AuthContextType {
-  user: User | null;
+  user: GatewayUser | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  availableOAuthProviders: string[];
+  accountSelectionRequired: boolean;
+  availableAccounts: any[];
+  
+  // Authentication methods
   login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
   logout: (allDevices?: boolean) => Promise<void>;
   refreshUser: () => Promise<void>;
-  authenticateWithOAuth: (provider: string, authorizationCode: string) => Promise<void>;
+  
+  // OAuth methods
+  authenticateWithGoogle: () => Promise<void>;
+  authenticateWithApple: () => Promise<void>;
+  authenticateWithOAuth: (provider: string, idToken: string) => Promise<void>;
+  
+  // Account selection
+  selectAccount: (accountId: string) => Promise<void>;
+  
+  // Session management
+  getSessions: () => Promise<any[]>;
+  revokeSession: (sessionId: string) => Promise<void>;
+  revokeAllSessions: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-// Mock user for development
-const MOCK_USER: User = {
-  id: "user_123",
-  firstName: "John",
-  lastName: "Doe",
-  email: "john@bole.to",
-  role: "attendee",
-  emailVerified: true,
-  phoneVerified: false,
-  profile: {
-    avatar: "https://i.pravatar.cc/150?u=john@bole.to",
-    bio: "Event enthusiast and music lover 🎵"
-  },
-  socialAccounts: [
-    { provider: "google", linkedAt: "2024-01-15T10:00:00Z" }
-  ]
-};
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<GatewayUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [availableOAuthProviders, setAvailableOAuthProviders] = useState<string[]>([]);
+  const [accountSelectionRequired, setAccountSelectionRequired] = useState(false);
+  const [availableAccounts, setAvailableAccounts] = useState<any[]>([]);
+
+  const gatewayAuth = GatewayAuthService.getInstance();
 
   useEffect(() => {
-    checkAuthState();
+    initializeAuth();
+    return cleanupAuth;
   }, []);
+
+  const initializeAuth = async () => {
+    try {
+      // Initialize deep linking
+      initializeDeepLinking();
+      
+      // Set up deep link handlers
+      setupDeepLinkHandlers();
+      
+      // Check for existing authentication
+      await checkAuthState();
+      
+      // Get available OAuth providers
+      await loadAvailableProviders();
+      
+    } catch (error) {
+      console.error("Auth initialization failed:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const cleanupAuth = () => {
+    cleanupDeepLinking();
+  };
+
+  const setupDeepLinkHandlers = () => {
+
+    deepLinkHandler.setAccountSelectionCallback((accounts: any[]) => {
+      setAccountSelectionRequired(true);
+      setAvailableAccounts(accounts);
+    });
+  };
 
   const checkAuthState = async () => {
     try {
-      const token = await getToken();
-      const savedUser = await getUser();
+      const isValid = await gatewayAuth.isTokenValid();
       
-      if (token && savedUser) {
-        // Mock: restore user from storage
-        setUser(savedUser);
+      if (isValid) {
+        // Token is valid, get user profile
+        const profile = await gatewayAuth.getProfile();
+        setUser(profile);
       } else {
-        setUser(null);
+        // Try to refresh the token
+        try {
+          await gatewayAuth.refreshToken();
+          const profile = await gatewayAuth.getProfile();
+          setUser(profile);
+        } catch (refreshError) {
+          // Refresh failed, user needs to log in again
+          console.log("Token refresh failed, user needs to log in again");
+          setUser(null);
+        }
       }
     } catch (error) {
       console.error("Error checking auth state:", error);
       setUser(null);
-    } finally {
-      setIsLoading(false);
+    }
+  };
+
+  const loadAvailableProviders = async () => {
+    try {
+      const providers = await getAvailableProviders();
+      setAvailableOAuthProviders(providers.map(p => p.name));
+    } catch (error) {
+      console.warn("Failed to load OAuth providers:", error);
+      setAvailableOAuthProviders([]);
     }
   };
 
@@ -80,28 +120,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setIsLoading(true);
       
-      // Mock: Accept any credentials for development
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const result = await gatewayAuth.login({
+        email,
+        password,
+        rememberMe,
+      });
+
+      setUser(result.user);
       
-      // Create mock user with provided email
-      const mockUser = {
-        ...MOCK_USER,
-        email: email,
-        firstName: email.split('@')[0],
-      };
-      
-      // Mock token
-      const mockToken = `mock_token_${Date.now()}`;
-      
-      await saveToken(mockToken);
-      await saveUser(mockUser);
-      setUser(mockUser);
-      
-      console.log('Mock login successful for:', email);
+      console.log('Gateway login successful for:', email);
     } catch (error) {
-      console.error('Mock login failed:', error);
-      throw error;
+      console.error('Gateway login failed:', error);
+      
+      if (error instanceof GatewayError) {
+        throw new Error(error.message);
+      } else {
+        throw new Error('Login failed. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -111,16 +146,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setIsLoading(true);
       
-      // Mock: Simulate logout delay
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      await removeToken();
-      await removeUser();
+      await gatewayAuth.logout(allDevices);
       setUser(null);
+      setAccountSelectionRequired(false);
+      setAvailableAccounts([]);
       
-      console.log('Mock logout successful');
+      console.log('Gateway logout successful');
     } catch (error) {
-      console.error('Mock logout error:', error);
+      console.error('Gateway logout error:', error);
+      // Clear local state even if logout API call fails
+      setUser(null);
+      setAccountSelectionRequired(false);
+      setAvailableAccounts([]);
     } finally {
       setIsLoading(false);
     }
@@ -128,55 +165,195 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshUser = async () => {
     try {
-      // Mock: Simulate refresh
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
-      if (user) {
-        const updatedUser = {
-          ...user,
-          profile: {
-            ...user.profile,
-            bio: user.profile?.bio + " ✨"
-          }
-        };
-        await saveUser(updatedUser);
-        setUser(updatedUser);
-      }
+      const updatedUser = await gatewayAuth.getProfile();
+      setUser(updatedUser);
     } catch (error) {
-      console.error('Mock refresh user failed:', error);
+      console.error('Refresh user failed:', error);
       throw error;
     }
   };
 
-  const authenticateWithOAuth = async (provider: string, authorizationCode: string) => {
+  const authenticateWithGoogle = async () => {
     try {
       setIsLoading(true);
       
-      // Mock: Simulate OAuth flow
-      await new Promise(resolve => setTimeout(resolve, 800));
+      if (!availableOAuthProviders.includes('google')) {
+        throw new Error('Google Sign-In is not available on this device');
+      }
+
+      // Get ID token from Google
+      const idToken = await googleProvider.startOAuth();
       
-      const mockOAuthUser = {
-        ...MOCK_USER,
-        email: `${provider}.user@bole.to`,
-        firstName: provider.charAt(0).toUpperCase() + provider.slice(1),
-        lastName: "User",
-        socialAccounts: [
-          { provider, linkedAt: new Date().toISOString() }
-        ]
-      };
+      // Authenticate with Gateway using the ID token
+      const result = await gatewayAuth.authenticateWithOAuth('google', idToken);
       
-      const mockToken = `mock_oauth_token_${Date.now()}`;
+      // Check if account selection is required
+      if (result.linkedProvider === 'multiple') {
+        setAccountSelectionRequired(true);
+        setAvailableAccounts(result.user?.socialAccounts || []);
+      } else {
+        setUser(result.user);
+        setAccountSelectionRequired(false);
+        setAvailableAccounts([]);
+        
+        if (result.isNewUser) {
+          Alert.alert(
+            "Welcome!",
+            "Your account has been created with Google Sign-In.",
+            [{ text: "OK" }]
+          );
+        }
+      }
       
-      await saveToken(mockToken);
-      await saveUser(mockOAuthUser);
-      setUser(mockOAuthUser);
-      
-      console.log(`Mock OAuth login successful for ${provider}`);
+      console.log('Google OAuth login successful');
     } catch (error) {
-      console.error('Mock OAuth authentication failed:', error);
+      console.error('Google OAuth authentication failed:', error);
+      
+      if (error instanceof GatewayError) {
+        if (error.code === 'OAUTH_CANCELLED') {
+          // User cancelled, don't show error
+          return;
+        }
+        throw new Error(error.message);
+      } else {
+        throw new Error('Google Sign-In failed. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const authenticateWithApple = async () => {
+    try {
+      setIsLoading(true);
+      
+      if (!availableOAuthProviders.includes('apple')) {
+        throw new Error('Apple Sign-In is not available on this device');
+      }
+
+      // Get ID token from Apple
+      const idToken = await appleProvider.startOAuth();
+      
+      // Authenticate with Gateway using the ID token
+      const result = await gatewayAuth.authenticateWithOAuth('apple', idToken);
+      
+      // Check if account selection is required
+      if (result.linkedProvider === 'multiple') {
+        setAccountSelectionRequired(true);
+        setAvailableAccounts(result.user?.socialAccounts || []);
+      } else {
+        setUser(result.user);
+        setAccountSelectionRequired(false);
+        setAvailableAccounts([]);
+        
+        if (result.isNewUser) {
+          Alert.alert(
+            "Welcome!",
+            "Your account has been created with Apple Sign-In.",
+            [{ text: "OK" }]
+          );
+        }
+      }
+      
+      console.log('Apple OAuth login successful');
+    } catch (error) {
+      console.error('Apple OAuth authentication failed:', error);
+      
+      if (error instanceof GatewayError) {
+        if (error.code === 'OAUTH_CANCELLED') {
+          // User cancelled, don't show error
+          return;
+        }
+        throw new Error(error.message);
+      } else {
+        throw new Error('Apple Sign-In failed. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const authenticateWithOAuth = async (provider: string, idToken: string) => {
+    // This method is kept for compatibility with existing interfaces
+    // In practice, the specific provider methods (authenticateWithGoogle, authenticateWithApple) are preferred
+    try {
+      setIsLoading(true);
+      
+      const result = await gatewayAuth.authenticateWithOAuth(
+        provider as 'google' | 'apple', 
+        idToken
+      );
+      
+      setUser(result.user);
+      
+      console.log(`OAuth login successful for ${provider}`);
+    } catch (error) {
+      console.error('OAuth authentication failed:', error);
       throw error;
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const selectAccount = async (accountId: string) => {
+    try {
+      setIsLoading(true);
+      
+      // This would typically involve calling a Gateway endpoint for account selection
+      // For now, we'll simulate by selecting from available accounts
+      const selectedAccount = availableAccounts.find(acc => acc.id === accountId);
+      
+      if (!selectedAccount) {
+        throw new Error('Selected account not found');
+      }
+
+      // Complete the authentication with the selected account
+      // This would be implemented based on the Gateway's account selection flow
+      
+      setAccountSelectionRequired(false);
+      setAvailableAccounts([]);
+      
+      console.log('Account selection completed:', accountId);
+    } catch (error) {
+      console.error('Account selection failed:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getSessions = async (): Promise<any[]> => {
+    try {
+      const response = await gatewayAuth.client.request('/auth/sessions', {
+        method: 'GET',
+      });
+      
+      return response.data || [];
+    } catch (error) {
+      console.error('Failed to get sessions:', error);
+      throw error;
+    }
+  };
+
+  const revokeSession = async (sessionId: string) => {
+    try {
+      await gatewayAuth.client.request(`/auth/sessions/${sessionId}`, {
+        method: 'DELETE',
+      });
+    } catch (error) {
+      console.error('Failed to revoke session:', error);
+      throw error;
+    }
+  };
+
+  const revokeAllSessions = async () => {
+    try {
+      await gatewayAuth.client.request('/auth/sessions', {
+        method: 'DELETE',
+      });
+    } catch (error) {
+      console.error('Failed to revoke all sessions:', error);
+      throw error;
     }
   };
 
@@ -185,10 +362,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user, 
       isLoading, 
       isAuthenticated: !!user,
+      availableOAuthProviders,
+      accountSelectionRequired,
+      availableAccounts,
       login, 
       logout, 
       refreshUser,
-      authenticateWithOAuth
+      authenticateWithGoogle,
+      authenticateWithApple,
+      authenticateWithOAuth,
+      selectAccount,
+      getSessions,
+      revokeSession,
+      revokeAllSessions,
     }}>
       {children}
     </AuthContext.Provider>
@@ -202,3 +388,5 @@ export function useAuth() {
   }
   return context;
 }
+
+export type { AuthContextType, GatewayUser as User };

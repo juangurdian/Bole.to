@@ -15,7 +15,7 @@ class GatewayClient {
   async request(endpoint: string, options: RequestInit = {}): Promise<any> {
     const url = `${this.baseURL}${endpoint}`;
     
-    const defaultHeaders = {
+    const defaultHeaders: Record<string, string> = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
       'User-Agent': this.getUserAgent(),
@@ -134,13 +134,12 @@ export interface OAuthResponse {
 // Main Gateway Authentication Service
 export class GatewayAuthService {
   private static instance: GatewayAuthService;
-  private client: GatewayClient;
+  public client: GatewayClient;
 
   // Secure storage keys
   private static readonly ACCESS_TOKEN_KEY = 'gateway_access_token';
   private static readonly REFRESH_TOKEN_KEY = 'gateway_refresh_token';
   private static readonly USER_DATA_KEY = 'user_data';
-  private static readonly PKCE_CODE_VERIFIER_KEY = 'pkce_code_verifier';
 
   private constructor() {
     this.client = new GatewayClient();
@@ -203,52 +202,18 @@ export class GatewayAuthService {
     return tokens;
   }
 
-  // OAuth with PKCE Methods
-  async generatePKCEChallenge(): Promise<{ codeVerifier: string; codeChallenge: string }> {
-    // Generate code verifier (random string)
-    const array = new Uint8Array(32);
-    await Crypto.getRandomBytesAsync(32, array);
-    const codeVerifier = Array.from(array, byte => 
-      String.fromCharCode(byte)
-    ).join('').replace(/[^a-zA-Z0-9\-._~]/g, '').substring(0, 128);
-    
-    // Generate code challenge (SHA256 hash of verifier, base64url encoded)
-    const codeChallenge = await Crypto.digestStringAsync(
-      Crypto.CryptoDigestAlgorithm.SHA256,
-      codeVerifier,
-      { encoding: Crypto.CryptoEncoding.BASE64URL }
-    );
-    
-    return { codeVerifier, codeChallenge };
-  }
+  // Native OAuth Authentication
+  // Uses native SDKs (Google Sign-In, Apple Sign-In) to get ID tokens
+  // and exchange them with Gateway's /auth/oauth/:provider/mobile endpoint
 
-  async storePKCEVerifier(codeVerifier: string): Promise<void> {
-    await SecureStore.setItemAsync(GatewayAuthService.PKCE_CODE_VERIFIER_KEY, codeVerifier);
-  }
-
-  async getPKCEVerifier(): Promise<string | null> {
-    return await SecureStore.getItemAsync(GatewayAuthService.PKCE_CODE_VERIFIER_KEY);
-  }
-
-  async clearPKCEVerifier(): Promise<void> {
-    await SecureStore.deleteItemAsync(GatewayAuthService.PKCE_CODE_VERIFIER_KEY);
-  }
-
-  async authenticateWithOAuthCallback(provider: string, authorizationCode: string): Promise<OAuthResponse> {
-    const codeVerifier = await this.getPKCEVerifier();
-    if (!codeVerifier) {
-      throw new GatewayError('PKCE_VERIFIER_MISSING', 'PKCE code verifier not found', 400);
-    }
-
+  async authenticateWithOAuth(provider: 'google' | 'apple', idToken: string): Promise<OAuthResponse> {
     const deviceInfo = await this.getDeviceInfo();
     
     try {
-      const response = await this.client.request(`/auth/oauth/${provider}/callback`, {
+      const response = await this.client.request(`/auth/oauth/${provider}/mobile`, {
         method: 'POST',
         body: JSON.stringify({
-          code: authorizationCode,
-          codeVerifier,
-          redirectUri: process.env.EXPO_PUBLIC_OAUTH_REDIRECT_URI || 'com.bole.to://oauth/callback',
+          idToken,
           deviceInfo,
         }),
       });
@@ -257,14 +222,15 @@ export class GatewayAuthService {
       
       await this.storeTokens(tokens);
       await this.storeUser(user);
-      await this.clearPKCEVerifier();
 
       return { user, tokens, isNewUser, linkedProvider };
     } catch (error) {
-      await this.clearPKCEVerifier();
+      console.error(`OAuth authentication failed for ${provider}:`, error);
       throw error;
     }
   }
+
+
 
   // Profile Management
   async getProfile(): Promise<User> {
@@ -311,8 +277,7 @@ export class GatewayAuthService {
     
     if (!deviceId) {
       // Generate a unique device ID
-      const randomBytes = new Uint8Array(16);
-      await Crypto.getRandomBytesAsync(16, randomBytes);
+      const randomBytes = await Crypto.getRandomBytesAsync(16);
       deviceId = Array.from(randomBytes, byte => 
         byte.toString(16).padStart(2, '0')
       ).join('');
@@ -342,7 +307,6 @@ export class GatewayAuthService {
     await SecureStore.deleteItemAsync(GatewayAuthService.ACCESS_TOKEN_KEY);
     await SecureStore.deleteItemAsync(GatewayAuthService.REFRESH_TOKEN_KEY);
     await SecureStore.deleteItemAsync(GatewayAuthService.USER_DATA_KEY);
-    await this.clearPKCEVerifier();
   }
 
   // Token management for other parts of the app

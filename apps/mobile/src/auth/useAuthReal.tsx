@@ -41,7 +41,7 @@ interface AuthContextType {
   login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
   logout: (allDevices?: boolean) => Promise<void>;
   refreshUser: () => Promise<void>;
-  authenticateWithOAuth: (provider: string, authorizationCode: string) => Promise<void>;
+  authenticateWithOAuth: (provider: string, idToken: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -122,12 +122,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const authenticateWithOAuth = async (provider: string, authorizationCode: string) => {
+  const authenticateWithOAuth = async (provider: string, idToken: string) => {
     try {
       setIsLoading(true);
-      const { user: loggedInUser, tokens } = await gatewayAuth.authenticateWithOAuthCallback(
-        provider,
-        authorizationCode
+      const { user: loggedInUser, tokens } = await gatewayAuth.authenticateWithOAuth(
+        provider as 'google' | 'apple',
+        idToken
       );
       
       await saveToken(tokens.accessToken);
