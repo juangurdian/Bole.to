@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, StyleSheet, Alert } from "react-native";
+import { View, Text, TextInput, StyleSheet, Alert, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../../auth/useAuth";
 import Button from "../../components/Button";
@@ -8,7 +8,15 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("demo@bole.to");
   const [password, setPassword] = useState("password");
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { 
+    login, 
+    authenticateWithGoogle, 
+    authenticateWithApple, 
+    availableOAuthProviders,
+    accountSelectionRequired,
+    availableAccounts,
+    selectAccount,
+  } = useAuth();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -20,11 +28,71 @@ export default function LoginScreen() {
     try {
       await login(email, password);
     } catch (error) {
-      Alert.alert("Login Failed", "Please try again");
+      Alert.alert("Login Failed", error.message || "Please try again");
     } finally {
       setLoading(false);
     }
   };
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    try {
+      await authenticateWithGoogle();
+    } catch (error) {
+      if (error.message) {
+        Alert.alert("Google Sign-In Failed", error.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAppleSignIn = async () => {
+    setLoading(true);
+    try {
+      await authenticateWithApple();
+    } catch (error) {
+      if (error.message) {
+        Alert.alert("Apple Sign-In Failed", error.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAccountSelection = async (accountId: string) => {
+    setLoading(true);
+    try {
+      await selectAccount(accountId);
+    } catch (error) {
+      Alert.alert("Account Selection Failed", error.message || "Please try again");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (accountSelectionRequired) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.content}>
+          <Text style={styles.title}>Select Account</Text>
+          <Text style={styles.subtitle}>Multiple accounts found. Please select one:</Text>
+          
+          <View style={styles.accountList}>
+            {availableAccounts.map((account, index) => (
+              <Button
+                key={account.id || index}
+                title={`${account.provider} - ${account.email || 'Account'}`}
+                onPress={() => handleAccountSelection(account.id)}
+                loading={loading}
+                style={styles.accountButton}
+              />
+            ))}
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -32,6 +100,39 @@ export default function LoginScreen() {
         <Text style={styles.title}>Welcome to Bole.to</Text>
         <Text style={styles.subtitle}>Sign in to continue</Text>
         
+        {/* OAuth Buttons */}
+        <View style={styles.oauthContainer}>
+          {availableOAuthProviders.includes('google') && (
+            <Button
+              title="Continue with Google"
+              onPress={handleGoogleSignIn}
+              loading={loading}
+              style={[styles.oauthButton, styles.googleButton]}
+              textStyle={styles.oauthButtonText}
+            />
+          )}
+          
+          {availableOAuthProviders.includes('apple') && Platform.OS === 'ios' && (
+            <Button
+              title="Continue with Apple"
+              onPress={handleAppleSignIn}
+              loading={loading}
+              style={[styles.oauthButton, styles.appleButton]}
+              textStyle={styles.oauthButtonText}
+            />
+          )}
+        </View>
+        
+        {/* Divider */}
+        {availableOAuthProviders.length > 0 && (
+          <View style={styles.divider}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>or</Text>
+            <View style={styles.dividerLine} />
+          </View>
+        )}
+        
+        {/* Email/Password Form */}
         <View style={styles.form}>
           <TextInput
             style={styles.input}
@@ -50,14 +151,14 @@ export default function LoginScreen() {
             secureTextEntry
           />
           <Button
-            title="Sign In"
+            title="Sign In with Email"
             onPress={handleLogin}
             loading={loading}
           />
         </View>
         
         <Text style={styles.hint}>
-          💡 Tip: This is mock mode. Any email/password will work!
+          🔐 Secure authentication with Gateway API
         </Text>
       </View>
     </SafeAreaView>
@@ -84,7 +185,40 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#666",
     textAlign: "center",
-    marginBottom: 48,
+    marginBottom: 32,
+  },
+  oauthContainer: {
+    gap: 12,
+    marginBottom: 24,
+  },
+  oauthButton: {
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  googleButton: {
+    backgroundColor: "#4285F4",
+  },
+  appleButton: {
+    backgroundColor: "#000000",
+  },
+  oauthButtonText: {
+    color: "#ffffff",
+    fontWeight: "600",
+  },
+  divider: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 24,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "#ddd",
+  },
+  dividerText: {
+    marginHorizontal: 16,
+    color: "#666",
+    fontSize: 14,
   },
   form: {
     gap: 16,
@@ -106,5 +240,14 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: "#e3f2fd",
     borderRadius: 8,
+  },
+  accountList: {
+    gap: 12,
+    marginTop: 24,
+  },
+  accountButton: {
+    backgroundColor: "#ffffff",
+    borderWidth: 1,
+    borderColor: "#ddd",
   },
 });

@@ -117,7 +117,163 @@ export const mockApi = {
     return newPhoto;
   },
 
-  // Staff/Scanner mock functions
+  // Enhanced Staff/Scanner functions with check-in list support
+  async getStaffEvents(staffUserId?: string) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    // Return events where user has staff/check-in permissions
+    const events = Events.parse(eventsFixt).map(event => ({
+      ...event,
+      checkInLists: [
+        {
+          id: `checkin_list_${event.id}_1`,
+          name: "General Admission",
+          eventId: event.id,
+          attendeeCount: 150,
+          checkedInCount: 45
+        },
+        {
+          id: `checkin_list_${event.id}_2`, 
+          name: "VIP Access",
+          eventId: event.id,
+          attendeeCount: 25,
+          checkedInCount: 8
+        }
+      ]
+    }));
+    
+    return events.slice(0, 3); // Limit to 3 events for demo
+  },
+
+  async getEventCheckInLists(eventId: string) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    return [
+      {
+        id: `checkin_list_${eventId}_1`,
+        name: "General Admission",
+        eventId: eventId,
+        attendeeCount: 150,
+        checkedInCount: 45,
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: `checkin_list_${eventId}_2`, 
+        name: "VIP Access",
+        eventId: eventId,
+        attendeeCount: 25,
+        checkedInCount: 8,
+        createdAt: new Date().toISOString()
+      }
+    ];
+  },
+
+  async getCheckInListAttendees(checkInListId: string) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    // Generate mock attendees for the check-in list
+    const attendeeCount = checkInListId.includes('vip') ? 25 : 150;
+    const attendees = Array.from({ length: attendeeCount }, (_, i) => {
+      const isCheckedIn = Math.random() < 0.3; // 30% checked in
+      return {
+        id: `attendee_${checkInListId}_${i + 1}`,
+        attendeeShortId: `ATT${(i + 1).toString().padStart(4, '0')}`,
+        ticketReference: `TKT${Math.random().toString(36).substr(2, 8).toUpperCase()}`,
+        firstName: `FirstName${i + 1}`,
+        lastName: `LastName${i + 1}`,
+        email: `attendee${i + 1}@example.com`,
+        productName: checkInListId.includes('vip') ? "VIP Access" : "General Admission",
+        checkedIn: isCheckedIn,
+        checkedInAt: isCheckedIn ? new Date(Date.now() - Math.random() * 3600000).toISOString() : null,
+        qrCodeData: JSON.stringify({
+          type: "boleto_checkin",
+          attendeeId: `attendee_${checkInListId}_${i + 1}`,
+          eventId: "ev_1",
+          checkInListId: checkInListId,
+          signature: `sig_${Math.random().toString(36).substr(2, 16)}`
+        })
+      };
+    });
+    
+    return attendees;
+  },
+
+  async createCheckIn(checkInListId: string, attendeeShortId: string) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    // Simulate check-in validation
+    const success = Math.random() > 0.1; // 90% success rate
+    const checkInTime = new Date().toISOString();
+    
+    if (success) {
+      return {
+        id: `checkin_${Date.now()}`,
+        checkInListId,
+        attendeeShortId,
+        checkedInAt: checkInTime,
+        checkedInBy: "staff_user_1",
+        attendee: {
+          firstName: "Mock",
+          lastName: "User", 
+          productName: "General Admission"
+        }
+      };
+    } else {
+      throw new Error("Invalid ticket or already checked in");
+    }
+  },
+
+  async undoCheckIn(checkInListId: string, checkInId: string) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    return {
+      success: true,
+      message: "Check-in successfully undone",
+      undoneAt: new Date().toISOString()
+    };
+  },
+
+  async searchAttendees(checkInListId: string, query: string) {
+    await delay(mockToggles.delayMs / 2);
+    await maybeFail();
+    
+    // Mock search results
+    const mockResults = [
+      {
+        id: "attendee_search_1",
+        attendeeShortId: "ATT0001",
+        firstName: "John",
+        lastName: "Smith", 
+        email: "john.smith@example.com",
+        productName: "General Admission",
+        checkedIn: false
+      },
+      {
+        id: "attendee_search_2",
+        attendeeShortId: "ATT0002", 
+        firstName: "Jane",
+        lastName: "Doe",
+        email: "jane.doe@example.com",
+        productName: "VIP Access",
+        checkedIn: true,
+        checkedInAt: new Date(Date.now() - 1800000).toISOString()
+      }
+    ].filter(attendee => 
+      attendee.firstName.toLowerCase().includes(query.toLowerCase()) ||
+      attendee.lastName.toLowerCase().includes(query.toLowerCase()) ||
+      attendee.email.toLowerCase().includes(query.toLowerCase()) ||
+      attendee.attendeeShortId.toLowerCase().includes(query.toLowerCase())
+    );
+    
+    return mockResults;
+  },
+
+  // Legacy support
   async getAttendeesForEvent(eventId: string) {
     await delay(mockToggles.delayMs);
     await maybeFail();
@@ -1679,6 +1835,87 @@ export const mockApi = {
       notifications: { unread: Math.floor(Math.random() * 5) },
       stories,
       posts
+    };
+  },
+
+  // Offline Manifest API
+  async getEventManifest(eventId: string, checkInListId: string, version?: string) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    const attendees = await this.getCheckInListAttendees(checkInListId);
+    const manifestVersion = version || Date.now().toString();
+    const etag = `"manifest-${manifestVersion}"`;
+    
+    const manifest = {
+      eventId,
+      checkInListId,
+      version: manifestVersion,
+      etag,
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
+      attendees: attendees.map(attendee => ({
+        attendeeId: attendee.id,
+        attendeeShortId: attendee.attendeeShortId,
+        ticketReference: attendee.ticketReference,
+        firstName: attendee.firstName,
+        lastName: attendee.lastName,
+        email: attendee.email,
+        productName: attendee.productName,
+        checkedIn: attendee.checkedIn,
+        checkedInAt: attendee.checkedInAt,
+        qrCodeData: attendee.qrCodeData
+      })),
+      signature: `manifest_sig_${Math.random().toString(36).substr(2, 16)}`
+    };
+    
+    return manifest;
+  },
+
+  async getDeltaManifest(eventId: string, checkInListId: string, sinceVersion: string) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    // Mock delta changes - in reality this would return only changed records
+    const changes = [
+      {
+        type: "checkin",
+        attendeeId: "attendee_checkin_list_ev_1_1_15",
+        checkedIn: true,
+        checkedInAt: new Date().toISOString()
+      },
+      {
+        type: "undo",
+        attendeeId: "attendee_checkin_list_ev_1_1_23",
+        checkedIn: false,
+        checkedInAt: null
+      }
+    ];
+    
+    return {
+      eventId,
+      checkInListId,
+      sinceVersion,
+      newVersion: Date.now().toString(),
+      changes,
+      hasMore: false
+    };
+  },
+
+  async syncOfflineCheckIns(checkInListId: string, queuedCheckIns: any[]) {
+    await delay(mockToggles.delayMs);
+    await maybeFail();
+    
+    const results = queuedCheckIns.map(checkIn => ({
+      localId: checkIn.localId,
+      success: Math.random() > 0.05, // 95% success rate
+      serverId: checkIn.success ? `checkin_${Date.now()}_${Math.random()}` : null,
+      error: !checkIn.success ? "Ticket already checked in by another device" : null
+    }));
+    
+    return {
+      syncedAt: new Date().toISOString(),
+      results,
+      conflicts: results.filter(r => !r.success)
     };
   },
 

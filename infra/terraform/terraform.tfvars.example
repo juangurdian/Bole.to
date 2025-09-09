@@ -1,0 +1,78 @@
+# Terraform Variables for Bole.to Production Deployment
+# Copy this file to terraform.tfvars and update with your actual values
+
+# AWS Configuration
+aws_region = "us-east-1"
+environment = "production"
+
+# Domain Configuration
+domain_name = "api.bole.to"
+route53_zone_id = "Z1234567890ABC"  # Your actual Route 53 hosted zone ID
+
+# Database Configuration
+db_password = "CHANGE_ME_STRONG_PASSWORD_HERE"  # Generate a strong password
+
+# JWT Keys (Generate RS256 key pair)
+jwt_private_key = <<-EOT
+-----BEGIN PRIVATE KEY-----
+YOUR_PRIVATE_KEY_HERE
+-----END PRIVATE KEY-----
+EOT
+
+jwt_public_key = <<-EOT
+-----BEGIN PUBLIC KEY-----
+YOUR_PUBLIC_KEY_HERE
+-----END PUBLIC KEY-----
+EOT
+
+# OAuth Configuration - Google
+google_client_id = "your-google-client-id.apps.googleusercontent.com"
+google_client_secret = "your-google-client-secret"
+
+# OAuth Configuration - Apple
+apple_client_id = "com.bole.to"
+apple_key_id = "your-apple-key-id"
+apple_team_id = "your-apple-team-id"
+apple_private_key = <<-EOT
+-----BEGIN PRIVATE KEY-----
+YOUR_APPLE_PRIVATE_KEY_HERE
+-----END PRIVATE KEY-----
+EOT
+
+# Stripe Configuration
+stripe_secret_key = "sk_live_your_stripe_secret_key"
+stripe_webhook_secret = "whsec_your_webhook_secret"
+
+# CORS Origins
+cors_origins = [
+  "https://app.bole.to",
+  "https://www.bole.to",
+  "com.bole.to://",
+  "exp://localhost:19000"  # Remove this for production
+]
+
+# Monitoring
+alert_email_addresses = [
+  "alerts@bole.to",
+  "devops@bole.to"
+]
+
+# Container Images (Update with your ECR repository URLs)
+gateway_image = "123456789012.dkr.ecr.us-east-1.amazonaws.com/boleto/gateway:latest"
+hievents_image = "123456789012.dkr.ecr.us-east-1.amazonaws.com/boleto/hi-events:latest"
+
+# Scaling Configuration
+gateway_min_capacity = 2
+gateway_max_capacity = 10
+gateway_desired_capacity = 2
+
+hievents_min_capacity = 2
+hievents_max_capacity = 10
+hievents_desired_capacity = 2
+
+# Feature Flags
+enable_https_redirect = true
+enable_waf = true
+enable_backup_retention = true
+enable_performance_insights = true
+enable_enhanced_monitoring = true

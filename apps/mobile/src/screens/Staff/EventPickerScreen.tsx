@@ -10,7 +10,12 @@ import Card from "../../components/Card";
 
 export default function EventPickerScreen({ navigation }: any) {
   const api = useApi();
-  const q = useQuery({ queryKey: ["events"], queryFn: api.listEvents });
+  const q = useQuery({ 
+    queryKey: ["staff-events"], 
+    queryFn: api.getStaffEvents,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: true
+  });
 
   if (q.isLoading) {
     return (
@@ -53,22 +58,60 @@ export default function EventPickerScreen({ navigation }: any) {
         data={data}
         keyExtractor={e => e.id}
         refreshControl={<RefreshControl refreshing={q.isFetching} onRefresh={() => q.refetch()} />}
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => navigation.navigate("SyncScreen", { eventId: item.id })}>
-            <Card>
-              <Text style={styles.eventTitle}>{item.title}</Text>
-              <Text style={styles.eventDetails}>
-                {item.venue.name} · {item.venue.city}
-              </Text>
-              <Text style={styles.eventDate}>
-                {new Date(item.startsAt).toLocaleDateString()}
-              </Text>
-              <View style={styles.staffBadge}>
-                <Text style={styles.staffBadgeText}>👥 Staff Mode</Text>
-              </View>
-            </Card>
-          </TouchableOpacity>
-        )}
+        renderItem={({ item }) => {
+          const totalAttendees = item.checkInLists?.reduce((sum, list) => sum + list.attendeeCount, 0) || 0;
+          const totalCheckedIn = item.checkInLists?.reduce((sum, list) => sum + list.checkedInCount, 0) || 0;
+          const checkInPercentage = totalAttendees > 0 ? Math.round((totalCheckedIn / totalAttendees) * 100) : 0;
+          
+          return (
+            <TouchableOpacity onPress={() => navigation.navigate("StaffCheckInListsScreen", { eventId: item.id, eventTitle: item.title })}>
+              <Card>
+                <View style={styles.eventHeader}>
+                  <Text style={styles.eventTitle}>{item.title}</Text>
+                  <View style={styles.staffBadge}>
+                    <Text style={styles.staffBadgeText}>👥 Staff</Text>
+                  </View>
+                </View>
+                
+                <Text style={styles.eventDetails}>
+                  {item.venue.name} · {item.venue.city}
+                </Text>
+                
+                <Text style={styles.eventDate}>
+                  {new Date(item.startsAt).toLocaleDateString()} at {new Date(item.startsAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </Text>
+                
+                <View style={styles.statsContainer}>
+                  <View style={styles.statItem}>
+                    <Text style={styles.statNumber}>{totalCheckedIn}</Text>
+                    <Text style={styles.statLabel}>Checked In</Text>
+                  </View>
+                  <View style={styles.statDivider} />
+                  <View style={styles.statItem}>
+                    <Text style={styles.statNumber}>{totalAttendees}</Text>
+                    <Text style={styles.statLabel}>Total</Text>
+                  </View>
+                  <View style={styles.statDivider} />
+                  <View style={styles.statItem}>
+                    <Text style={styles.statNumber}>{checkInPercentage}%</Text>
+                    <Text style={styles.statLabel}>Complete</Text>
+                  </View>
+                </View>
+                
+                {item.checkInLists && item.checkInLists.length > 0 && (
+                  <View style={styles.checkInListsPreview}>
+                    <Text style={styles.checkInListsLabel}>Check-in Lists:</Text>
+                    {item.checkInLists.map((list, index) => (
+                      <Text key={list.id} style={styles.checkInListItem}>
+                        • {list.name} ({list.checkedInCount}/{list.attendeeCount})
+                      </Text>
+                    ))}
+                  </View>
+                )}
+              </Card>
+            </TouchableOpacity>
+          );
+        }}
       />
     </SafeAreaView>
   );
@@ -98,10 +141,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
   },
+  eventHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 8,
+  },
   eventTitle: {
     fontSize: 18,
     fontWeight: "600",
-    marginBottom: 8,
+    flex: 1,
+    marginRight: 8,
   },
   eventDetails: {
     fontSize: 14,
@@ -114,15 +164,59 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   staffBadge: {
-    alignSelf: "flex-start",
     backgroundColor: "#007AFF",
-    paddingHorizontal: 12,
-    paddingVertical: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
     borderRadius: 12,
   },
   staffBadgeText: {
-    fontSize: 12,
+    fontSize: 11,
     color: "white",
     fontWeight: "600",
+  },
+  statsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-around",
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#f0f0f0",
+  },
+  statItem: {
+    alignItems: "center",
+    flex: 1,
+  },
+  statNumber: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#007AFF",
+  },
+  statLabel: {
+    fontSize: 12,
+    color: "#666",
+    marginTop: 2,
+  },
+  statDivider: {
+    width: 1,
+    height: 30,
+    backgroundColor: "#e0e0e0",
+  },
+  checkInListsPreview: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#f0f0f0",
+  },
+  checkInListsLabel: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#666",
+    marginBottom: 4,
+  },
+  checkInListItem: {
+    fontSize: 12,
+    color: "#444",
+    marginBottom: 2,
   },
 });

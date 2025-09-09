@@ -260,6 +260,47 @@ export class GatewayAuthService {
     });
   }
 
+  // Session Management
+  async getSessions(): Promise<any[]> {
+    const response = await this.client.request('/auth/sessions', {
+      method: 'GET',
+    });
+    
+    return response.data || [];
+  }
+
+  async revokeSession(sessionId: string): Promise<void> {
+    await this.client.request(`/auth/sessions/${sessionId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async revokeAllSessions(): Promise<void> {
+    await this.client.request('/auth/sessions', {
+      method: 'DELETE',
+    });
+  }
+
+  // Manifest Management for Offline QR Validation
+  async getEventManifest(eventId: string): Promise<any> {
+    const response = await this.client.request(`/events/${eventId}/manifest`, {
+      method: 'GET',
+    });
+    
+    return response.data;
+  }
+
+  async getDeltaManifest(eventId: string, etag: string): Promise<any> {
+    const response = await this.client.request(`/events/${eventId}/manifest/delta`, {
+      method: 'GET',
+      headers: {
+        'If-None-Match': etag,
+      },
+    });
+    
+    return response.data;
+  }
+
   // Utility Methods
   private async getDeviceInfo(): Promise<DeviceInfo> {
     const platform = Platform.OS as 'ios' | 'android';

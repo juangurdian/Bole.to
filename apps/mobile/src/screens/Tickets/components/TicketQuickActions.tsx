@@ -49,8 +49,8 @@ export default function TicketQuickActions({
     },
     {
       id: "scanner",
-      title: "Scanner",
-      icon: "📱",
+      title: "Staff Mode",
+      icon: "👥",
       gradient: theme.colors.gradient.warm,
       onPress: onScanner || (() => console.log("Scanner")),
     },

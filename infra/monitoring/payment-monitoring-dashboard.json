@@ -1,0 +1,306 @@
+{
+  "dashboard": {
+    "id": "stripe-payment-monitoring",
+    "title": "Bole.to Stripe Payment Monitoring Dashboard",
+    "tags": ["payments", "stripe", "production"],
+    "timezone": "UTC",
+    "refresh": "30s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Payment Volume Overview",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(rate(stripe_payments_total[5m])) * 300",
+            "legendFormat": "Payments/5min"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 50},
+                {"color": "red", "value": 100}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Payment Success Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "(sum(rate(stripe_payments_successful_total[5m])) / sum(rate(stripe_payments_total[5m]))) * 100",
+            "legendFormat": "Success Rate %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "yellow", "value": 95},
+                {"color": "green", "value": 98}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 6, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Revenue (Last Hour)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(increase(stripe_payment_amount_cents_total[1h])) / 100",
+            "legendFormat": "Revenue USD"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD",
+            "color": {
+              "mode": "palette-classic"
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 12, "y": 0}
+      },
+      {
+        "id": 4,
+        "title": "Active Payment Intents",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "stripe_payment_intents_processing",
+            "legendFormat": "Processing"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 6, "x": 18, "y": 0}
+      },
+      {
+        "id": 5,
+        "title": "Payment Volume Over Time",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(stripe_payments_total[5m]) * 300",
+            "legendFormat": "Total Payments"
+          },
+          {
+            "expr": "rate(stripe_payments_successful_total[5m]) * 300",
+            "legendFormat": "Successful Payments"
+          },
+          {
+            "expr": "rate(stripe_payments_failed_total[5m]) * 300",
+            "legendFormat": "Failed Payments"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Payments per 5 minutes",
+            "min": 0
+          }
+        ],
+        "gridPos": {"h": 9, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 6,
+        "title": "Revenue by Currency",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "sum by (currency) (increase(stripe_payment_amount_cents_total[1h]))",
+            "legendFormat": "{{currency}}"
+          }
+        ],
+        "gridPos": {"h": 9, "w": 12, "x": 12, "y": 8}
+      },
+      {
+        "id": 7,
+        "title": "Payment Method Distribution",
+        "type": "bargraph",
+        "targets": [
+          {
+            "expr": "sum by (payment_method) (rate(stripe_payments_total[5m]))",
+            "legendFormat": "{{payment_method}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 8, "x": 0, "y": 17}
+      },
+      {
+        "id": 8,
+        "title": "Fraud Detection Alerts",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "fraud_detection_alerts",
+            "format": "table"
+          }
+        ],
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "columns": [
+                {"text": "Time", "value": "__time"},
+                {"text": "Risk Level", "value": "risk_level"},
+                {"text": "Payment Intent", "value": "payment_intent_id"},
+                {"text": "Risk Score", "value": "risk_score"},
+                {"text": "Action", "value": "action"}
+              ]
+            }
+          }
+        ],
+        "gridPos": {"h": 8, "w": 8, "x": 8, "y": 17}
+      },
+      {
+        "id": 9,
+        "title": "Response Time Distribution",
+        "type": "heatmap",
+        "targets": [
+          {
+            "expr": "rate(stripe_api_request_duration_seconds_bucket[5m])",
+            "legendFormat": "{{le}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 8, "x": 16, "y": 17}
+      },
+      {
+        "id": 10,
+        "title": "Error Rate by Endpoint",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(stripe_api_errors_total[5m]) by (endpoint)",
+            "legendFormat": "{{endpoint}}"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Errors per second",
+            "min": 0
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 25}
+      },
+      {
+        "id": 11,
+        "title": "Webhook Processing Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(rate(stripe_webhook_events_processed_total[5m]))",
+            "legendFormat": "Processed/sec"
+          },
+          {
+            "expr": "sum(rate(stripe_webhook_events_failed_total[5m]))",
+            "legendFormat": "Failed/sec"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 25}
+      },
+      {
+        "id": 12,
+        "title": "Chargeback and Dispute Trends",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "increase(stripe_chargebacks_total[24h])",
+            "legendFormat": "Chargebacks (24h)"
+          },
+          {
+            "expr": "increase(stripe_disputes_total[24h])",
+            "legendFormat": "Disputes (24h)"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 33}
+      }
+    ]
+  },
+  "alerts": [
+    {
+      "id": 1,
+      "name": "High Payment Failure Rate",
+      "condition": "(sum(rate(stripe_payments_failed_total[5m])) / sum(rate(stripe_payments_total[5m]))) * 100 > 5",
+      "frequency": "30s",
+      "severity": "critical",
+      "message": "Payment failure rate is above 5% - investigate immediately",
+      "notifications": [
+        {"type": "pagerduty", "settings": {"severity": "critical"}},
+        {"type": "slack", "settings": {"channel": "#alerts-payments"}}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Revenue Drop Alert",
+      "condition": "sum(rate(stripe_payment_amount_cents_total[5m])) < 1000",
+      "frequency": "1m",
+      "severity": "warning",
+      "message": "Revenue rate has dropped below $10/minute - potential issue",
+      "notifications": [
+        {"type": "email", "settings": {"to": "finance@bole.to"}},
+        {"type": "slack", "settings": {"channel": "#alerts-finance"}}
+      ]
+    },
+    {
+      "id": 3,
+      "name": "High Risk Payment Spike",
+      "condition": "sum(rate(fraud_detection_high_risk_total[5m])) > 5",
+      "frequency": "30s",
+      "severity": "warning",
+      "message": "High number of high-risk payments detected",
+      "notifications": [
+        {"type": "slack", "settings": {"channel": "#alerts-security"}},
+        {"type": "email", "settings": {"to": "security@bole.to"}}
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Webhook Processing Failure",
+      "condition": "sum(rate(stripe_webhook_events_failed_total[5m])) > 1",
+      "frequency": "1m",
+      "severity": "warning",
+      "message": "Stripe webhook processing failures detected",
+      "notifications": [
+        {"type": "slack", "settings": {"channel": "#alerts-payments"}}
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Chargeback Spike",
+      "condition": "increase(stripe_chargebacks_total[1h]) > 3",
+      "frequency": "5m",
+      "severity": "critical",
+      "message": "Unusual number of chargebacks in the last hour",
+      "notifications": [
+        {"type": "pagerduty", "settings": {"severity": "critical"}},
+        {"type": "email", "settings": {"to": "finance@bole.to, legal@bole.to"}}
+      ]
+    }
+  ]
+}

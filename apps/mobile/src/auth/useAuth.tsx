@@ -324,11 +324,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const getSessions = async (): Promise<any[]> => {
     try {
-      const response = await gatewayAuth.client.request('/auth/sessions', {
-        method: 'GET',
-      });
-      
-      return response.data || [];
+      return await gatewayAuth.getSessions();
     } catch (error) {
       console.error('Failed to get sessions:', error);
       throw error;
@@ -337,9 +333,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const revokeSession = async (sessionId: string) => {
     try {
-      await gatewayAuth.client.request(`/auth/sessions/${sessionId}`, {
-        method: 'DELETE',
-      });
+      await gatewayAuth.revokeSession(sessionId);
     } catch (error) {
       console.error('Failed to revoke session:', error);
       throw error;
@@ -348,9 +342,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const revokeAllSessions = async () => {
     try {
-      await gatewayAuth.client.request('/auth/sessions', {
-        method: 'DELETE',
-      });
+      await gatewayAuth.revokeAllSessions();
     } catch (error) {
       console.error('Failed to revoke all sessions:', error);
       throw error;

@@ -96,7 +96,7 @@ export default function TicketsScreen({ navigation }: any) {
   };
 
   const handleScanner = () => {
-    navigation.navigate("ScannerScreen");
+    navigation.navigate("StaffEntryScreen");
   };
 
   const handleSettings = () => {
