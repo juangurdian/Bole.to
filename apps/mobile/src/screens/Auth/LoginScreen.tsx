@@ -16,6 +16,7 @@ export default function LoginScreen() {
     accountSelectionRequired,
     availableAccounts,
     selectAccount,
+    isUsingHiEvents,
   } = useAuth();
 
   const handleLogin = async () => {
@@ -158,8 +159,14 @@ export default function LoginScreen() {
         </View>
         
         <Text style={styles.hint}>
-          🔐 Secure authentication with Gateway API
+          🔐 Secure authentication with {isUsingHiEvents ? 'Hi.Events' : 'Gateway API'}
         </Text>
+        
+        {isUsingHiEvents && (
+          <Text style={styles.hiEventsInfo}>
+            Sign in with your Hi.Events account to access your events, tickets, and account data.
+          </Text>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -249,5 +256,17 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     borderWidth: 1,
     borderColor: "#ddd",
+  },
+  hiEventsInfo: {
+    fontSize: 14,
+    color: "#666",
+    textAlign: "center",
+    marginTop: 16,
+    padding: 16,
+    backgroundColor: "#f8f9ff",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#e3e8ff",
+    lineHeight: 20,
   },
 });

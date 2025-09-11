@@ -130,6 +130,17 @@ export const oauthProviders: Record<string, OAuthProvider> = {
 
 // Helper function to get available providers
 export async function getAvailableProviders(): Promise<OAuthProvider[]> {
+  // Check if Hi.Events auth is enabled
+  const isUsingHiEvents = process.env.EXPO_PUBLIC_USE_HIEVENTS_AUTH === 'true';
+  
+  if (isUsingHiEvents) {
+    // OAuth integration for Hi.Events is temporarily disabled
+    // until Hi.Events OAuth endpoints are available
+    console.log('OAuth providers temporarily disabled for Hi.Events integration');
+    return [];
+  }
+  
+  // Legacy Gateway OAuth provider support
   const providers = Object.values(oauthProviders);
   const availableProviders: OAuthProvider[] = [];
   
@@ -144,5 +155,20 @@ export async function getAvailableProviders(): Promise<OAuthProvider[]> {
   }
   
   return availableProviders;
+}
+
+// Hi.Events OAuth integration (future implementation)
+export class HiEventsOAuthProvider {
+  constructor(private provider: 'google' | 'apple') {}
+  
+  async startOAuth(): Promise<string> {
+    // This would integrate with Hi.Events OAuth endpoints
+    // For now, we throw an error to indicate it's not implemented
+    throw new Error(`Hi.Events ${this.provider} OAuth not yet implemented`);
+  }
+  
+  // Future: Implement Hi.Events specific OAuth flow
+  // This would call Hi.Events OAuth initiation endpoints
+  // and handle the OAuth callback/redirect flow
 }
 

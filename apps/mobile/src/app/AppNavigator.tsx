@@ -1,7 +1,6 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { useAuth } from "../auth/useAuth";
-import LoginScreen from "../screens/Auth/LoginScreen";
+import AuthGate from "../components/AuthGate";
 import HomeTab from "./tabs/HomeTab";
 import DiscoverTab from "./tabs/DiscoverTab";
 import TicketsTab from "./tabs/TicketsTab";
@@ -11,17 +10,10 @@ import BoletoTabBar from "../components/nav/BoletoTabBar";
 
 const Tab = createBottomTabNavigator();
 
-export default function AppNavigator() {
-  const { user, isLoading } = useAuth();
-
-  if (isLoading) {
-    return null; // Could show a loading screen here
-  }
-
-  if (!user) {
-    return <LoginScreen />;
-  }
-
+/**
+ * AuthenticatedTabNavigator - Main tab navigation for authenticated users
+ */
+function AuthenticatedTabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -37,5 +29,16 @@ export default function AppNavigator() {
       <Tab.Screen name="Feed" component={SocialTab} />
       <Tab.Screen name="Profile" component={ProfileTab} />
     </Tab.Navigator>
+  );
+}
+
+/**
+ * AppNavigator - Main navigation component with AuthGate protection
+ */
+export default function AppNavigator() {
+  return (
+    <AuthGate>
+      <AuthenticatedTabNavigator />
+    </AuthGate>
   );
 }

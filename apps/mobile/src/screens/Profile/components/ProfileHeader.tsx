@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ActivityIndicator 
 } from "react-native";
+import { useAuth } from "../../../auth/useAuth";
 
 interface ProfileHeaderProps {
   profile: any;
@@ -14,6 +15,8 @@ interface ProfileHeaderProps {
 }
 
 export default function ProfileHeader({ profile, isLoading, onEditPress }: ProfileHeaderProps) {
+  const { user, isUsingHiEvents } = useAuth();
+  
   if (isLoading) {
     return (
       <View style={styles.container}>
@@ -28,7 +31,41 @@ export default function ProfileHeader({ profile, isLoading, onEditPress }: Profi
     );
   }
 
-  if (!profile) return null;
+  // Use profile data if available, otherwise fall back to auth user
+  const displayProfile = profile || user;
+  if (!displayProfile) return null;
+
+  // Helper to get display name based on profile source
+  const getDisplayName = (profile: any) => {
+    if (isUsingHiEvents) {
+      // Hi.Events user structure
+      return profile.name || `${profile.firstName || ''} ${profile.lastName || ''}`.trim() || 'User';
+    } else {
+      // Gateway user structure
+      return profile.name || `${profile.firstName || ''} ${profile.lastName || ''}`.trim() || 'User';
+    }
+  };
+
+  // Helper to get user handle/username
+  const getDisplayHandle = (profile: any) => {
+    if (isUsingHiEvents) {
+      // Hi.Events doesn't have handles, use email prefix or account name
+      return profile.email?.split('@')[0] || profile.currentAccount?.name || 'user';
+    } else {
+      // Gateway has handles
+      return profile.handle || profile.email?.split('@')[0] || 'user';
+    }
+  };
+
+  // Helper to get bio/description
+  const getDisplayBio = (profile: any) => {
+    if (isUsingHiEvents) {
+      // Hi.Events doesn't have bio in user profile
+      return profile.profile?.bio || null;
+    } else {
+      return profile.bio || null;
+    }
+  };
 
   const getInitials = (name: string) => {
     return name
@@ -38,6 +75,10 @@ export default function ProfileHeader({ profile, isLoading, onEditPress }: Profi
       .substring(0, 2)
       .toUpperCase();
   };
+
+  const displayName = getDisplayName(displayProfile);
+  const displayHandle = getDisplayHandle(displayProfile);
+  const displayBio = getDisplayBio(displayProfile);
 
   const renderBadges = () => {
     if (!profile.badges) return null;
@@ -67,7 +108,7 @@ export default function ProfileHeader({ profile, isLoading, onEditPress }: Profi
       <TouchableOpacity style={styles.avatarContainer} onPress={onEditPress}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>
-            {getInitials(profile.name)}
+            {getInitials(displayName)}
           </Text>
         </View>
         <View style={styles.editAvatarOverlay}>
@@ -78,23 +119,42 @@ export default function ProfileHeader({ profile, isLoading, onEditPress }: Profi
       {/* Info Section */}
       <View style={styles.infoContainer}>
         <View style={styles.nameRow}>
-          <Text style={styles.name}>{profile.name}</Text>
-          {profile.roles?.includes("promoter") && (
+          <Text style={styles.name}>{displayName}</Text>
+          {(displayProfile.roles?.includes("promoter") || displayProfile.role === "promoter") && (
             <View style={styles.promoterBadge}>
               <Text style={styles.promoterBadgeText}>🎪</Text>
             </View>
           )}
+          {isUsingHiEvents && displayProfile.currentAccount && (
+            <View style={styles.hiEventsBadge}>
+              <Text style={styles.hiEventsBadgeText}>Hi.Events</Text>
+            </View>
+          )}
         </View>
         
-        <Text style={styles.handle}>@{profile.handle}</Text>
+        <Text style={styles.handle}>@{displayHandle}</Text>
         
-        {profile.bio && (
-          <Text style={styles.bio}>{profile.bio}</Text>
+        {displayBio && (
+          <Text style={styles.bio}>{displayBio}</Text>
+        )}
+
+        {/* Show Hi.Events account info if available */}
+        {isUsingHiEvents && displayProfile.currentAccount && (
+          <View style={styles.accountInfo}>
+            <Text style={styles.accountInfoText}>
+              Account: {displayProfile.currentAccount.name}
+            </Text>
+            {displayProfile.accounts && displayProfile.accounts.length > 1 && (
+              <Text style={styles.accountInfoText}>
+                {displayProfile.accounts.length} accounts available
+              </Text>
+            )}
+          </View>
         )}
 
         {renderBadges()}
         
-        {profile.privacy?.profile === "private" && (
+        {displayProfile.privacy?.profile === "private" && (
           <View style={styles.privacyBanner}>
             <Text style={styles.privacyText}>🔒 Your profile is private</Text>
           </View>
@@ -267,5 +327,33 @@ const styles = StyleSheet.create({
     height: 44,
     backgroundColor: "#e0e0e0",
     borderRadius: 8,
+  },
+  // Hi.Events specific styles
+  hiEventsBadge: {
+    backgroundColor: "#4F46E5",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
+    marginLeft: 8,
+  },
+  hiEventsBadgeText: {
+    color: "#ffffff",
+    fontSize: 10,
+    fontWeight: "600",
+  },
+  accountInfo: {
+    backgroundColor: "#f8f9ff",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#e3e8ff",
+    marginTop: 8,
+  },
+  accountInfoText: {
+    fontSize: 13,
+    color: "#4F46E5",
+    textAlign: "center",
+    marginBottom: 2,
   },
 });

@@ -24,6 +24,11 @@ use HiEvents\Http\Actions\Auth\ForgotPasswordAction;
 use HiEvents\Http\Actions\Auth\GetUserInvitationAction;
 use HiEvents\Http\Actions\Auth\LoginAction;
 use HiEvents\Http\Actions\Auth\LogoutAction;
+use HiEvents\Http\Actions\Auth\Mobile\MobileHealthAction;
+use HiEvents\Http\Actions\Auth\Mobile\MobileLoginAction;
+use HiEvents\Http\Actions\Auth\Mobile\MobileMeAction;
+use HiEvents\Http\Actions\Auth\Mobile\MobileSwitchAccountAction;
+use HiEvents\Http\Actions\Auth\Mobile\MobileTokenVerifyAction;
 use HiEvents\Http\Actions\Auth\RefreshTokenAction;
 use HiEvents\Http\Actions\Auth\ResetPasswordAction;
 use HiEvents\Http\Actions\Auth\ValidateResetPasswordTokenAction;
@@ -162,6 +167,22 @@ $router->prefix('/auth')->group(
         // Reset Passwords
         $router->get('/reset-password/{reset_token}', ValidateResetPasswordTokenAction::class)->name('auth.validate-reset-password-token');
         $router->post('/reset-password/{reset_token}', ResetPasswordAction::class)->name('auth.reset-password');
+
+        // Mobile-Specific Routes
+        $router->prefix('/mobile')->group(function (Router $router): void {
+            // Public mobile routes (no auth required)
+            $router->get('/health', MobileHealthAction::class)->name('auth.mobile.health');
+            
+            // Mobile auth routes (no auth required)
+            $router->post('/login', MobileLoginAction::class)->name('auth.mobile.login');
+            $router->get('/token/verify', MobileTokenVerifyAction::class)->name('auth.mobile.token.verify');
+            
+            // Authenticated mobile routes
+            $router->middleware(['auth:api'])->group(function (Router $router): void {
+                $router->get('/me', MobileMeAction::class)->name('auth.mobile.me');
+                $router->post('/switch-account', MobileSwitchAccountAction::class)->name('auth.mobile.switch-account');
+            });
+        });
     }
 );
 

@@ -220,10 +220,11 @@ return [
     | on every request.
     |
     | Set grace period in seconds to prevent parallel request failure.
+    | Mobile apps may benefit from a longer grace period due to network delays.
     |
     */
 
-    'blacklist_grace_period' => env('JWT_BLACKLIST_GRACE_PERIOD', 0),
+    'blacklist_grace_period' => env('JWT_BLACKLIST_GRACE_PERIOD', 30),
 
     /*
     |--------------------------------------------------------------------------
@@ -296,5 +297,84 @@ return [
         */
 
         'storage' => PHPOpenSourceSaver\JWTAuth\Providers\Storage\Illuminate::class,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Mobile-Specific Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration options specifically for mobile app authentication.
+    | These settings optimize the JWT implementation for mobile use cases.
+    |
+    */
+
+    'mobile' => [
+        /*
+        |--------------------------------------------------------------------------
+        | Mobile TTL Override
+        |--------------------------------------------------------------------------
+        |
+        | Override the default TTL for mobile authentication tokens.
+        | Mobile apps may benefit from longer-lived tokens to reduce
+        | frequent re-authentication prompts.
+        |
+        | Value in minutes. Set to null to use the default TTL.
+        |
+        */
+        'ttl' => env('JWT_MOBILE_TTL', null),
+
+        /*
+        |--------------------------------------------------------------------------
+        | Mobile Refresh TTL Override
+        |--------------------------------------------------------------------------
+        |
+        | Override the refresh TTL for mobile tokens.
+        | Mobile apps may need longer refresh windows due to
+        | intermittent connectivity.
+        |
+        | Value in minutes. Set to null to use the default refresh TTL.
+        |
+        */
+        'refresh_ttl' => env('JWT_MOBILE_REFRESH_TTL', null),
+
+        /*
+        |--------------------------------------------------------------------------
+        | Extended Grace Period
+        |--------------------------------------------------------------------------
+        |
+        | Mobile apps often experience network delays and may make
+        | concurrent requests. A longer grace period helps prevent
+        | token invalidation failures.
+        |
+        */
+        'extended_grace_period' => env('JWT_MOBILE_GRACE_PERIOD', 60),
+
+        /*
+        |--------------------------------------------------------------------------
+        | Token Claims
+        |--------------------------------------------------------------------------
+        |
+        | Additional claims to include in mobile JWT tokens.
+        | These can provide context for mobile app features.
+        |
+        */
+        'additional_claims' => [
+            'mobile_optimized' => true,
+            'client_type' => 'mobile',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Rate Limiting
+        |--------------------------------------------------------------------------
+        |
+        | Rate limiting configuration for mobile authentication endpoints.
+        |
+        */
+        'rate_limits' => [
+            'login_attempts_per_minute' => env('JWT_MOBILE_LOGIN_RATE_LIMIT', 10),
+            'token_verify_per_minute' => env('JWT_MOBILE_VERIFY_RATE_LIMIT', 60),
+        ],
     ],
 ];

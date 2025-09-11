@@ -4,9 +4,11 @@ import {
   Text, 
   StyleSheet, 
   ScrollView, 
-  TouchableOpacity 
+  TouchableOpacity,
+  Alert 
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuth } from "../../auth/useAuth";
 
 interface SettingsScreenProps {
   navigation: any;
@@ -80,6 +82,13 @@ const SETTINGS_SECTIONS: SettingSection[] = [
     ]
   },
   {
+    title: "Session Management",
+    items: [
+      { icon: "🚪", label: "Sign Out", screen: "logout" },
+      { icon: "📱", label: "Sign Out All Devices", screen: "logoutAll" },
+    ]
+  },
+  {
     title: "Danger Zone",
     items: [
       { icon: "🗑️", label: "Delete Account", screen: "DeleteAccount" },
@@ -88,10 +97,66 @@ const SETTINGS_SECTIONS: SettingSection[] = [
 ];
 
 export default function SettingsScreen({ navigation }: SettingsScreenProps) {
+  const { logout, user, isUsingHiEvents } = useAuth();
+  
   const handleItemPress = (screen?: string) => {
-    if (screen) {
+    if (screen === "logout") {
+      handleLogout();
+    } else if (screen === "logoutAll") {
+      handleSignOutAllDevices();
+    } else if (screen) {
       navigation.navigate(screen);
     }
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      "Sign Out",
+      `Are you sure you want to sign out${isUsingHiEvents ? ' from Hi.Events' : ''}?`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Sign Out",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await logout();
+              // Navigation will be handled by AuthGate automatically
+            } catch (error) {
+              Alert.alert("Error", "Failed to sign out. Please try again.");
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleSignOutAllDevices = () => {
+    Alert.alert(
+      "Sign Out All Devices",
+      `This will sign you out from all devices and end all active sessions${isUsingHiEvents ? ' on Hi.Events' : ''}.`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Sign Out All",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await logout(true); // Pass true for all devices
+              Alert.alert("Success", "Signed out from all devices successfully.");
+            } catch (error) {
+              Alert.alert("Error", "Failed to sign out from all devices. Please try again.");
+            }
+          },
+        },
+      ]
+    );
   };
 
   const renderSection = (section: SettingSection, index: number) => (
@@ -104,7 +169,8 @@ export default function SettingsScreen({ navigation }: SettingsScreenProps) {
             style={[
               styles.settingItem,
               itemIndex === section.items.length - 1 && styles.lastItem,
-              section.title === "Danger Zone" && styles.dangerItem
+              section.title === "Danger Zone" && styles.dangerItem,
+              section.title === "Session Management" && styles.sessionItem
             ]}
             onPress={() => handleItemPress(item.screen)}
           >
@@ -112,7 +178,8 @@ export default function SettingsScreen({ navigation }: SettingsScreenProps) {
               <Text style={styles.settingIcon}>{item.icon}</Text>
               <Text style={[
                 styles.settingLabel,
-                section.title === "Danger Zone" && styles.dangerLabel
+                section.title === "Danger Zone" && styles.dangerLabel,
+                section.title === "Session Management" && styles.sessionLabel
               ]}>
                 {item.label}
               </Text>
@@ -234,5 +301,12 @@ const styles = StyleSheet.create({
   versionText: {
     fontSize: 14,
     color: "#666",
+  },
+  // Session Management styles
+  sessionItem: {
+    backgroundColor: "#FFF8F5",
+  },
+  sessionLabel: {
+    color: "#FF6B35",
   },
 });

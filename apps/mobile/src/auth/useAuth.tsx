@@ -1,16 +1,60 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Alert } from "react-native";
 import { GatewayAuthService, User as GatewayUser, GatewayError } from "./gateway-auth-service";
+import { 
+  HiEventsAuthClient, 
+  HiEventsUser, 
+  HiEventsAccount, 
+  HiEventsError 
+} from "./hiEventsAuthClient";
 import { deepLinkHandler, initializeDeepLinking, cleanupDeepLinking } from "./deep-link-handler";
 import { googleProvider, appleProvider, getAvailableProviders } from "./oauth-providers";
+import { hasLegacyGatewayTokens, clearLegacyGatewayData } from "./token";
+
+// Unified user type that can handle both Gateway and Hi.Events users
+interface UnifiedUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role?: string;
+  emailVerified: boolean;
+  phoneVerified?: boolean;
+  profile?: {
+    avatar?: string;
+    bio?: string;
+    dateOfBirth?: string;
+    location?: string;
+    preferences?: {
+      notifications: boolean;
+      marketing: boolean;
+      language: string;
+      timezone: string;
+    };
+  };
+  socialAccounts?: Array<{
+    provider: string;
+    linkedAt: string;
+  }>;
+  createdAt: string;
+  updatedAt: string;
+  // Hi.Events specific fields
+  timezone?: string;
+  avatar_url?: string;
+  phone?: string;
+  // Current account info for Hi.Events
+  currentAccount?: HiEventsAccount;
+  accounts?: HiEventsAccount[];
+}
 
 interface AuthContextType {
-  user: GatewayUser | null;
+  user: UnifiedUser | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   availableOAuthProviders: string[];
   accountSelectionRequired: boolean;
   availableAccounts: any[];
+  isUsingHiEvents: boolean;
   
   // Authentication methods
   login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
@@ -29,18 +73,74 @@ interface AuthContextType {
   getSessions: () => Promise<any[]>;
   revokeSession: (sessionId: string) => Promise<void>;
   revokeAllSessions: () => Promise<void>;
+  
+  // Hi.Events specific methods
+  switchAccount?: (accountId: string) => Promise<void>;
+  migrateLegacyAuth?: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+// Helper functions to map between user types
+function mapHiEventsUserToUnified(
+  user: HiEventsUser, 
+  accounts: HiEventsAccount[], 
+  currentAccount?: HiEventsAccount
+): UnifiedUser {
+  return {
+    id: user.id,
+    firstName: user.first_name,
+    lastName: user.last_name,
+    email: user.email,
+    emailVerified: !!user.email_verified_at,
+    phoneVerified: !!user.phone_verified_at,
+    timezone: user.timezone,
+    avatar_url: user.avatar_url,
+    phone: user.phone,
+    createdAt: user.created_at,
+    updatedAt: user.updated_at,
+    currentAccount,
+    accounts,
+    profile: {
+      avatar: user.avatar_url,
+      preferences: {
+        notifications: true,
+        marketing: true,
+        language: 'en',
+        timezone: user.timezone || 'UTC',
+      },
+    },
+  };
+}
+
+function mapGatewayUserToUnified(user: GatewayUser): UnifiedUser {
+  return {
+    id: user.id,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    role: user.role,
+    emailVerified: user.emailVerified,
+    phoneVerified: user.phoneVerified,
+    profile: user.profile,
+    socialAccounts: user.socialAccounts,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  };
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<GatewayUser | null>(null);
+  const [user, setUser] = useState<UnifiedUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [availableOAuthProviders, setAvailableOAuthProviders] = useState<string[]>([]);
   const [accountSelectionRequired, setAccountSelectionRequired] = useState(false);
   const [availableAccounts, setAvailableAccounts] = useState<any[]>([]);
-
+  
+  // Determine which auth system to use
+  const isUsingHiEvents = process.env.EXPO_PUBLIC_USE_HIEVENTS_AUTH === 'true';
+  
   const gatewayAuth = GatewayAuthService.getInstance();
+  const hiEventsAuth = HiEventsAuthClient.getInstance();
 
   useEffect(() => {
     initializeAuth();
@@ -68,8 +168,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const cleanupAuth = () => {
+  const cleanupAuth = async () => {
     cleanupDeepLinking();
+    
+    // Cleanup network manager
+    networkManager.off('online');
+    networkManager.off('offline');
+    networkManager.off('connectionChanged');
+    
+    // Cleanup token manager if using Hi.Events
+    if (isUsingHiEvents && tokenManager) {
+      await tokenManager.performFullCleanup();
+    }
   };
 
   const setupDeepLinkHandlers = () => {
@@ -82,22 +192,51 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkAuthState = async () => {
     try {
-      const isValid = await gatewayAuth.isTokenValid();
-      
-      if (isValid) {
-        // Token is valid, get user profile
-        const profile = await gatewayAuth.getProfile();
-        setUser(profile);
+      if (isUsingHiEvents) {
+        // Hi.Events authentication
+        const isValid = await hiEventsAuth.isTokenValid();
+        
+        if (isValid) {
+          // Token is valid, get user profile
+          const { user, accounts, currentAccount } = await hiEventsAuth.getMe();
+          setUser(mapHiEventsUserToUnified(user, accounts, currentAccount));
+          
+          // Handle account selection
+          if (accounts.length > 1 && !currentAccount) {
+            setAccountSelectionRequired(true);
+            setAvailableAccounts(accounts);
+          }
+        } else {
+          // Try to refresh the token
+          try {
+            await hiEventsAuth.refreshToken();
+            const { user, accounts, currentAccount } = await hiEventsAuth.getMe();
+            setUser(mapHiEventsUserToUnified(user, accounts, currentAccount));
+          } catch (refreshError) {
+            // Refresh failed, user needs to log in again
+            console.log("Hi.Events token refresh failed, user needs to log in again");
+            setUser(null);
+          }
+        }
       } else {
-        // Try to refresh the token
-        try {
-          await gatewayAuth.refreshToken();
+        // Legacy Gateway authentication
+        const isValid = await gatewayAuth.isTokenValid();
+        
+        if (isValid) {
+          // Token is valid, get user profile
           const profile = await gatewayAuth.getProfile();
-          setUser(profile);
-        } catch (refreshError) {
-          // Refresh failed, user needs to log in again
-          console.log("Token refresh failed, user needs to log in again");
-          setUser(null);
+          setUser(mapGatewayUserToUnified(profile));
+        } else {
+          // Try to refresh the token
+          try {
+            await gatewayAuth.refreshToken();
+            const profile = await gatewayAuth.getProfile();
+            setUser(mapGatewayUserToUnified(profile));
+          } catch (refreshError) {
+            // Refresh failed, user needs to log in again
+            console.log("Gateway token refresh failed, user needs to log in again");
+            setUser(null);
+          }
         }
       }
     } catch (error) {
@@ -120,19 +259,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setIsLoading(true);
       
-      const result = await gatewayAuth.login({
-        email,
-        password,
-        rememberMe,
-      });
+      if (isUsingHiEvents) {
+        // Hi.Events login
+        const { user, accounts, currentAccount } = await hiEventsAuth.login({
+          email,
+          password,
+          rememberMe,
+        });
 
-      setUser(result.user);
-      
-      console.log('Gateway login successful for:', email);
+        setUser(mapHiEventsUserToUnified(user, accounts, currentAccount));
+        
+        // Handle account selection
+        if (accounts.length > 1 && !currentAccount) {
+          setAccountSelectionRequired(true);
+          setAvailableAccounts(accounts);
+        }
+        
+        console.log('Hi.Events login successful for:', email);
+      } else {
+        // Legacy Gateway login
+        const result = await gatewayAuth.login({
+          email,
+          password,
+          rememberMe,
+        });
+
+        setUser(mapGatewayUserToUnified(result.user));
+        
+        console.log('Gateway login successful for:', email);
+      }
     } catch (error) {
-      console.error('Gateway login failed:', error);
+      console.error('Login failed:', error);
       
-      if (error instanceof GatewayError) {
+      if (error instanceof HiEventsError || error instanceof GatewayError) {
         throw new Error(error.message);
       } else {
         throw new Error('Login failed. Please try again.');
@@ -146,14 +305,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setIsLoading(true);
       
-      await gatewayAuth.logout(allDevices);
+      if (isUsingHiEvents) {
+        await hiEventsAuth.logout();
+        console.log('Hi.Events logout successful');
+      } else {
+        await gatewayAuth.logout(allDevices);
+        console.log('Gateway logout successful');
+      }
+      
       setUser(null);
       setAccountSelectionRequired(false);
       setAvailableAccounts([]);
-      
-      console.log('Gateway logout successful');
     } catch (error) {
-      console.error('Gateway logout error:', error);
+      console.error('Logout error:', error);
       // Clear local state even if logout API call fails
       setUser(null);
       setAccountSelectionRequired(false);
@@ -165,8 +329,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshUser = async () => {
     try {
-      const updatedUser = await gatewayAuth.getProfile();
-      setUser(updatedUser);
+      if (isUsingHiEvents) {
+        const { user, accounts, currentAccount } = await hiEventsAuth.getMe();
+        setUser(mapHiEventsUserToUnified(user, accounts, currentAccount));
+      } else {
+        const updatedUser = await gatewayAuth.getProfile();
+        setUser(mapGatewayUserToUnified(updatedUser));
+      }
     } catch (error) {
       console.error('Refresh user failed:', error);
       throw error;
@@ -299,21 +468,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setIsLoading(true);
       
-      // This would typically involve calling a Gateway endpoint for account selection
-      // For now, we'll simulate by selecting from available accounts
-      const selectedAccount = availableAccounts.find(acc => acc.id === accountId);
-      
-      if (!selectedAccount) {
-        throw new Error('Selected account not found');
-      }
+      if (isUsingHiEvents) {
+        // Hi.Events account selection
+        const account = await hiEventsAuth.switchAccount(accountId);
+        
+        // Update the current user with the new account
+        if (user) {
+          setUser({
+            ...user,
+            currentAccount: account,
+          });
+        }
+        
+        setAccountSelectionRequired(false);
+        setAvailableAccounts([]);
+        
+        console.log('Hi.Events account selection completed:', accountId);
+      } else {
+        // Legacy Gateway account selection
+        const selectedAccount = availableAccounts.find(acc => acc.id === accountId);
+        
+        if (!selectedAccount) {
+          throw new Error('Selected account not found');
+        }
 
-      // Complete the authentication with the selected account
-      // This would be implemented based on the Gateway's account selection flow
-      
-      setAccountSelectionRequired(false);
-      setAvailableAccounts([]);
-      
-      console.log('Account selection completed:', accountId);
+        // Complete the authentication with the selected account
+        // This would be implemented based on the Gateway's account selection flow
+        
+        setAccountSelectionRequired(false);
+        setAvailableAccounts([]);
+        
+        console.log('Gateway account selection completed:', accountId);
+      }
     } catch (error) {
       console.error('Account selection failed:', error);
       throw error;
@@ -324,7 +510,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const getSessions = async (): Promise<any[]> => {
     try {
-      return await gatewayAuth.getSessions();
+      if (isUsingHiEvents) {
+        // Hi.Events doesn't have session management yet
+        // Return empty array for now
+        return [];
+      } else {
+        return await gatewayAuth.getSessions();
+      }
     } catch (error) {
       console.error('Failed to get sessions:', error);
       throw error;
@@ -333,7 +525,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const revokeSession = async (sessionId: string) => {
     try {
-      await gatewayAuth.revokeSession(sessionId);
+      if (isUsingHiEvents) {
+        // Hi.Events doesn't have session management yet
+        console.warn('Session management not available with Hi.Events');
+      } else {
+        await gatewayAuth.revokeSession(sessionId);
+      }
     } catch (error) {
       console.error('Failed to revoke session:', error);
       throw error;
@@ -342,10 +539,60 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const revokeAllSessions = async () => {
     try {
-      await gatewayAuth.revokeAllSessions();
+      if (isUsingHiEvents) {
+        // Hi.Events doesn't have session management yet
+        console.warn('Session management not available with Hi.Events');
+      } else {
+        await gatewayAuth.revokeAllSessions();
+      }
     } catch (error) {
       console.error('Failed to revoke all sessions:', error);
       throw error;
+    }
+  };
+
+  // Hi.Events specific methods
+  const switchAccount = async (accountId: string) => {
+    if (!isUsingHiEvents) {
+      throw new Error('Account switching only available with Hi.Events');
+    }
+    
+    return selectAccount(accountId);
+  };
+
+  const migrateLegacyAuth = async (): Promise<boolean> => {
+    try {
+      const hasLegacyTokens = await hasLegacyGatewayTokens();
+      
+      if (!hasLegacyTokens) {
+        return false; // No migration needed
+      }
+
+      // Show migration alert
+      return new Promise((resolve) => {
+        Alert.alert(
+          "Account Migration",
+          "We've upgraded our authentication system. Please sign in again to continue using the app.",
+          [
+            {
+              text: "Sign In",
+              onPress: async () => {
+                await clearLegacyGatewayData();
+                await logout(); // Clear current state
+                resolve(true);
+              },
+            },
+            {
+              text: "Cancel",
+              style: "cancel",
+              onPress: () => resolve(false),
+            },
+          ]
+        );
+      });
+    } catch (error) {
+      console.error('Migration failed:', error);
+      return false;
     }
   };
 
@@ -357,6 +604,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       availableOAuthProviders,
       accountSelectionRequired,
       availableAccounts,
+      isUsingHiEvents,
       login, 
       logout, 
       refreshUser,
@@ -367,6 +615,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       getSessions,
       revokeSession,
       revokeAllSessions,
+      switchAccount: isUsingHiEvents ? switchAccount : undefined,
+      migrateLegacyAuth: isUsingHiEvents ? migrateLegacyAuth : undefined,
     }}>
       {children}
     </AuthContext.Provider>
