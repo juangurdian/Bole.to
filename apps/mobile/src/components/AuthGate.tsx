@@ -24,6 +24,12 @@ export default function AuthGate({ children }: AuthGateProps) {
     isUsingHiEvents
   } = useAuth();
 
+  // Development bypass - skip authentication entirely
+  const skipAuth = process.env.EXPO_PUBLIC_SKIP_AUTH === 'true';
+  if (skipAuth) {
+    return <>{children}</>;
+  }
+
   // Loading state - show splash screen
   if (isLoading) {
     return (

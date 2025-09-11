@@ -6,7 +6,7 @@ import {
 } from "react-native";
 import { theme } from "../../../theme";
 import SectionHeader from "./SectionHeader";
-import GalleryTeaserSmall from "./GalleryTeaserSmall";
+import PhotoGalleryCardV2 from "../../../components/PhotoGalleryCardV2";
 
 interface ReleasedGallery {
   eventId: string;
@@ -31,7 +31,7 @@ export default function ReleasedPhotosSection({
   }
 
   const renderGalleryCard = ({ item }: { item: ReleasedGallery }) => (
-    <GalleryTeaserSmall
+    <PhotoGalleryCardV2
       gallery={item}
       onPress={onGalleryPress}
     />

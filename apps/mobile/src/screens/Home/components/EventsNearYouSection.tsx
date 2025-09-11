@@ -6,7 +6,7 @@ import {
 } from "react-native";
 import { theme } from "../../../theme";
 import SectionHeader from "./SectionHeader";
-import EventWideCard from "./EventWideCard";
+import EventWideCardV3 from "../../../components/EventWideCardV3";
 
 interface EventSummary {
   id: string;
@@ -40,7 +40,7 @@ export default function EventsNearYouSection({
   }
 
   const renderEventCard = ({ item }: { item: EventSummary }) => (
-    <EventWideCard
+    <EventWideCardV3
       event={item}
       onPress={onEventPress}
     />

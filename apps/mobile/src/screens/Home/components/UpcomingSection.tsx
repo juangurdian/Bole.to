@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { theme } from "../../../theme";
 import SectionHeader from "./SectionHeader";
-import EventSquareCard from "./EventSquareCard";
+import EventSquareCardV3 from "../../../components/EventSquareCardV3";
 
 interface UpcomingEvent {
   eventId: string;
@@ -86,7 +86,7 @@ export default function UpcomingSection({
         scrollEventThrottle={16}
       >
         {convertedEvents.map((event) => (
-          <EventSquareCard
+          <EventSquareCardV3
             key={event.id}
             event={event}
             onPress={onEventPress}

@@ -14,9 +14,10 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { theme } from "../../theme";
+import { colors as v2Colors } from "../../theme/v2-neutral";
 import { mockApi } from "../../mocks/api";
-import NewHomeTopBar from "./components/NewHomeTopBar";
-import QuickActionsRow from "./components/QuickActionsRow";
+import NewHomeTopBarNeutral from "../../components/NewHomeTopBarNeutral";
+import QuickActionsRowMuted from "../../components/QuickActionsRowMuted";
 import UpcomingSection from "./components/UpcomingSection";
 import EventsNearYouSection from "./components/EventsNearYouSection";
 import ReleasedPhotosSection from "./components/ReleasedPhotosSection";
@@ -108,14 +109,13 @@ export default function HomeScreen({ navigation }: any) {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={theme.colors.bg} translucent />
-      
-      {/* Atmosphere Gradient */}
-      <LinearGradient
-        colors={["rgba(124,92,255,0.25)", "rgba(0,224,255,0.15)", "transparent"]}
-        style={styles.atmosphereGradient}
-      />
+    <LinearGradient
+      colors={[v2Colors.bg, '#0B0F16', '#0A0C10']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0.8, y: 1 }}
+      style={{ flex: 1 }}
+    >
+      <StatusBar barStyle="light-content" backgroundColor={v2Colors.bg} translucent />
 
       <Animated.ScrollView
         onScroll={scrollHandler}
@@ -129,34 +129,29 @@ export default function HomeScreen({ navigation }: any) {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={theme.colors.text.primary}
-            titleColor={theme.colors.text.primary}
+            tintColor={v2Colors.text.primary}
+            titleColor={v2Colors.text.primary}
           />
         }
       >
-        {/* Top Bar - Now scrolls with content */}
-        <NewHomeTopBar
+        {/* Neutral Top Bar - Now scrolls with content */}
+        <NewHomeTopBarNeutral
           style={{
             marginBottom: 12,
           }}
-          scrollY={scrollY}
-          city={data?.city ?? "—"}
-          unread={data?.notifications?.unread ?? 0}
-          onPickCity={openCityPicker}
-          onOpenSearch={() => setSearchOpen(true)}
-          onOpenNotifications={handleOpenNotifications}
+          city={data?.city ?? "Managua"}
+          onSearch={() => setSearchOpen(true)}
+          onNotifications={handleOpenNotifications}
         />
         
         <OfflineBanner />
         
-        {/* Quick Actions Row */}
-        <View style={{ paddingHorizontal: 16 }}>
-          <QuickActionsRow
-            onTickets={handleMyTickets}
-            onNearby={handleNearby}
-            onPromos={handlePromotions}
-          />
-        </View>
+        {/* Monochrome Quick Actions Row */}
+        <QuickActionsRowMuted
+          onTickets={handleMyTickets}
+          onNearby={handleNearby}
+          onPromos={handlePromotions}
+        />
 
         {isLoading ? (
           <>
@@ -174,32 +169,22 @@ export default function HomeScreen({ navigation }: any) {
               items={data?.nearby || []}
               onEventPress={handleEventPress}
             />
-            <ReleasedPhotosSection
-              items={data?.releasedGalleries || []}
-              onGalleryPress={handleGalleryPress}
-            />
             <SocialUpdatesSection
               items={data?.socialDigest || []}
               onUpdatePress={handleUpdatePress}
             />
+            <ReleasedPhotosSection
+              items={data?.releasedGalleries || []}
+              onGalleryPress={handleGalleryPress}
+            />
           </>
         )}
       </Animated.ScrollView>
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.bg,
-  },
-  atmosphereGradient: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 200,
-    zIndex: 0,
-  },
+  // Styles removed since we're using LinearGradient wrapper
+  // All styling now handled by v2-neutral theme components
 });

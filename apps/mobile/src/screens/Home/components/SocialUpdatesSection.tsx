@@ -11,6 +11,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import { theme } from "../../../theme";
 import SectionHeader from "./SectionHeader";
+import SocialUpdateCardV2 from "../../../components/SocialUpdateCardV2";
 
 interface SocialUpdate {
   id: string;
@@ -230,7 +231,13 @@ export default function SocialUpdatesSection({
         contentContainerStyle={styles.scrollContent}
         scrollEventThrottle={16}
       >
-        {visibleUpdates.map(renderUpdateCard)}
+        {visibleUpdates.map((update) => (
+          <SocialUpdateCardV2
+            key={update.id}
+            update={update}
+            onPress={onUpdatePress}
+          />
+        ))}
       </ScrollView>
     </View>
   );

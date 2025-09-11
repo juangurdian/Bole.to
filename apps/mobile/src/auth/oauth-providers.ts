@@ -1,5 +1,21 @@
-import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
-import { appleAuth, AppleRequestScope, AppleRequestOperation } from '@invertase/react-native-apple-authentication';
+// Conditional imports to avoid native module errors when Hi.Events auth is enabled
+let GoogleSignin: any, statusCodes: any;
+let appleAuth: any, AppleRequestScope: any, AppleRequestOperation: any;
+
+try {
+  if (process.env.EXPO_PUBLIC_USE_HIEVENTS_AUTH !== 'true') {
+    const googleSignIn = require('@react-native-google-signin/google-signin');
+    GoogleSignin = googleSignIn.GoogleSignin;
+    statusCodes = googleSignIn.statusCodes;
+    
+    const appleSignIn = require('@invertase/react-native-apple-authentication');
+    appleAuth = appleSignIn.appleAuth;
+    AppleRequestScope = appleSignIn.AppleRequestScope;
+    AppleRequestOperation = appleSignIn.AppleRequestOperation;
+  }
+} catch (error) {
+  console.warn('OAuth native modules not available:', error);
+}
 import { Platform } from 'react-native';
 import { GatewayError } from './gateway-auth-service';
 
@@ -15,6 +31,10 @@ class GoogleOAuthProvider implements OAuthProvider {
 
   async initialize() {
     if (this.initialized) return;
+    
+    if (!GoogleSignin) {
+      throw new GatewayError('GOOGLE_CONFIG_ERROR', 'Google Sign-In not available', 500);
+    }
     
     try {
       await GoogleSignin.configure({
@@ -85,6 +105,10 @@ class AppleOAuthProvider implements OAuthProvider {
   async isAvailable(): Promise<boolean> {
     if (Platform.OS !== 'ios') return false;
     
+    if (!appleAuth) {
+      return false;
+    }
+    
     try {
       return appleAuth.isSupported;
     } catch (error) {
@@ -94,6 +118,10 @@ class AppleOAuthProvider implements OAuthProvider {
   }
 
   async startOAuth(): Promise<string> {
+    if (!appleAuth || !AppleRequestOperation || !AppleRequestScope) {
+      throw new GatewayError('APPLE_CONFIG_ERROR', 'Apple Sign-In not available', 500);
+    }
+    
     try {
       const appleAuthRequestResponse = await appleAuth.performRequest({
         requestedOperation: AppleRequestOperation.LOGIN,
