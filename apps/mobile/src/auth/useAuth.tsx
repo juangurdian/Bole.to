@@ -10,6 +10,8 @@ import {
 import { deepLinkHandler, initializeDeepLinking, cleanupDeepLinking } from "./deep-link-handler";
 import { googleProvider, appleProvider, getAvailableProviders } from "./oauth-providers";
 import { hasLegacyGatewayTokens, clearLegacyGatewayData } from "./token";
+import { NetworkManager } from "./networkManager";
+import { TokenLifecycleManager } from "./tokenLifecycleManager";
 
 // Unified user type that can handle both Gateway and Hi.Events users
 interface UnifiedUser {
@@ -141,6 +143,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   const gatewayAuth = GatewayAuthService.getInstance();
   const hiEventsAuth = HiEventsAuthClient.getInstance();
+  
+  // Hi.Events supporting services
+  const networkManager = NetworkManager.getInstance();
+  const tokenManager = TokenLifecycleManager.getInstance();
 
   useEffect(() => {
     initializeAuth();
