@@ -9,22 +9,15 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import Animated, {
-  useAnimatedStyle,
-  interpolate,
-  Extrapolation,
-} from "react-native-reanimated";
 import { theme } from "../../../theme";
 
 interface HomeTopBarProps {
-  scrollY?: Animated.SharedValue<number>;
   onSearchPress?: () => void;
   onNotificationsPress?: () => void;
   onProfilePress?: () => void;
 }
 
 export default function HomeTopBar({
-  scrollY,
   onSearchPress,
   onNotificationsPress,
   onProfilePress,
@@ -35,18 +28,6 @@ export default function HomeTopBar({
 
   const headerHeight = theme.dimensions.topBarHeight + insets.top;
 
-  const backgroundAnimatedStyle = useAnimatedStyle(() => {
-    if (!scrollY) return { opacity: 1 };
-    
-    const opacity = interpolate(
-      scrollY.value,
-      [0, 50],
-      [0, 1],
-      Extrapolation.CLAMP
-    );
-    
-    return { opacity };
-  });
 
   const handleSearchToggle = () => {
     setSearchVisible(!searchVisible);
@@ -99,12 +80,12 @@ export default function HomeTopBar({
 
   return (
     <View style={[styles.container, { height: headerHeight }]}>
-      <Animated.View style={[styles.background, backgroundAnimatedStyle]}>
+      <View style={[styles.background]}>
         <LinearGradient
           colors={theme.colors.gradient.primary}
           style={StyleSheet.absoluteFillObject}
         />
-      </Animated.View>
+      </View>
       
       <View style={[styles.content, { paddingTop: insets.top }]}>
         <View style={styles.header}>

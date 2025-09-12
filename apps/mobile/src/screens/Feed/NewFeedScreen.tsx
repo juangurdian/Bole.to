@@ -10,12 +10,6 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
-import Animated, {
-  useSharedValue,
-  useAnimatedScrollHandler,
-  useAnimatedStyle,
-  interpolate,
-} from "react-native-reanimated";
 
 import { theme } from "../../theme";
 import { mockApi } from "../../mocks/api";
@@ -29,23 +23,16 @@ import OfflineBanner from "../../components/OfflineBanner";
 import SkeletonRow from "../../components/SkeletonRow";
 import ErrorState from "../../components/ErrorState";
 
-const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 const TOPBAR_H = 56;
 
 export type FeedScope = "all" | "following" | "nearby" | "trending";
 
 export default function NewFeedScreen({ navigation }: any) {
   const insets = useSafeAreaInsets();
-  const scrollY = useSharedValue(0);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedScope, setSelectedScope] = useState<FeedScope>("all");
   const [showComposer, setShowComposer] = useState(false);
 
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (event) => {
-      scrollY.value = event.contentOffset.y;
-    },
-  });
 
   // Fetch feed data using mock API
   const {
@@ -107,25 +94,6 @@ export default function NewFeedScreen({ navigation }: any) {
     refetch();
   };
 
-  // Animated styles for composer button
-  const composerAnimatedStyle = useAnimatedStyle(() => {
-    const translateY = interpolate(
-      scrollY.value,
-      [0, 100],
-      [0, 100],
-      "clamp"
-    );
-    const opacity = interpolate(
-      scrollY.value,
-      [0, 50],
-      [1, 0],
-      "clamp"
-    );
-    return {
-      transform: [{ translateY }],
-      opacity,
-    };
-  });
 
   const renderPost = ({ item }: { item: any }) => (
     <FeedPost
@@ -188,14 +156,12 @@ export default function NewFeedScreen({ navigation }: any) {
         />
       </View>
       
-      <AnimatedFlatList
+      <FlatList
         data={data?.posts || []}
         renderItem={renderPost}
         keyExtractor={(item) => item.id}
         ListHeaderComponent={renderHeader}
         ListFooterComponent={renderFooter}
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
         contentContainerStyle={[styles.scrollContent, { 
           paddingTop: insets.top + TOPBAR_H + 12,
           paddingBottom: insets.bottom + 90 + 24
@@ -252,9 +218,9 @@ export default function NewFeedScreen({ navigation }: any) {
       />
 
       {/* Floating Composer Button */}
-      <Animated.View style={[styles.composerContainer, composerAnimatedStyle, { bottom: insets.bottom + 90 }]}>
+      <View style={[styles.composerContainer, { bottom: insets.bottom + 90 }]}>
         <FeedComposerButton onPress={() => setShowComposer(true)} />
-      </Animated.View>
+      </View>
 
       {/* Post Composer Sheet */}
       <PostComposerSheet

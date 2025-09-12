@@ -6,14 +6,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  runOnJS,
-} from "react-native-reanimated";
 import { Ionicons, Feather } from "@expo/vector-icons";
-import * as Haptics from "expo-haptics";
 import { Svg, Path, Defs, LinearGradient as SvgGradient, Stop } from "react-native-svg";
 import { theme } from "../../theme";
 
@@ -25,7 +18,6 @@ interface BoletoTabItemProps {
   testID?: string;
 }
 
-const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
 export default function BoletoTabItem({
   label,
@@ -34,28 +26,7 @@ export default function BoletoTabItem({
   onPress,
   testID,
 }: BoletoTabItemProps) {
-  const scale = useSharedValue(1);
-  const opacity = useSharedValue(1);
-
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: scale.value }],
-      opacity: opacity.value,
-    };
-  });
-
-  const handlePressIn = () => {
-    scale.value = withSpring(0.92, { damping: 15, stiffness: 300 });
-    opacity.value = withSpring(0.85, { damping: 15, stiffness: 300 });
-  };
-
-  const handlePressOut = () => {
-    scale.value = withSpring(1, { damping: 15, stiffness: 300 });
-    opacity.value = withSpring(1, { damping: 15, stiffness: 300 });
-  };
-
   const handlePress = () => {
-    runOnJS(Haptics.selectionAsync)();
     onPress();
   };
 
@@ -140,12 +111,10 @@ export default function BoletoTabItem({
     : theme.colors.nav.textDim;
 
   return (
-    <AnimatedTouchableOpacity
-      style={[styles.container, animatedStyle]}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
+    <TouchableOpacity
+      style={[styles.container]}
       onPress={handlePress}
-      activeOpacity={1}
+      activeOpacity={0.7}
       accessibilityRole="tab"
       accessibilityState={{ selected: active }}
       accessibilityLabel={`${label} tab`}
@@ -159,7 +128,7 @@ export default function BoletoTabItem({
           {label}
         </Text>
       </View>
-    </AnimatedTouchableOpacity>
+    </TouchableOpacity>
   );
 }
 

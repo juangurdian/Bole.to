@@ -4,14 +4,11 @@ import {
   StyleSheet,
   RefreshControl,
   StatusBar,
+  ScrollView,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
-import Animated, {
-  useSharedValue,
-  useAnimatedScrollHandler,
-} from "react-native-reanimated";
 
 import { theme } from "../../theme";
 import { mockApi } from "../../mocks/api";
@@ -33,15 +30,9 @@ export type TicketsTab = "tickets" | "events";
 
 export default function TicketsScreen({ navigation }: any) {
   const insets = useSafeAreaInsets();
-  const scrollY = useSharedValue(0);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedTab, setSelectedTab] = useState<TicketsTab>("tickets");
 
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (event) => {
-      scrollY.value = event.contentOffset.y;
-    },
-  });
 
   // Fetch tickets data using mock API
   const {
@@ -167,9 +158,7 @@ export default function TicketsScreen({ navigation }: any) {
         />
       </View>
       
-      <Animated.ScrollView
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
+      <ScrollView
         contentContainerStyle={[styles.scrollContent, { 
           paddingTop: insets.top + TOPBAR_H + SEGMENT_H + 12,
           paddingBottom: insets.bottom + 90 + 24
@@ -208,7 +197,7 @@ export default function TicketsScreen({ navigation }: any) {
         ) : (
           renderTabContent()
         )}
-      </Animated.ScrollView>
+      </ScrollView>
     </View>
   );
 }

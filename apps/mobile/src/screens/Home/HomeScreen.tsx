@@ -4,14 +4,11 @@ import {
   StyleSheet,
   RefreshControl,
   StatusBar,
+  ScrollView,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
-import Animated, {
-  useSharedValue,
-  useAnimatedScrollHandler,
-} from "react-native-reanimated";
 
 import { theme } from "../../theme";
 import { colors as v2Colors } from "../../theme/v2-neutral";
@@ -30,14 +27,7 @@ const TOPBAR_H = theme.dimensions.topBarHeight;
 
 export default function HomeScreen({ navigation }: any) {
   const insets = useSafeAreaInsets();
-  const scrollY = useSharedValue(0);
   const [refreshing, setRefreshing] = useState(false);
-
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (event) => {
-      scrollY.value = event.contentOffset.y;
-    },
-  });
 
   // Fetch home data using the comprehensive payload
   const {
@@ -117,9 +107,7 @@ export default function HomeScreen({ navigation }: any) {
     >
       <StatusBar barStyle="light-content" backgroundColor={v2Colors.bg} translucent />
 
-      <Animated.ScrollView
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
+      <ScrollView
         contentContainerStyle={{
           paddingTop: insets.top,
           paddingBottom: insets.bottom + 32,
@@ -179,7 +167,7 @@ export default function HomeScreen({ navigation }: any) {
             />
           </>
         )}
-      </Animated.ScrollView>
+      </ScrollView>
     </LinearGradient>
   );
 }

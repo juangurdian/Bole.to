@@ -17,13 +17,6 @@ import {
   TextStyle,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  runOnJS,
-} from 'react-native-reanimated';
-import * as Haptics from 'expo-haptics';
 import { Icon } from './IconSystem';
 import { enhancedTheme, enhancedColors } from './enhancedTheme';
 import type { IconSize } from './IconSystem';
@@ -67,9 +60,6 @@ interface ModernButtonProps {
   testID?: string;
 }
 
-// Animated components
-const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
-const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
 // Button variant configurations
 const getVariantConfig = (variant: ButtonVariant) => {
@@ -173,9 +163,6 @@ export const ModernButton: React.FC<ModernButtonProps> = ({
   accessibilityHint,
   testID,
 }) => {
-  // Animation values
-  const scale = useSharedValue(1);
-  const opacity = useSharedValue(1);
   
   // Configurations
   const variantConfig = getVariantConfig(variant);
@@ -184,49 +171,15 @@ export const ModernButton: React.FC<ModernButtonProps> = ({
   // Determine if button is interactive
   const isInteractive = !disabled && !loading;
   
-  // Animation styles
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: scale.value }],
-      opacity: opacity.value,
-    };
-  });
   
-  // Press handlers
-  const handlePressIn = () => {
-    if (!isInteractive) return;
-    
-    scale.value = withSpring(0.96, enhancedTheme.animations.spring.snappy);
-    
-    if (variant === 'tertiary') {
-      opacity.value = withSpring(0.7, enhancedTheme.animations.spring.gentle);
-    }
-  };
-  
-  const handlePressOut = () => {
-    if (!isInteractive) return;
-    
-    scale.value = withSpring(1, enhancedTheme.animations.spring.snappy);
-    opacity.value = withSpring(1, enhancedTheme.animations.spring.gentle);
-  };
   
   const handlePress = () => {
     if (!isInteractive) return;
-    
-    if (hapticFeedback) {
-      runOnJS(Haptics.selectionAsync)();
-    }
-    
     onPress();
   };
   
   const handleLongPress = () => {
     if (!isInteractive || !onLongPress) return;
-    
-    if (hapticFeedback) {
-      runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
-    }
-    
     onLongPress();
   };
   
@@ -316,47 +269,42 @@ export const ModernButton: React.FC<ModernButtonProps> = ({
   // Button component
   if (variantConfig.useGradient) {
     return (
-      <AnimatedTouchableOpacity
-        style={[animatedStyle, style]}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
+      <TouchableOpacity
+        style={[style]}
         onPress={handlePress}
         onLongPress={handleLongPress}
         disabled={!isInteractive}
-        activeOpacity={1}
+        activeOpacity={0.8}
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel || title}
         accessibilityHint={accessibilityHint}
         accessibilityState={{ disabled }}
         testID={testID}
       >
-        <AnimatedLinearGradient
+        <LinearGradient
           colors={variantConfig.gradientColors!}
           style={[styles.gradientContainer, containerStyle]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
         >
           {renderContent()}
-        </AnimatedLinearGradient>
-      </AnimatedTouchableOpacity>
+        </LinearGradient>
+      </TouchableOpacity>
     );
   }
   
   return (
-    <AnimatedTouchableOpacity
+    <TouchableOpacity
       style={[
-        animatedStyle,
         styles.solidContainer,
         containerStyle,
         { backgroundColor: variantConfig.backgroundColor },
         style,
       ]}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
       onPress={handlePress}
       onLongPress={handleLongPress}
       disabled={!isInteractive}
-      activeOpacity={1}
+      activeOpacity={0.8}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel || title}
       accessibilityHint={accessibilityHint}
@@ -364,7 +312,7 @@ export const ModernButton: React.FC<ModernButtonProps> = ({
       testID={testID}
     >
       {renderContent()}
-    </AnimatedTouchableOpacity>
+    </TouchableOpacity>
   );
 };
 

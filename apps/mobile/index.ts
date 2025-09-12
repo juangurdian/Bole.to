@@ -1,3 +1,4 @@
+import './src/hermes-fix'; // Must be first
 import { registerRootComponent } from 'expo';
 
 import App from './App';
