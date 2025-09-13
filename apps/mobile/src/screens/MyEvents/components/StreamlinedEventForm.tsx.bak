@@ -1,0 +1,469 @@
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableOpacity,
+  Text,
+} from 'react-native';
+import { Feather } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { StreamlinedEventFormProps } from './types';
+import { EventFormProvider, useEventForm } from './EventFormProvider';
+import { FormSection } from './FormSection';
+import { ThemedInput } from './ThemedInput';
+import { ImageUploadComponent } from './ImageUploadComponent';
+import { ActionFooter } from './ActionFooter';
+import { useApi } from '../../../api';
+import { colors, spacing } from '../../../theme/v2-neutral';
+
+// Simple picker component for category selection
+function CategoryPicker({ value, onValueChange, error }: {
+  value: string;
+  onValueChange: (value: string) => void;
+  error?: string;
+}) {
+  const categories = [
+    'Music', 'Sports', 'Party', 'Business', 'Food & Drink',
+    'Arts', 'Comedy', 'Education', 'Community', 'Other'
+  ];
+
+  return (
+    <ThemedInput
+      label="Category"
+      value={value}
+      onChangeText={onValueChange}
+      placeholder="Select event category"
+      error={error}
+      required
+    />
+  );
+}
+
+// Date/Time picker placeholder (would use a proper date picker in production)
+function DateTimePicker({ 
+  label, 
+  value, 
+  onValueChange, 
+  error 
+}: {
+  label: string;
+  value: string;
+  onValueChange: (value: string) => void;
+  error?: string;
+}) {
+  return (
+    <ThemedInput
+      label={label}
+      value={value}
+      onChangeText={onValueChange}
+      placeholder="YYYY-MM-DD HH:MM"
+      error={error}
+      required
+    />
+  );
+}
+
+// Internal form component that uses the context
+function StreamlinedEventFormContent({
+  onSave,
+  onPublish,
+  isLoading: externalLoading = false,
+  onClose
+}: Omit<StreamlinedEventFormProps, 'initialData'>) {
+  const {
+    formData,
+    validation,
+    updateField,
+    updateNestedField,
+    isValid,
+    isDirty,
+    lastSaved
+  } = useEventForm();
+  
+  const [isLoading, setIsLoading] = useState(false);
+  const api = useApi();
+  const navigation = useNavigation();
+
+  const handleSaveDraft = async () => {
+    setIsLoading(true);
+    try {
+      if (onSave) {
+        await onSave(formData);
+      } else {
+        // Default save to API
+        await api.updateEventDraft('current_draft', formData);
+      }
+    } catch (error) {
+      console.error('Save draft error:', error);
+      Alert.alert('Error', 'Failed to save draft. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCreateEvent = async () => {
+    if (!isValid) {
+      Alert.alert('Form Incomplete', 'Please complete all required fields before creating your event.');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      if (onPublish) {
+        await onPublish(formData);
+      } else {
+        // Default publish to API
+        await api.publishEvent('current_draft');
+      }
+      
+      Alert.alert(
+        'Event Created!',
+        'Your event has been successfully created and published.',
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              if (onClose) {
+                onClose();
+              } else {
+                navigation.goBack();
+              }
+            }
+          }
+        ]
+      );
+    } catch (error) {
+      console.error('Create event error:', error);
+      Alert.alert('Error', 'Failed to create event. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const addTicketType = () => {
+    const newProduct = {
+      name: 'General Admission',
+      price: {
+        amount: 25,
+        currency: 'USD',
+      },
+      capacity: 100,
+      description: '',
+    };
+    
+    updateField('products', [...formData.products, newProduct]);
+  };
+
+  const updateTicketType = (index: number, field: string, value: any) => {
+    const updatedProducts = formData.products.map((product, i) => {
+      if (i === index) {
+        if (field.includes('.')) {
+          const [parentField, childField] = field.split('.');
+          return {
+            ...product,
+            [parentField]: {
+              ...product[parentField as keyof typeof product],
+              [childField]: value,
+            },
+          };
+        }
+        return { ...product, [field]: value };
+      }
+      return product;
+    });
+    
+    updateField('products', updatedProducts);
+  };
+
+  const removeTicketType = (index: number) => {
+    const updatedProducts = formData.products.filter((_, i) => i !== index);
+    updateField('products', updatedProducts);
+  };
+
+  return (
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+    >
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Hero Image */}
+        <FormSection
+          title="Hero Image"
+          description="Add an eye-catching cover image for your event"
+        >
+          <ImageUploadComponent
+            value={formData.heroImage}
+            onImageSelected={(image) => updateField('heroImage', image)}
+            onImageRemoved={() => updateField('heroImage', undefined)}
+          />
+        </FormSection>
+
+        {/* Basic Information */}
+        <FormSection
+          title="Basic Information"
+          description="Tell people what your event is about"
+        >
+          <ThemedInput
+            label="Event Title"
+            value={formData.title}
+            onChangeText={(value) => updateField('title', value)}
+            placeholder="Enter your event title"
+            maxLength={80}
+            error={validation.errors.title}
+            required
+          />
+
+          <CategoryPicker
+            value={formData.category}
+            onValueChange={(value) => updateField('category', value)}
+            error={validation.errors.category}
+          />
+
+          <ThemedInput
+            label="Organizer Name"
+            value={formData.organizerName}
+            onChangeText={(value) => updateField('organizerName', value)}
+            placeholder="Your name or organization"
+          />
+
+          <ThemedInput
+            label="Description"
+            value={formData.description}
+            onChangeText={(value) => updateField('description', value)}
+            placeholder="Tell people what your event is about..."
+            multiline
+            numberOfLines={4}
+            maxLength={1000}
+            error={validation.errors.description}
+            warning={validation.warnings.description}
+            required
+          />
+
+          <ThemedInput
+            label="Age Restriction"
+            value={formData.ageRestriction || ''}
+            onChangeText={(value) => updateField('ageRestriction', value)}
+            placeholder="All ages, 18+, 21+"
+          />
+        </FormSection>
+
+        {/* Date & Time */}
+        <FormSection
+          title="Date & Time"
+          description="When is your event happening?"
+        >
+          <DateTimePicker
+            label="Start Date & Time"
+            value={formData.startsAt}
+            onValueChange={(value) => updateField('startsAt', value)}
+            error={validation.errors.startsAt}
+          />
+
+          <DateTimePicker
+            label="End Date & Time"
+            value={formData.endsAt}
+            onValueChange={(value) => updateField('endsAt', value)}
+          />
+        </FormSection>
+
+        {/* Location */}
+        <FormSection
+          title="Location"
+          description="Where is your event taking place?"
+        >
+          <ThemedInput
+            label="Venue Name"
+            value={formData.venue.name}
+            onChangeText={(value) => updateNestedField('venue', 'name', value)}
+            placeholder="Enter venue name"
+            error={validation.errors.venue}
+            required
+          />
+
+          <ThemedInput
+            label="Address"
+            value={formData.venue.address || ''}
+            onChangeText={(value) => updateNestedField('venue', 'address', value)}
+            placeholder="Street address (optional)"
+          />
+
+          <ThemedInput
+            label="City"
+            value={formData.venue.city}
+            onChangeText={(value) => updateNestedField('venue', 'city', value)}
+            placeholder="City"
+            required
+          />
+
+          <ThemedInput
+            label="Country"
+            value={formData.venue.country}
+            onChangeText={(value) => updateNestedField('venue', 'country', value)}
+            placeholder="Country"
+            required
+          />
+        </FormSection>
+
+        {/* Tickets */}
+        <FormSection
+          title="Tickets"
+          description="Set up ticket types for your event"
+        >
+          {formData.products.map((product, index) => (
+            <View key={index} style={styles.ticketType}>
+              <ThemedInput
+                label={`Ticket Type ${index + 1} - Name`}
+                value={product.name}
+                onChangeText={(value) => updateTicketType(index, 'name', value)}
+                placeholder="e.g., General Admission, VIP"
+              />
+
+              <View style={styles.ticketRow}>
+                <View style={styles.ticketRowItem}>
+                  <ThemedInput
+                    label="Price"
+                    value={product.price.amount.toString()}
+                    onChangeText={(value) => updateTicketType(index, 'price.amount', parseFloat(value) || 0)}
+                    placeholder="25"
+                    keyboardType="numeric"
+                  />
+                </View>
+
+                <View style={styles.ticketRowItem}>
+                  <ThemedInput
+                    label="Capacity"
+                    value={product.capacity.toString()}
+                    onChangeText={(value) => updateTicketType(index, 'capacity', parseInt(value) || 0)}
+                    placeholder="100"
+                    keyboardType="numeric"
+                  />
+                </View>
+              </View>
+
+              {formData.products.length > 1 && (
+                <TouchableOpacity
+                  style={styles.removeTicketButton}
+                  onPress={() => removeTicketType(index)}
+                >
+                  <Feather name="trash-2" size={16} color={colors.error} />
+                </TouchableOpacity>
+              )}
+            </View>
+          ))}
+
+          <TouchableOpacity
+            style={styles.addTicketButton}
+            onPress={addTicketType}
+          >
+            <Feather name="plus" size={20} color={colors.accent} />
+            <Text style={styles.addTicketText}>Add Ticket Type</Text>
+          </TouchableOpacity>
+
+          {validation.errors.products && (
+            <Text style={styles.errorText}>{validation.errors.products}</Text>
+          )}
+        </FormSection>
+
+        {/* Add bottom padding for the footer */}
+        <View style={styles.bottomPadding} />
+      </ScrollView>
+
+      {/* Fixed Action Footer */}
+      <ActionFooter
+        onSaveDraft={handleSaveDraft}
+        onCreateEvent={handleCreateEvent}
+        isValid={isValid}
+        isLoading={isLoading || externalLoading}
+        isDirty={isDirty}
+        lastSaved={lastSaved}
+      />
+    </KeyboardAvoidingView>
+  );
+}
+
+// Main component with provider wrapper
+export function StreamlinedEventForm({
+  draftId,
+  initialData,
+  ...props
+}: StreamlinedEventFormProps) {
+  return (
+    <EventFormProvider 
+      draftId={draftId}
+      initialData={initialData}
+      autoSave={true}
+      autoSaveInterval={2000}
+    >
+      <StreamlinedEventFormContent {...props} />
+    </EventFormProvider>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.bg,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: spacing(4),
+  },
+  ticketType: {
+    position: 'relative',
+    marginBottom: spacing(6),
+    paddingBottom: spacing(4),
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  ticketRow: {
+    flexDirection: 'row',
+    gap: spacing(3),
+  },
+  ticketRowItem: {
+    flex: 1,
+  },
+  removeTicketButton: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    padding: spacing(2),
+  },
+  addTicketButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing(3),
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: colors.accent,
+    borderRadius: spacing(2),
+    backgroundColor: `${colors.accent}08`,
+  },
+  addTicketText: {
+    marginLeft: spacing(2),
+    fontSize: 16,
+    fontWeight: '500',
+    color: colors.accent,
+  },
+  errorText: {
+    marginTop: spacing(2),
+    fontSize: 14,
+    color: colors.error,
+  },
+  bottomPadding: {
+    height: spacing(20), // Space for the fixed footer
+  },
+});
+

@@ -2,9 +2,11 @@ import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import TicketsScreen from "../../screens/Tickets/TicketsScreen";
 import TicketScreen from "../../screens/Wallet/TicketScreen";
-import EventEditorWizard from "../../screens/MyEvents/EventEditorWizard";
+import SimpleCreateEvent from "../../screens/MyEvents/components/SimpleCreateEvent";
 import EventPreviewScreen from "../../screens/MyEvents/EventPreviewScreen";
 import ProductEditorScreen from "../../screens/MyEvents/ProductEditorScreen";
+import TicketTiersScreen from "../../screens/MyEvents/TicketTiersScreen";
+import DJLineupScreen from "../../screens/MyEvents/DJLineupScreen";
 import MyEventsCheckInListsScreen from "../../screens/MyEvents/CheckInListsScreen";
 import PromoterToolsScreen from "../../screens/MyEvents/PromoterToolsScreen";
 import MessageComposerScreen from "../../screens/MyEvents/MessageComposerScreen";
@@ -33,11 +35,20 @@ export default function TicketsTab() {
         component={TicketScreen} 
         options={{ title: "Ticket" }} 
       />
-      <Stack.Screen 
+      {/* Temporarily disabled - causes draftId errors */}
+      {/* <Stack.Screen 
         name="EventEditorWizard" 
         component={EventEditorWizard} 
         options={{ 
           title: "Event Setup",
+          presentation: "modal"
+        }} 
+      /> */}
+      <Stack.Screen 
+        name="CreateEvent" 
+        component={SimpleCreateEvent} 
+        options={{ 
+          headerShown: false,
           presentation: "modal"
         }} 
       />
@@ -50,6 +61,16 @@ export default function TicketsTab() {
         name="ProductEditorScreen" 
         component={ProductEditorScreen} 
         options={{ title: "Manage Tickets" }} 
+      />
+      <Stack.Screen 
+        name="TicketTiersScreen" 
+        component={TicketTiersScreen} 
+        options={{ headerShown: false }} 
+      />
+      <Stack.Screen 
+        name="DJLineupScreen" 
+        component={DJLineupScreen} 
+        options={{ headerShown: false }} 
       />
       <Stack.Screen 
         name="CheckInListsScreen" 

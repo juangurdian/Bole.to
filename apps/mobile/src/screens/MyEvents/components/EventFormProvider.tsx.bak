@@ -1,0 +1,290 @@
+import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
+import { 
+  EventFormData, 
+  FormValidation, 
+  EventFormContextType, 
+  defaultEventFormData,
+  validationRules 
+} from './types';
+import { useApi } from '../../../api';
+
+// Form Actions
+type FormAction = 
+  | { type: 'UPDATE_FIELD'; field: string; value: any }
+  | { type: 'UPDATE_NESTED_FIELD'; parentField: string; childField: string; value: any }
+  | { type: 'SET_FORM_DATA'; data: EventFormData }
+  | { type: 'SET_VALIDATION'; validation: FormValidation }
+  | { type: 'SET_DIRTY'; isDirty: boolean }
+  | { type: 'SET_LAST_SAVED'; lastSaved: Date }
+  | { type: 'RESET_FORM' };
+
+// Form State
+interface FormState {
+  formData: EventFormData;
+  validation: FormValidation;
+  isDirty: boolean;
+  lastSaved?: Date;
+}
+
+// Initial state
+const initialState: FormState = {
+  formData: defaultEventFormData,
+  validation: {
+    isValid: false,
+    errors: {},
+    warnings: {},
+  },
+  isDirty: false,
+};
+
+// Form reducer
+function formReducer(state: FormState, action: FormAction): FormState {
+  switch (action.type) {
+    case 'UPDATE_FIELD':
+      return {
+        ...state,
+        formData: {
+          ...state.formData,
+          [action.field]: action.value,
+        },
+        isDirty: true,
+      };
+    
+    case 'UPDATE_NESTED_FIELD':
+      return {
+        ...state,
+        formData: {
+          ...state.formData,
+          [action.parentField]: {
+            ...state.formData[action.parentField as keyof EventFormData],
+            [action.childField]: action.value,
+          },
+        },
+        isDirty: true,
+      };
+    
+    case 'SET_FORM_DATA':
+      return {
+        ...state,
+        formData: action.data,
+        isDirty: false,
+      };
+    
+    case 'SET_VALIDATION':
+      return {
+        ...state,
+        validation: action.validation,
+      };
+    
+    case 'SET_DIRTY':
+      return {
+        ...state,
+        isDirty: action.isDirty,
+      };
+    
+    case 'SET_LAST_SAVED':
+      return {
+        ...state,
+        lastSaved: action.lastSaved,
+        isDirty: false,
+      };
+    
+    case 'RESET_FORM':
+      return initialState;
+    
+    default:
+      return state;
+  }
+}
+
+// Validation helper functions
+function validateField(field: string, value: any, formData: EventFormData): string | undefined {
+  const rules = validationRules[field as keyof typeof validationRules];
+  
+  if (!rules) return undefined;
+  
+  // Required validation
+  if (rules.required && (!value || (typeof value === 'string' && value.trim().length === 0))) {
+    return `${field} is required`;
+  }
+  
+  // String length validation
+  if (typeof value === 'string' && value.length > 0) {
+    if (rules.minLength && value.length < rules.minLength) {
+      return `${field} must be at least ${rules.minLength} characters`;
+    }
+    if (rules.maxLength && value.length > rules.maxLength) {
+      return `${field} must be no more than ${rules.maxLength} characters`;
+    }
+  }
+  
+  // Special validations
+  if (field === 'products' && Array.isArray(value)) {
+    if (rules.minCount && value.length < rules.minCount) {
+      return `At least ${rules.minCount} ticket type is required`;
+    }
+  }
+  
+  return undefined;
+}
+
+function validateNestedField(parentField: string, childField: string, value: any): string | undefined {
+  const rules = validationRules[parentField as keyof typeof validationRules];
+  
+  if (!rules || typeof rules !== 'object') return undefined;
+  
+  const childRules = rules[childField as keyof typeof rules];
+  if (!childRules || typeof childRules !== 'object') return undefined;
+  
+  // Required validation
+  if (childRules.required && (!value || (typeof value === 'string' && value.trim().length === 0))) {
+    return `${childField} is required`;
+  }
+  
+  // String length validation
+  if (typeof value === 'string' && value.length > 0 && childRules.minLength) {
+    if (value.length < childRules.minLength) {
+      return `${childField} must be at least ${childRules.minLength} characters`;
+    }
+  }
+  
+  return undefined;
+}
+
+function validateFormData(formData: EventFormData): FormValidation {
+  const errors: FormValidation['errors'] = {};
+  const warnings: FormValidation['warnings'] = {};
+  
+  // Validate basic fields
+  const titleError = validateField('title', formData.title, formData);
+  if (titleError) errors.title = titleError;
+  
+  const categoryError = validateField('category', formData.category, formData);
+  if (categoryError) errors.category = categoryError;
+  
+  const descriptionError = validateField('description', formData.description, formData);
+  if (descriptionError) errors.description = descriptionError;
+  
+  const startsAtError = validateField('startsAt', formData.startsAt, formData);
+  if (startsAtError) errors.startsAt = startsAtError;
+  
+  const productsError = validateField('products', formData.products, formData);
+  if (productsError) errors.products = productsError;
+  
+  // Validate nested venue fields
+  const venueNameError = validateNestedField('venue', 'name', formData.venue.name);
+  const venueCityError = validateNestedField('venue', 'city', formData.venue.city);
+  if (venueNameError || venueCityError) {
+    errors.venue = venueNameError || venueCityError;
+  }
+  
+  // Add warnings
+  if (formData.description.length > 0 && formData.description.length < 50) {
+    warnings.description = 'Consider adding more details to attract attendees';
+  }
+  
+  if (formData.products.length === 0) {
+    warnings.products = 'Add at least one ticket type to allow registrations';
+  }
+  
+  const isValid = Object.keys(errors).length === 0;
+  
+  return { isValid, errors, warnings };
+}
+
+// Context
+const EventFormContext = createContext<EventFormContextType | undefined>(undefined);
+
+// Provider component
+interface EventFormProviderProps {
+  children: React.ReactNode;
+  initialData?: Partial<EventFormData>;
+  autoSave?: boolean;
+  autoSaveInterval?: number; // milliseconds
+  draftId?: string; // Optional draft ID for existing drafts
+}
+
+export function EventFormProvider({ 
+  children, 
+  initialData,
+  autoSave = true,
+  autoSaveInterval = 2000,
+  draftId
+}: EventFormProviderProps) {
+  const [state, dispatch] = useReducer(formReducer, initialState);
+  const api = useApi();
+  
+  // Initialize form data
+  useEffect(() => {
+    if (initialData) {
+      const mergedData = { ...defaultEventFormData, ...initialData };
+      dispatch({ type: 'SET_FORM_DATA', data: mergedData });
+    }
+  }, [initialData]);
+  
+  // Auto-validation
+  useEffect(() => {
+    const validation = validateFormData(state.formData);
+    dispatch({ type: 'SET_VALIDATION', validation });
+  }, [state.formData]);
+  
+  // Auto-save functionality
+  useEffect(() => {
+    if (!autoSave || !state.isDirty || !draftId) return;
+    
+    const timeoutId = setTimeout(async () => {
+      try {
+        // Call API to update draft only if we have a draftId
+        await api.updateEventDraft(draftId, state.formData);
+        dispatch({ type: 'SET_LAST_SAVED', lastSaved: new Date() });
+        dispatch({ type: 'SET_DIRTY', isDirty: false });
+      } catch (error) {
+        console.warn('Auto-save failed:', error);
+      }
+    }, autoSaveInterval);
+    
+    return () => clearTimeout(timeoutId);
+  }, [state.formData, state.isDirty, autoSave, autoSaveInterval, api, draftId]);
+  
+  // Context methods
+  const updateField = useCallback((field: string, value: any) => {
+    dispatch({ type: 'UPDATE_FIELD', field, value });
+  }, []);
+  
+  const updateNestedField = useCallback((parentField: string, childField: string, value: any) => {
+    dispatch({ type: 'UPDATE_NESTED_FIELD', parentField, childField, value });
+  }, []);
+  
+  const validateForm = useCallback(() => {
+    const validation = validateFormData(state.formData);
+    dispatch({ type: 'SET_VALIDATION', validation });
+    return validation;
+  }, [state.formData]);
+  
+  // Context value
+  const contextValue: EventFormContextType = {
+    formData: state.formData,
+    validation: state.validation,
+    updateField,
+    updateNestedField,
+    validateForm,
+    isValid: state.validation.isValid,
+    isDirty: state.isDirty,
+    lastSaved: state.lastSaved,
+  };
+  
+  return (
+    <EventFormContext.Provider value={contextValue}>
+      {children}
+    </EventFormContext.Provider>
+  );
+}
+
+// Hook to use the context
+export function useEventForm(): EventFormContextType {
+  const context = useContext(EventFormContext);
+  if (!context) {
+    throw new Error('useEventForm must be used within an EventFormProvider');
+  }
+  return context;
+}

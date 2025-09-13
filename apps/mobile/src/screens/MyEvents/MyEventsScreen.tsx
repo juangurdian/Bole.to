@@ -32,35 +32,32 @@ export default function MyEventsScreen({ navigation }: MyEventsScreenProps) {
     eventsQuery.refetch();
   };
 
-  const handleCreateEvent = async () => {
-    try {
-      const result = await api.createEventDraft();
-      navigation.navigate("EventEditorWizard", { 
-        draftId: result.id,
-        isNew: true 
-      });
-    } catch (error) {
-      Alert.alert("Error", "Failed to create event draft");
-    }
+  const handleCreateEvent = () => {
+    // Navigate to the simple create event screen
+    navigation.navigate("CreateEvent");
   };
 
   const handleEventPress = (event: any) => {
-    navigation.navigate("EventEditorWizard", { 
-      draftId: event.id,
-      isNew: false 
-    });
+    // Temporarily disabled - causes draftId errors
+    // navigation.navigate("EventEditorWizard", { 
+    //   draftId: event.id,
+    //   isNew: false 
+    // });
+    Alert.alert("Info", "Event editing temporarily disabled");
   };
 
   const handleEventAction = async (action: string, event: any) => {
     switch (action) {
       case "edit":
-        navigation.navigate("EventEditorWizard", { draftId: event.id });
+        // Temporarily disabled - causes draftId errors
+        // navigation.navigate("EventEditorWizard", { draftId: event.id });
+        Alert.alert("Info", "Event editing temporarily disabled");
         break;
       case "preview":
         navigation.navigate("EventPreviewScreen", { eventId: event.id });
         break;
       case "products":
-        navigation.navigate("ProductEditorScreen", { eventId: event.id });
+        navigation.navigate("TicketTiersScreen", { eventId: event.id });
         break;
       case "checkin":
         navigation.navigate("CheckInListsScreen", { eventId: event.id });

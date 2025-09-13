@@ -97,7 +97,7 @@ export default function TicketsScreen({ navigation }: any) {
   // Help action removed to fit 4 actions design
 
   const handleCreateEvent = () => {
-    navigation.navigate("EventEditorWizard");
+    navigation.navigate("CreateEvent");
   };
 
   const renderTabContent = () => {
