@@ -6,8 +6,10 @@ import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { useApi } from "../../api";
 import { useAuth } from "../../auth/useAuth";
 import { theme } from "../../theme";
+import { colors as v2Colors } from "../../theme/v2-neutral";
 import Skeleton from "../../components/Skeleton";
 import ErrorState from "../../components/ErrorState";
+import NewHomeTopBarNeutral from "../../components/NewHomeTopBarNeutral";
 
 // Discover Components
 import DiscoverHeader from "./components/DiscoverHeader";
@@ -78,26 +80,34 @@ export default function DiscoverScreen({ navigation }: any) {
     }));
   }, []);
 
+  const handleOpenNotifications = () => {
+    navigation.navigate("Notifications");
+  };
+
   if (discoverQuery.isLoading && !refreshing) {
     return (
-      <View style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor={theme.colors.bg} translucent />
-        <LinearGradient
-          colors={["rgba(124,92,255,0.25)", "rgba(0,224,255,0.15)", "transparent"]}
-          style={styles.atmosphereGradient}
-        />
+      <LinearGradient
+        colors={[v2Colors.bg, '#0B0F16', '#0A0C10']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0.8, y: 1 }}
+        style={{ flex: 1 }}
+      >
+        <StatusBar barStyle="light-content" backgroundColor={v2Colors.bg} translucent />
         <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top }]}
+          contentContainerStyle={{
+            paddingTop: insets.top,
+            paddingBottom: insets.bottom + 32,
+          }}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.headerWrapper}>
-            <DiscoverHeader
-              city={query.city}
-              onCityChange={(city) => updateQuery({ city })}
-              onSearchPress={() => navigation.navigate("SearchScreen")}
-            />
-          </View>
+          <NewHomeTopBarNeutral
+            style={{
+              marginBottom: 4,
+            }}
+            city={query.city}
+            onSearch={() => navigation.navigate("SearchScreen")}
+            onNotifications={handleOpenNotifications}
+          />
           <View style={styles.filterWrapper}>
             <StickyFilterBar
               selectedCategories={query.categories}
@@ -123,30 +133,34 @@ export default function DiscoverScreen({ navigation }: any) {
             <Skeleton h={200} />
           </View>
         </ScrollView>
-      </View>
+      </LinearGradient>
     );
   }
 
   if (discoverQuery.isError) {
     return (
-      <View style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor={theme.colors.bg} translucent />
-        <LinearGradient
-          colors={["rgba(124,92,255,0.25)", "rgba(0,224,255,0.15)", "transparent"]}
-          style={styles.atmosphereGradient}
-        />
+      <LinearGradient
+        colors={[v2Colors.bg, '#0B0F16', '#0A0C10']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0.8, y: 1 }}
+        style={{ flex: 1 }}
+      >
+        <StatusBar barStyle="light-content" backgroundColor={v2Colors.bg} translucent />
         <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top }]}
+          contentContainerStyle={{
+            paddingTop: insets.top,
+            paddingBottom: insets.bottom + 32,
+          }}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.headerWrapper}>
-            <DiscoverHeader
-              city={query.city}
-              onCityChange={(city) => updateQuery({ city })}
-              onSearchPress={() => navigation.navigate("SearchScreen")}
-            />
-          </View>
+          <NewHomeTopBarNeutral
+            style={{
+              marginBottom: 4,
+            }}
+            city={query.city}
+            onSearch={() => navigation.navigate("SearchScreen")}
+            onNotifications={handleOpenNotifications}
+          />
           <View style={styles.filterWrapper}>
             <StickyFilterBar
               selectedCategories={query.categories}
@@ -166,7 +180,7 @@ export default function DiscoverScreen({ navigation }: any) {
           </View>
           <ErrorState onRetry={() => discoverQuery.refetch()} />
         </ScrollView>
-      </View>
+      </LinearGradient>
     );
   }
 
@@ -175,41 +189,40 @@ export default function DiscoverScreen({ navigation }: any) {
   const hasFiltersApplied = query.dateRange !== "all" || query.categories.length > 0 || query.price;
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={theme.colors.bg} translucent />
-      
-      {/* Atmosphere Gradient */}
-      <LinearGradient
-        colors={["rgba(124,92,255,0.25)", "rgba(0,224,255,0.15)", "transparent"]}
-        style={styles.atmosphereGradient}
-      />
+    <LinearGradient
+      colors={[v2Colors.bg, '#0B0F16', '#0A0C10']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0.8, y: 1 }}
+      style={{ flex: 1 }}
+    >
+      <StatusBar barStyle="light-content" backgroundColor={v2Colors.bg} translucent />
       
       <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={[styles.scrollContent, { 
+        contentContainerStyle={{
           paddingTop: insets.top,
-          paddingBottom: insets.bottom + 90 + 24 // bottom inset + tab bar height + spacing
-        }]}
+          paddingBottom: insets.bottom + 90 + 24, // bottom inset + tab bar height + spacing
+        }}
         refreshControl={
           <RefreshControl 
             refreshing={refreshing} 
             onRefresh={onRefresh}
-            tintColor={theme.colors.text.primary}
-            titleColor={theme.colors.text.primary}
+            tintColor={v2Colors.text.primary}
+            titleColor={v2Colors.text.primary}
           />
         }
         showsVerticalScrollIndicator={false}
       >
-        {/* Header - Now inside ScrollView */}
-        <View style={styles.headerWrapper}>
-          <DiscoverHeader
-            city={query.city}
-            onCityChange={(city) => updateQuery({ city })}
-            onSearchPress={() => navigation.navigate("SearchScreen")}
-          />
-        </View>
+        {/* New Home Top Bar - matches home page design */}
+        <NewHomeTopBarNeutral
+          style={{
+            marginBottom: 4,
+          }}
+          city={query.city}
+          onSearch={() => navigation.navigate("SearchScreen")}
+          onNotifications={handleOpenNotifications}
+        />
         
-        {/* Filter Bar - Now inside ScrollView */}
+        {/* Filter Bar - moved right below search bar */}
         <View style={styles.filterWrapper}>
           <StickyFilterBar
             selectedCategories={query.categories}
@@ -217,7 +230,7 @@ export default function DiscoverScreen({ navigation }: any) {
             isFree={query.price?.max === 0}
             sort={query.sort}
             hasFilters={hasFiltersApplied}
-            resultsCount={data?.all.meta.total || 0}
+            resultsCount={data?.all?.meta?.total || 0}
             onToggleCategory={toggleCategory}
             onToggleDateRange={(range) => updateQuery({ dateRange: range })}
             onToggleFree={(free) => updateQuery({ 
@@ -227,6 +240,15 @@ export default function DiscoverScreen({ navigation }: any) {
             onClearFilters={clearFilters}
           />
         </View>
+        
+        {/* Results Count - moved below filters */}
+        {(data?.all?.meta?.total || 0) > 0 && (
+          <View style={styles.resultsCountContainer}>
+            <Text style={styles.resultsCountText}>
+              {data?.all?.meta?.total || 0} event{(data?.all?.meta?.total || 0) !== 1 ? 's' : ''} found
+            </Text>
+          </View>
+        )}
 
         {/* Sections */}
         {data && (
@@ -261,39 +283,26 @@ export default function DiscoverScreen({ navigation }: any) {
           </Text>
         </View>
       </ScrollView>
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.bg,
-  },
-  atmosphereGradient: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 160,
-    zIndex: 0,
-  },
-  headerWrapper: {
-    // No positioning needed - flows normally in ScrollView
-    paddingBottom: theme.spacing.xxl,
-  },
   filterWrapper: {
     backgroundColor: "rgba(0,0,0,0.1)",
-    backdropFilter: "blur(10px)",
     marginTop: theme.spacing.sm,
-    marginBottom: theme.spacing.md,
+    marginBottom: theme.spacing.sm,
     paddingVertical: theme.spacing.xs,
   },
-  scrollView: {
-    flex: 1,
+  resultsCountContainer: {
+    paddingHorizontal: theme.spacing.lg,
+    paddingBottom: theme.spacing.sm,
+    alignItems: "flex-start",
   },
-  scrollContent: {
-    // Dynamic padding is applied inline
+  resultsCountText: {
+    fontSize: theme.typography.sizes.xs,
+    color: theme.colors.text.tertiary,
+    fontWeight: '500',
   },
   loadingContainer: {
     padding: theme.spacing.lg,

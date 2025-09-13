@@ -4,10 +4,10 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { theme } from "../../../theme";
+import { colors as v2Colors } from "../../../theme/v2-neutral";
 
 interface QuickAction {
   id: string;
@@ -22,7 +22,6 @@ interface TicketQuickActionsProps {
   onShare?: () => void;
   onScanner?: () => void;
   onSettings?: () => void;
-  onHelp?: () => void;
 }
 
 export default function TicketQuickActions({
@@ -30,58 +29,45 @@ export default function TicketQuickActions({
   onShare,
   onScanner,
   onSettings,
-  onHelp,
 }: TicketQuickActionsProps) {
   const quickActions: QuickAction[] = [
     {
       id: "wallet",
       title: "Add to Wallet",
       icon: "📱",
-      gradient: theme.colors.gradient.primary,
+      gradient: [v2Colors.accent, v2Colors.accent2],
       onPress: onAddToWallet || (() => console.log("Add to Wallet")),
     },
     {
       id: "share",
       title: "Share",
       icon: "📤",
-      gradient: theme.colors.gradient.accent,
+      gradient: [v2Colors.accent2, v2Colors.accent],
       onPress: onShare || (() => console.log("Share")),
     },
     {
       id: "scanner",
       title: "Staff Mode",
       icon: "👥",
-      gradient: theme.colors.gradient.warm,
+      gradient: ["#667EEA", "#764BA2"],
       onPress: onScanner || (() => console.log("Scanner")),
     },
     {
       id: "settings",
       title: "Settings",
       icon: "⚙️",
-      gradient: ["#667EEA", "#764BA2"],
-      onPress: onSettings || (() => console.log("Settings")),
-    },
-    {
-      id: "help",
-      title: "Help",
-      icon: "❓",
       gradient: ["#43E97B", "#38F9D7"],
-      onPress: onHelp || (() => console.log("Help")),
+      onPress: onSettings || (() => console.log("Settings")),
     },
   ];
 
   return (
     <View style={styles.container}>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-        scrollEventThrottle={16}
-      >
+      <View style={styles.grid}>
         {quickActions.map((action, index) => (
           <TouchableOpacity
             key={action.id}
-            style={[styles.actionButton, index === 0 && styles.firstAction]}
+            style={styles.actionButton}
             onPress={action.onPress}
             activeOpacity={0.8}
           >
@@ -103,7 +89,7 @@ export default function TicketQuickActions({
             </View>
           </TouchableOpacity>
         ))}
-      </ScrollView>
+      </View>
     </View>
   );
 }
@@ -112,25 +98,24 @@ const styles = StyleSheet.create({
   container: {
     paddingVertical: theme.spacing.md,
   },
-  scrollContent: {
-    paddingLeft: theme.spacing.lg,
-    gap: theme.spacing.sm,
+  grid: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 0,
   },
   actionButton: {
-    width: 80,
-    height: 80,
+    flex: 1,
+    aspectRatio: 1,
+    marginHorizontal: theme.spacing.xs / 2,
     borderRadius: 16,
     overflow: "visible",
   },
-  firstAction: {
-    marginLeft: 0,
-  },
   actionCard: {
     flex: 1,
-    backgroundColor: "#111623",
+    backgroundColor: v2Colors.surface1,
     borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.06)",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
     position: "relative",
     ...theme.shadows.md,
   },
@@ -165,7 +150,7 @@ const styles = StyleSheet.create({
   actionTitle: {
     fontSize: theme.typography.sizes.xs,
     fontWeight: theme.typography.weights.medium,
-    color: theme.colors.text.primary,
+    color: v2Colors.text.primary,
     textAlign: "center",
     lineHeight: theme.typography.lineHeights.tight * theme.typography.sizes.xs,
   },

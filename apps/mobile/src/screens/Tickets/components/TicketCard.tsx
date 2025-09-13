@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { theme } from "../../../theme";
+import { colors as v2Colors } from "../../../theme/v2-neutral";
 
 interface TicketSummary {
   id: string;
@@ -85,19 +86,19 @@ export default function TicketCard({ ticket, onPress }: TicketCardProps) {
           </ImageBackground>
         ) : (
           <LinearGradient
-            colors={theme.colors.gradient.primary}
+            colors={[v2Colors.surface2, v2Colors.surface3]}
             style={styles.placeholderBackground}
           >
             <Text style={styles.placeholderIcon}>🎫</Text>
           </LinearGradient>
         )}
 
-        {/* Holographic Overlay */}
+        {/* Subtle Accent Overlay */}
         <LinearGradient
           colors={[
-            "rgba(0,224,255,0.3)",
-            "rgba(124,92,255,0.3)", 
-            "rgba(255,122,89,0.3)"
+            `${v2Colors.accent}15`,
+            `${v2Colors.accent2}15`,
+            "transparent"
           ]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -164,9 +165,9 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 16,
     overflow: "hidden",
-    backgroundColor: "#111623",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.06)",
+    backgroundColor: v2Colors.surface1,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
     ...theme.shadows.lg,
   },
   imageBackground: {
@@ -220,12 +221,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   countdownBadge: {
-    backgroundColor: "rgba(255,122,89,0.9)",
+    backgroundColor: `${v2Colors.warning}E6`,
     paddingHorizontal: theme.spacing.sm,
     paddingVertical: theme.spacing.xs / 2,
     borderRadius: 11,
-    borderWidth: 1,
-    borderColor: "rgba(255,122,89,0.3)",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: `${v2Colors.warning}4D`,
   },
   countdownText: {
     fontSize: theme.typography.sizes.xs,
@@ -250,13 +251,13 @@ const styles = StyleSheet.create({
   },
   datePill: {
     alignSelf: "flex-start",
-    backgroundColor: "rgba(0,224,255,0.9)",
+    backgroundColor: `${v2Colors.accent}E6`,
     paddingHorizontal: theme.spacing.sm,
     paddingVertical: theme.spacing.xs / 2,
     borderRadius: 11,
     marginBottom: theme.spacing.xs,
-    borderWidth: 1,
-    borderColor: "rgba(0,224,255,0.3)",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: `${v2Colors.accent}4D`,
   },
   dateText: {
     fontSize: theme.typography.sizes.xs,

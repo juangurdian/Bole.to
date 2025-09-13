@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { theme } from "../../../theme";
+import { colors as v2Colors, radii, spacing } from "../../../theme/v2-neutral";
 
 export type TicketsTab = "tickets" | "events";
 
@@ -23,16 +24,11 @@ export default function TicketSegmented({ selectedTab, onTabChange }: TicketSegm
           activeOpacity={0.8}
         >
           {selectedTab === "tickets" ? (
-            <LinearGradient
-              colors={theme.colors.gradient.primary}
-              style={styles.activeGradient}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-            >
+            <View style={styles.activeSegment}>
               <Text style={[styles.segmentText, styles.activeSegmentText]}>
                 My Tickets
               </Text>
-            </LinearGradient>
+            </View>
           ) : (
             <Text style={styles.segmentText}>
               My Tickets
@@ -41,24 +37,16 @@ export default function TicketSegmented({ selectedTab, onTabChange }: TicketSegm
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[
-            styles.segment,
-            selectedTab === "events" && styles.activeSegment
-          ]}
+          style={[styles.segment]}
           onPress={() => onTabChange("events")}
           activeOpacity={0.8}
         >
           {selectedTab === "events" ? (
-            <LinearGradient
-              colors={theme.colors.gradient.primary}
-              style={styles.activeGradient}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-            >
+            <View style={styles.activeSegment}>
               <Text style={[styles.segmentText, styles.activeSegmentText]}>
                 My Events
               </Text>
-            </LinearGradient>
+            </View>
           ) : (
             <Text style={styles.segmentText}>
               My Events
@@ -73,45 +61,41 @@ export default function TicketSegmented({ selectedTab, onTabChange }: TicketSegm
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "transparent",
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.sm,
+    paddingHorizontal: spacing(4),
+    paddingVertical: spacing(3),
   },
   segmentedControl: {
     flexDirection: "row",
-    backgroundColor: "rgba(255,255,255,0.1)",
-    borderRadius: theme.borderRadius.xl,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.06)",
-    padding: theme.spacing.xs,
-    height: 48,
+    backgroundColor: v2Colors.surface1,
+    borderRadius: radii.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
+    padding: spacing(1),
+    height: 44,
   },
   segment: {
     flex: 1,
-    borderRadius: theme.borderRadius.lg,
     justifyContent: "center",
     alignItems: "center",
-    marginHorizontal: 2,
+    borderRadius: radii.md,
+    marginHorizontal: spacing(0.5),
   },
   activeSegment: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  activeGradient: {
+    backgroundColor: v2Colors.surface2,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
+    borderRadius: radii.md,
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: theme.borderRadius.lg,
-    paddingHorizontal: theme.spacing.md,
+    paddingHorizontal: spacing(3),
   },
   segmentText: {
-    fontSize: theme.typography.sizes.sm,
-    fontWeight: theme.typography.weights.semibold,
-    color: theme.colors.text.secondary,
+    fontSize: 14,
+    fontWeight: '600',
+    color: v2Colors.text.secondary,
   },
   activeSegmentText: {
-    color: theme.colors.text.primary,
+    color: v2Colors.text.primary,
   },
 });

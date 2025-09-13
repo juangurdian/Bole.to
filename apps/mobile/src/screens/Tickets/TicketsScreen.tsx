@@ -11,8 +11,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
 
 import { theme } from "../../theme";
+import { colors as v2Colors } from "../../theme/v2-neutral";
 import { mockApi } from "../../mocks/api";
-import NewHomeTopBar from "../Home/components/NewHomeTopBar";
+import NewHomeTopBarNeutral from "../../components/NewHomeTopBarNeutral";
 import TicketSegmented from "./components/TicketSegmented";
 import TicketQuickActions from "./components/TicketQuickActions";
 import UpcomingSection from "./components/UpcomingSection";
@@ -23,8 +24,7 @@ import OfflineBanner from "../../components/OfflineBanner";
 import SkeletonRow from "../../components/SkeletonRow";
 import ErrorState from "../../components/ErrorState";
 
-const TOPBAR_H = 56;
-const SEGMENT_H = 48;
+// Constants removed - now using simpler inline layout
 
 export type TicketsTab = "tickets" | "events";
 
@@ -94,9 +94,7 @@ export default function TicketsScreen({ navigation }: any) {
     navigation.navigate("Settings");
   };
 
-  const handleHelp = () => {
-    console.log("Help");
-  };
+  // Help action removed to fit 4 actions design
 
   const handleCreateEvent = () => {
     navigation.navigate("EventEditorWizard");
@@ -130,49 +128,45 @@ export default function TicketsScreen({ navigation }: any) {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={theme.colors.bg} translucent />
-      
-      {/* Atmosphere Gradient */}
-      <LinearGradient
-        colors={["rgba(124,92,255,0.25)", "rgba(0,224,255,0.15)", "transparent"]}
-        style={styles.atmosphereGradient}
-      />
-
-      {/* Header - Absolutely Positioned */}
-      <View style={[styles.headerContainer, { top: insets.top }]}>
-        <NewHomeTopBar
-          city={data?.city ?? "—"}
-          unread={data?.notifications?.unread ?? 0}
-          onPickCity={openCityPicker}
-          onOpenSearch={() => setSearchOpen(true)}
-          onOpenNotifications={handleOpenNotifications}
-        />
-      </View>
-      
-      {/* Sticky Segmented Control */}
-      <View style={[styles.segmentedContainer, { top: insets.top + TOPBAR_H }]}>
-        <TicketSegmented
-          selectedTab={selectedTab}
-          onTabChange={setSelectedTab}
-        />
-      </View>
+    <LinearGradient
+      colors={[v2Colors.bg, '#0B0F16', '#0A0C10']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0.8, y: 1 }}
+      style={{ flex: 1 }}
+    >
+      <StatusBar barStyle="light-content" backgroundColor={v2Colors.bg} translucent />
       
       <ScrollView
-        contentContainerStyle={[styles.scrollContent, { 
-          paddingTop: insets.top + TOPBAR_H + SEGMENT_H + 12,
-          paddingBottom: insets.bottom + 90 + 24
-        }]}
+        contentContainerStyle={{
+          paddingTop: insets.top,
+          paddingBottom: insets.bottom + 90 + 24,
+        }}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={theme.colors.text.primary}
-            titleColor={theme.colors.text.primary}
+            tintColor={v2Colors.text.primary}
+            titleColor={v2Colors.text.primary}
           />
         }
       >
+        {/* New Home Top Bar - matches home page design */}
+        <NewHomeTopBarNeutral
+          style={{
+            marginBottom: 4,
+          }}
+          city={data?.city ?? "Managua"}
+          onSearch={() => setSearchOpen(true)}
+          onNotifications={handleOpenNotifications}
+        />
+        
+        {/* Segmented Control */}
+        <TicketSegmented
+          selectedTab={selectedTab}
+          onTabChange={setSelectedTab}
+        />
+        
         <OfflineBanner />
         
         {/* Quick Actions Row */}
@@ -182,7 +176,6 @@ export default function TicketsScreen({ navigation }: any) {
             onShare={handleShare}
             onScanner={handleScanner}
             onSettings={handleSettings}
-            onHelp={handleHelp}
           />
         </View>
 
@@ -198,38 +191,10 @@ export default function TicketsScreen({ navigation }: any) {
           renderTabContent()
         )}
       </ScrollView>
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.bg,
-  },
-  atmosphereGradient: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 200,
-    zIndex: 0,
-  },
-  headerContainer: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    zIndex: 100,
-  },
-  segmentedContainer: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    zIndex: 99,
-    backgroundColor: "rgba(0,0,0,0.1)",
-    backdropFilter: "blur(10px)",
-  },
-  scrollContent: {
-    // Dynamic padding is applied inline
-  },
+  // Styles are now minimal since we moved to inline styling with v2-neutral design
 });

@@ -129,13 +129,6 @@ export default function StickyFilterBar({
           )}
         </View>
       </ScrollView>
-
-      {/* Results Count */}
-      <View style={styles.resultsContainer}>
-        <Text style={styles.resultsText}>
-          {resultsCount} event{resultsCount !== 1 ? 's' : ''}
-        </Text>
-      </View>
     </View>
   );
 }
@@ -144,8 +137,6 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "transparent",
     paddingVertical: theme.spacing.md,
-    flexDirection: "row",
-    alignItems: "center",
   },
   scrollContent: {
     paddingHorizontal: theme.spacing.lg,
@@ -231,14 +222,6 @@ const styles = StyleSheet.create({
   clearText: {
     fontSize: theme.typography.sizes.xs,
     color: theme.colors.info,
-    fontWeight: theme.typography.weights.medium,
-  },
-  resultsContainer: {
-    paddingRight: theme.spacing.lg,
-  },
-  resultsText: {
-    fontSize: theme.typography.sizes.xs,
-    color: theme.colors.text.tertiary,
     fontWeight: theme.typography.weights.medium,
   },
 });

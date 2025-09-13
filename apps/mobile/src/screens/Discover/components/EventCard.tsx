@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { theme } from "../../../theme";
+import { colors as v2Colors } from "../../../theme/v2-neutral";
 
 interface EventCardProps {
   event: {
@@ -139,10 +140,10 @@ export default function EventCard({ event, onPress, size = "medium" }: EventCard
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: theme.colors.surface.card,
+    backgroundColor: v2Colors.surface1,
     borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.06)",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
     overflow: "hidden",
     marginHorizontal: theme.spacing.sm,
     ...theme.shadows.md,
@@ -153,7 +154,7 @@ const styles = StyleSheet.create({
   },
   coverImage: {
     position: "relative",
-    backgroundColor: theme.colors.surface.secondary,
+    backgroundColor: v2Colors.surface2,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -236,7 +237,7 @@ const styles = StyleSheet.create({
   eventTitle: {
     fontSize: theme.typography.sizes.md,
     fontWeight: theme.typography.weights.semibold,
-    color: theme.colors.text.primary,
+    color: v2Colors.text.primary,
     marginBottom: theme.spacing.xs,
     lineHeight: theme.typography.lineHeights.tight * theme.typography.sizes.md,
   },
@@ -245,7 +246,7 @@ const styles = StyleSheet.create({
   },
   venueText: {
     fontSize: theme.typography.sizes.sm,
-    color: theme.colors.text.secondary,
+    color: v2Colors.text.secondary,
     marginBottom: theme.spacing.sm,
   },
   smallVenue: {
@@ -257,7 +258,7 @@ const styles = StyleSheet.create({
   },
   dateChip: {
     fontSize: theme.typography.sizes.xs,
-    color: theme.colors.info,
+    color: v2Colors.accent,
     fontWeight: theme.typography.weights.medium,
   },
   smallDateChip: {
