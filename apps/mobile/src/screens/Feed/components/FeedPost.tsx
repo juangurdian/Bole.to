@@ -6,9 +6,14 @@ import {
   StyleSheet,
   Image,
   ScrollView,
+  Dimensions,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { Feather } from "@expo/vector-icons";
 import { theme } from "../../../theme";
+import { colors as v2Colors, radii, spacing } from "../../../theme/v2-neutral";
+
+const { width: screenWidth } = Dimensions.get("window");
 
 interface PostAuthor {
   id: string;
@@ -91,9 +96,9 @@ export default function FeedPost({
       activeOpacity={0.9}
     >
       <View style={styles.card}>
-        {/* Rim light gradient */}
+        {/* Subtle accent gradient */}
         <LinearGradient
-          colors={["rgba(124,92,255,0.2)", "rgba(0,224,255,0.2)", "transparent"]}
+          colors={[`${v2Colors.accent}20`, `${v2Colors.accent2}20`, "transparent"]}
           style={styles.rimGradient}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -126,7 +131,9 @@ export default function FeedPost({
                 <View style={styles.authorName}>
                   <Text style={styles.authorText}>{post.author.name}</Text>
                   {post.author.verified && (
-                    <Text style={styles.verifiedBadge}>✓</Text>
+                    <View style={styles.verifiedBadge}>
+                      <Feather name="check" size={10} color={v2Colors.bg} />
+                    </View>
                   )}
                 </View>
                 <Text style={styles.timeText}>{formatTime(post.createdAt)}</Text>
@@ -134,7 +141,7 @@ export default function FeedPost({
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.moreButton}>
-              <Text style={styles.moreIcon}>•••</Text>
+              <Feather name="more-horizontal" size={20} color={v2Colors.text.secondary} />
             </TouchableOpacity>
           </View>
 
@@ -145,12 +152,12 @@ export default function FeedPost({
               onPress={() => onEventPress?.(post.event!.id)}
             >
               <LinearGradient
-                colors={["rgba(124,92,255,0.15)", "rgba(0,224,255,0.15)"]}
+                colors={[`${v2Colors.accent}26`, `${v2Colors.accent2}26`]}
                 style={styles.eventGradient}
               >
-                <Text style={styles.eventIcon}>🎪</Text>
+                <Feather name="map-pin" size={12} color={v2Colors.accent} />
                 <Text style={styles.eventName} numberOfLines={1}>
-                  at {post.event.name}
+                  {post.event.name}
                 </Text>
               </LinearGradient>
             </TouchableOpacity>
@@ -161,29 +168,32 @@ export default function FeedPost({
 
           {/* Media */}
           {post.media && post.media.length > 0 && (
-            <ScrollView 
-              horizontal 
-              showsHorizontalScrollIndicator={false}
-              style={styles.mediaScroll}
-              pagingEnabled
-            >
-              {post.media.map((item, index) => (
-                <View key={index} style={styles.mediaContainer}>
-                  <Image
-                    source={{ uri: item.url }}
-                    style={styles.mediaImage}
-                    resizeMode="cover"
-                  />
-                  {post.media!.length > 1 && (
-                    <View style={styles.mediaPagination}>
-                      <Text style={styles.paginationText}>
-                        {index + 1}/{post.media!.length}
-                      </Text>
-                    </View>
-                  )}
-                </View>
-              ))}
-            </ScrollView>
+            <View style={styles.mediaWrapper}>
+              <ScrollView 
+                horizontal 
+                showsHorizontalScrollIndicator={false}
+                pagingEnabled
+                snapToInterval={screenWidth - spacing(8)}
+                decelerationRate="fast"
+              >
+                {post.media.map((item, index) => (
+                  <View key={index} style={styles.mediaContainer}>
+                    <Image
+                      source={{ uri: item.url }}
+                      style={styles.mediaImage}
+                      resizeMode="cover"
+                    />
+                    {post.media!.length > 1 && (
+                      <View style={styles.mediaPagination}>
+                        <Text style={styles.paginationText}>
+                          {index + 1}/{post.media!.length}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
           )}
 
           {/* Actions */}
@@ -192,35 +202,34 @@ export default function FeedPost({
               style={styles.actionButton}
               onPress={handleLike}
             >
-              <LinearGradient
-                colors={liked ? theme.colors.gradient.warm : ["transparent", "transparent"]}
-                style={styles.actionGradient}
-              >
-                <Text style={[styles.actionIcon, liked && styles.likedIcon]}>
-                  {liked ? "❤️" : "🤍"}
-                </Text>
+              <View style={styles.actionContent}>
+                <Feather 
+                  name={liked ? "heart" : "heart"} 
+                  size={20} 
+                  color={liked ? v2Colors.accent : v2Colors.text.secondary}
+                />
                 <Text style={[styles.actionCount, liked && styles.likedCount]}>
                   {formatCount(likes)}
                 </Text>
-              </LinearGradient>
+              </View>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.actionButton}>
               <View style={styles.actionContent}>
-                <Text style={styles.actionIcon}>💬</Text>
+                <Feather name="message-circle" size={20} color={v2Colors.text.secondary} />
                 <Text style={styles.actionCount}>{formatCount(post.comments)}</Text>
               </View>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.actionButton}>
               <View style={styles.actionContent}>
-                <Text style={styles.actionIcon}>📤</Text>
+                <Feather name="share" size={20} color={v2Colors.text.secondary} />
                 <Text style={styles.actionCount}>{formatCount(post.shares)}</Text>
               </View>
             </TouchableOpacity>
 
             <TouchableOpacity style={[styles.actionButton, styles.saveButton]}>
-              <Text style={styles.actionIcon}>🔖</Text>
+              <Feather name="bookmark" size={20} color={v2Colors.text.secondary} />
             </TouchableOpacity>
           </View>
         </View>
@@ -231,30 +240,32 @@ export default function FeedPost({
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: theme.spacing.lg,
-    marginBottom: theme.spacing.md,
+    marginHorizontal: spacing(4),
+    marginBottom: spacing(4),
   },
   card: {
-    backgroundColor: "#111623",
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.06)",
+    backgroundColor: v2Colors.surface1,
+    borderRadius: radii.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
     position: "relative",
     overflow: "hidden",
-    ...theme.shadows.md,
+    shadowColor: v2Colors.accent,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 8,
+    elevation: 3,
   },
   rimGradient: {
     position: "absolute",
-    top: -1,
-    left: -1,
-    right: -1,
-    bottom: -1,
-    borderRadius: 17,
-    zIndex: -1,
-    opacity: 0.6,
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 1,
+    opacity: 0.4,
   },
   content: {
-    padding: theme.spacing.md,
+    padding: spacing(4),
   },
   header: {
     flexDirection: "row",
@@ -266,18 +277,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
+    gap: spacing(3),
   },
   avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: theme.spacing.sm,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 2,
+    borderColor: v2Colors.surface2,
   },
   avatarPlaceholder: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: theme.spacing.sm,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -296,23 +308,27 @@ const styles = StyleSheet.create({
   authorText: {
     fontSize: theme.typography.sizes.md,
     fontWeight: theme.typography.weights.semibold,
-    color: theme.colors.text.primary,
+    color: v2Colors.text.primary,
   },
   verifiedBadge: {
-    marginLeft: 4,
-    fontSize: 12,
-    color: theme.colors.primary,
+    marginLeft: spacing(1),
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: v2Colors.accent,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   timeText: {
     fontSize: theme.typography.sizes.xs,
-    color: theme.colors.text.tertiary,
+    color: v2Colors.text.tertiary,
   },
   moreButton: {
     padding: theme.spacing.xs,
   },
   moreIcon: {
     fontSize: theme.typography.sizes.lg,
-    color: theme.colors.text.secondary,
+    color: v2Colors.text.secondary,
   },
   eventTag: {
     marginBottom: theme.spacing.sm,
@@ -321,88 +337,78 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     alignSelf: "flex-start",
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: theme.spacing.xs / 2,
-    borderRadius: theme.borderRadius.lg,
-    borderWidth: 1,
-    borderColor: "rgba(124,92,255,0.2)",
-  },
-  eventIcon: {
-    fontSize: 14,
-    marginRight: 4,
+    paddingHorizontal: spacing(2.5),
+    paddingVertical: spacing(1.5),
+    borderRadius: radii.md,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: `${v2Colors.accent}33`,
+    gap: spacing(1.5),
   },
   eventName: {
     fontSize: theme.typography.sizes.sm,
     fontWeight: theme.typography.weights.medium,
-    color: theme.colors.text.primary,
+    color: v2Colors.text.primary,
   },
   postContent: {
     fontSize: theme.typography.sizes.md,
     lineHeight: theme.typography.lineHeights.normal * theme.typography.sizes.md,
-    color: theme.colors.text.primary,
+    color: v2Colors.text.primary,
     marginBottom: theme.spacing.md,
   },
-  mediaScroll: {
-    marginHorizontal: -theme.spacing.md,
-    marginBottom: theme.spacing.md,
+  mediaWrapper: {
+    marginHorizontal: -spacing(4),
+    marginBottom: spacing(4),
   },
   mediaContainer: {
     position: "relative",
+    width: screenWidth - spacing(8),
+    aspectRatio: 1,
+    backgroundColor: v2Colors.surface2,
+    marginRight: spacing(2),
   },
   mediaImage: {
-    width: 350,
-    height: 350,
-    marginRight: 2,
+    width: "100%",
+    height: "100%",
+    resizeMode: 'cover',
   },
   mediaPagination: {
     position: "absolute",
-    top: theme.spacing.sm,
-    right: theme.spacing.sm,
-    backgroundColor: "rgba(0,0,0,0.6)",
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: theme.spacing.xs / 2,
-    borderRadius: theme.borderRadius.md,
+    top: spacing(3),
+    right: spacing(3),
+    backgroundColor: "rgba(0,0,0,0.7)",
+    paddingHorizontal: spacing(2),
+    paddingVertical: spacing(1),
+    borderRadius: radii.sm,
   },
   paginationText: {
-    fontSize: theme.typography.sizes.xs,
-    color: theme.colors.white,
-    fontWeight: theme.typography.weights.semibold,
+    fontSize: 12,
+    color: v2Colors.text.primary,
+    fontWeight: '600',
   },
   actions: {
     flexDirection: "row",
     alignItems: "center",
-    paddingTop: theme.spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(255,255,255,0.06)",
+    paddingTop: spacing(3),
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: v2Colors.border,
   },
   actionButton: {
-    marginRight: theme.spacing.lg,
-  },
-  actionGradient: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: theme.spacing.xs,
-    borderRadius: theme.borderRadius.md,
+    marginRight: spacing(5),
+    paddingVertical: spacing(1),
   },
   actionContent: {
     flexDirection: "row",
     alignItems: "center",
-  },
-  actionIcon: {
-    fontSize: 20,
-    marginRight: theme.spacing.xs,
+    gap: spacing(1.5),
   },
   actionCount: {
-    fontSize: theme.typography.sizes.sm,
-    fontWeight: theme.typography.weights.medium,
-    color: theme.colors.text.secondary,
-  },
-  likedIcon: {
-    transform: [{ scale: 1.1 }],
+    fontSize: 14,
+    fontWeight: '500',
+    color: v2Colors.text.secondary,
   },
   likedCount: {
-    color: theme.colors.text.primary,
+    color: v2Colors.accent,
+    fontWeight: '600',
   },
   saveButton: {
     marginLeft: "auto",

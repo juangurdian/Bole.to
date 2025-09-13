@@ -12,9 +12,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
 
 import { theme } from "../../theme";
+import { colors as v2Colors } from "../../theme/v2-neutral";
 import { mockApi } from "../../mocks/api";
-import NewHomeTopBar from "../Home/components/NewHomeTopBar";
-import FeedStories from "./components/FeedStories";
+import NewHomeTopBarNeutral from "../../components/NewHomeTopBarNeutral";
+import FeedEventCircles from "./components/FeedEventCircles";
 import FeedFiltersNew from "./components/FeedFiltersNew";
 import FeedPost from "./components/FeedPost";
 import FeedComposerButton from "./components/FeedComposerButton";
@@ -68,12 +69,12 @@ export default function NewFeedScreen({ navigation }: any) {
     navigation.navigate("ProfileScreen", { id: userId });
   };
 
-  const handleStoryPress = (storyId: string) => {
-    navigation.navigate("StoryViewerScreen", { id: storyId });
+  const handleEventCirclePress = (eventId: string) => {
+    navigation.navigate("EventScreen", { id: eventId });
   };
 
-  const handleAddStory = () => {
-    navigation.navigate("StoryCreatorScreen");
+  const handleCreateEvent = () => {
+    navigation.navigate("EventEditorWizard");
   };
 
   // Top bar handlers
@@ -108,11 +109,11 @@ export default function NewFeedScreen({ navigation }: any) {
     <>
       <OfflineBanner />
       
-      {/* Stories Section */}
-      <FeedStories
-        stories={data?.stories || []}
-        onStoryPress={handleStoryPress}
-        onAddStory={handleAddStory}
+      {/* User's Events Section */}
+      <FeedEventCircles
+        events={data?.userEvents || []}
+        onEventPress={handleEventCirclePress}
+        onCreateEvent={handleCreateEvent}
       />
       
       {/* Filter Pills */}
@@ -136,43 +137,44 @@ export default function NewFeedScreen({ navigation }: any) {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={theme.colors.bg} translucent />
-      
-      {/* Atmosphere Gradient */}
-      <LinearGradient
-        colors={["rgba(124,92,255,0.25)", "rgba(0,224,255,0.15)", "transparent"]}
-        style={styles.atmosphereGradient}
-      />
-
-      {/* Header - Absolutely Positioned */}
-      <View style={[styles.headerContainer, { top: insets.top }]}>
-        <NewHomeTopBar
-          city={data?.city ?? "—"}
-          unread={data?.notifications?.unread ?? 0}
-          onPickCity={openCityPicker}
-          onOpenSearch={() => setSearchOpen(true)}
-          onOpenNotifications={handleOpenNotifications}
-        />
-      </View>
+    <LinearGradient
+      colors={[v2Colors.bg, '#0B0F16', '#0A0C10']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0.8, y: 1 }}
+      style={{ flex: 1 }}
+    >
+      <StatusBar barStyle="light-content" backgroundColor={v2Colors.bg} translucent />
       
       <FlatList
         data={data?.posts || []}
         renderItem={renderPost}
         keyExtractor={(item) => item.id}
-        ListHeaderComponent={renderHeader}
+        ListHeaderComponent={() => (
+          <>
+            {/* New Home Top Bar - matches other pages */}
+            <NewHomeTopBarNeutral
+              style={{
+                marginBottom: 4,
+                marginTop: insets.top,
+              }}
+              city={data?.city ?? "Managua"}
+              onSearch={() => setSearchOpen(true)}
+              onNotifications={handleOpenNotifications}
+            />
+            {renderHeader()}
+          </>
+        )}
         ListFooterComponent={renderFooter}
-        contentContainerStyle={[styles.scrollContent, { 
-          paddingTop: insets.top + TOPBAR_H + 12,
+        contentContainerStyle={{
           paddingBottom: insets.bottom + 90 + 24
-        }]}
+        }}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={theme.colors.text.primary}
-            titleColor={theme.colors.text.primary}
+            tintColor={v2Colors.text.primary}
+            titleColor={v2Colors.text.primary}
           />
         }
         ListEmptyComponent={
@@ -228,41 +230,20 @@ export default function NewFeedScreen({ navigation }: any) {
         onClose={() => setShowComposer(false)}
         onPostCreated={handlePostCreated}
       />
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.bg,
-  },
-  atmosphereGradient: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 300,
-    zIndex: 0,
-  },
-  headerContainer: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    zIndex: 100,
-  },
-  scrollContent: {
-    // Dynamic padding is applied inline
-  },
   emptyContainer: {
     paddingHorizontal: theme.spacing.lg,
     paddingVertical: theme.spacing.xl * 2,
   },
   emptyCard: {
-    backgroundColor: "#111623",
+    backgroundColor: v2Colors.surface1,
     borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.06)",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
     padding: theme.spacing.xl,
     alignItems: "center",
     ...theme.shadows.md,
