@@ -1,5 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { Feather } from "@expo/vector-icons";
+import { colors as v2Colors, spacing, radii } from "../../../theme/v2-neutral";
 import UpcomingRail from "./UpcomingRail";
 import RecentPostsList from "./RecentPostsList";
 import RecentPhotosGrid from "./RecentPhotosGrid";
@@ -88,7 +90,9 @@ export default function OverviewTab({ showcase, isLoading, navigation }: Overvie
       {/* Empty State */}
       {!hasUpcoming && !hasRecentPosts && !hasRecentPhotos && !hasPinnedEvents && (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyEmoji}>🌟</Text>
+          <View style={styles.emptyIcon}>
+            <Feather name="star" size={48} color={v2Colors.accent} />
+          </View>
           <Text style={styles.emptyTitle}>Welcome to your profile!</Text>
           <Text style={styles.emptyMessage}>
             Get tickets to events and start sharing your experiences with the community.
@@ -104,67 +108,71 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   section: {
-    backgroundColor: "white",
-    marginBottom: 8,
-    paddingVertical: 16,
+    backgroundColor: v2Colors.surface1,
+    marginBottom: spacing(2),
+    marginHorizontal: spacing(4),
+    paddingVertical: spacing(4),
+    paddingHorizontal: spacing(4),
+    borderRadius: radii.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 12,
-    paddingHorizontal: 16,
+    fontSize: 20,
+    fontWeight: "700",
+    color: v2Colors.text.primary,
+    marginBottom: spacing(3),
   },
   emptyContainer: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    padding: 32,
-    backgroundColor: "white",
-    marginTop: 40,
+    padding: spacing(8),
+    backgroundColor: v2Colors.surface1,
+    marginTop: spacing(10),
+    marginHorizontal: spacing(4),
+    borderRadius: radii.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
   },
-  emptyEmoji: {
-    fontSize: 48,
-    marginBottom: 16,
+  emptyIcon: {
+    marginBottom: spacing(4),
+    opacity: 0.8,
   },
   emptyTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 8,
+    fontSize: 22,
+    fontWeight: "700",
+    color: v2Colors.text.primary,
+    marginBottom: spacing(2),
     textAlign: "center",
   },
   emptyMessage: {
     fontSize: 16,
-    color: "#666",
+    color: v2Colors.text.secondary,
     textAlign: "center",
-    lineHeight: 22,
+    lineHeight: 24,
   },
   // Skeleton styles
   sectionTitleSkeleton: {
-    width: 120,
-    height: 18,
-    backgroundColor: "#e0e0e0",
-    borderRadius: 4,
-    marginBottom: 12,
-    marginHorizontal: 16,
+    width: 140,
+    height: 20,
+    backgroundColor: v2Colors.surface2,
+    borderRadius: radii.sm,
+    marginBottom: spacing(3),
   },
   railSkeleton: {
-    height: 120,
-    backgroundColor: "#e0e0e0",
-    marginHorizontal: 16,
-    borderRadius: 8,
+    height: 140,
+    backgroundColor: v2Colors.surface2,
+    borderRadius: radii.md,
   },
   contentSkeleton: {
-    height: 80,
-    backgroundColor: "#e0e0e0",
-    marginHorizontal: 16,
-    borderRadius: 8,
+    height: 100,
+    backgroundColor: v2Colors.surface2,
+    borderRadius: radii.md,
   },
   gridSkeleton: {
-    height: 200,
-    backgroundColor: "#e0e0e0",
-    marginHorizontal: 16,
-    borderRadius: 8,
+    height: 220,
+    backgroundColor: v2Colors.surface2,
+    borderRadius: radii.md,
   },
 });

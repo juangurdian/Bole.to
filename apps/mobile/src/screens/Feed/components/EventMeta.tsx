@@ -5,6 +5,9 @@ import {
   TouchableOpacity, 
   StyleSheet 
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { Feather } from "@expo/vector-icons";
+import { colors as v2Colors, spacing, radii } from "../../../theme/v2-neutral";
 
 interface EventMetaProps {
   event: any;
@@ -32,7 +35,7 @@ export default function EventMeta({ event, onOpenMap, onOpenOrganizer }: EventMe
       {/* Location Row */}
       <TouchableOpacity style={styles.locationRow} onPress={onOpenMap}>
         <View style={styles.locationIcon}>
-          <Text style={styles.locationIconText}>📍</Text>
+          <Feather name="map-pin" size={18} color={v2Colors.accent} />
         </View>
         <View style={styles.locationText}>
           <Text style={styles.venueName} numberOfLines={1}>
@@ -42,16 +45,19 @@ export default function EventMeta({ event, onOpenMap, onOpenOrganizer }: EventMe
             {event.venue.city}
           </Text>
         </View>
-        <Text style={styles.chevron}>›</Text>
+        <Feather name="chevron-right" size={18} color={v2Colors.text.tertiary} />
       </TouchableOpacity>
 
       {/* Organizer Row */}
       <TouchableOpacity style={styles.organizerRow} onPress={onOpenOrganizer}>
-        <View style={styles.organizerAvatar}>
+        <LinearGradient
+          colors={[v2Colors.accent, v2Colors.accent2]}
+          style={styles.organizerAvatar}
+        >
           <Text style={styles.organizerAvatarText}>
             {getInitials(event.organizer.name)}
           </Text>
-        </View>
+        </LinearGradient>
         <View style={styles.organizerText}>
           <View style={styles.organizerNameRow}>
             <Text style={styles.organizerName} numberOfLines={1}>
@@ -59,13 +65,13 @@ export default function EventMeta({ event, onOpenMap, onOpenOrganizer }: EventMe
             </Text>
             {event.organizer.verified && (
               <View style={styles.verifiedBadge}>
-                <Text style={styles.verifiedBadgeText}>✓</Text>
+                <Feather name="check" size={10} color={v2Colors.text.primary} />
               </View>
             )}
           </View>
           <Text style={styles.organizerLabel}>Organizer</Text>
         </View>
-        <Text style={styles.chevron}>›</Text>
+        <Feather name="chevron-right" size={18} color={v2Colors.text.tertiary} />
       </TouchableOpacity>
 
       {/* Tags Row */}
@@ -87,31 +93,37 @@ export default function EventMeta({ event, onOpenMap, onOpenOrganizer }: EventMe
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "white",
-    paddingHorizontal: 16,
-    paddingVertical: 20,
-    marginBottom: 8,
+    backgroundColor: v2Colors.surface1,
+    paddingHorizontal: spacing(4),
+    paddingVertical: spacing(5),
+    marginBottom: spacing(2),
+    marginHorizontal: spacing(4),
+    borderRadius: radii.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
   },
   title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#333",
-    lineHeight: 34,
-    marginBottom: 16,
+    fontSize: 32,
+    fontWeight: '700' as const,
+    color: v2Colors.text.primary,
+    lineHeight: 38,
+    marginBottom: spacing(4),
   },
   locationRow: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
+    paddingVertical: spacing(3),
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: v2Colors.border,
   },
   locationIcon: {
-    width: 32,
-    height: 32,
+    width: 36,
+    height: 36,
+    backgroundColor: `${v2Colors.accent}15`,
+    borderRadius: 18,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 12,
+    marginRight: spacing(3),
   },
   locationIconText: {
     fontSize: 16,
@@ -121,34 +133,33 @@ const styles = StyleSheet.create({
   },
   venueName: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 2,
+    fontWeight: '600' as const,
+    color: v2Colors.text.primary,
+    marginBottom: spacing(0.5),
   },
   cityName: {
     fontSize: 14,
-    color: "#666",
+    color: v2Colors.text.secondary,
   },
   organizerRow: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
+    paddingVertical: spacing(3),
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: v2Colors.border,
   },
   organizerAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "#e0e0e0",
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 12,
+    marginRight: spacing(3),
   },
   organizerAvatarText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#666",
+    fontSize: 14,
+    fontWeight: '700' as const,
+    color: v2Colors.bg,
   },
   organizerText: {
     flex: 1,
@@ -160,26 +171,21 @@ const styles = StyleSheet.create({
   },
   organizerName: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
-    marginRight: 6,
+    fontWeight: '600' as const,
+    color: v2Colors.text.primary,
+    marginRight: spacing(1.5),
   },
   verifiedBadge: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: "#007AFF",
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: v2Colors.accent,
     justifyContent: "center",
     alignItems: "center",
   },
-  verifiedBadgeText: {
-    fontSize: 10,
-    color: "white",
-    fontWeight: "bold",
-  },
   organizerLabel: {
     fontSize: 14,
-    color: "#666",
+    color: v2Colors.text.secondary,
   },
   chevron: {
     fontSize: 18,
@@ -189,20 +195,20 @@ const styles = StyleSheet.create({
   tagsRow: {
     flexDirection: "row",
     flexWrap: "wrap",
-    marginTop: 16,
-    gap: 8,
+    marginTop: spacing(4),
+    gap: spacing(2),
   },
   tag: {
-    backgroundColor: "#f8f9fa",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "#e9ecef",
+    backgroundColor: v2Colors.surface2,
+    paddingHorizontal: spacing(3),
+    paddingVertical: spacing(1.5),
+    borderRadius: radii.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
   },
   tagText: {
     fontSize: 14,
-    fontWeight: "500",
-    color: "#495057",
+    fontWeight: '500' as const,
+    color: v2Colors.text.primary,
   },
 });

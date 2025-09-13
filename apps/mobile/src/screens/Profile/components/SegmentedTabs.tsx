@@ -1,5 +1,6 @@
 import React from "react";
 import { View, TouchableOpacity, Text, StyleSheet, ScrollView } from "react-native";
+import { colors as v2Colors, spacing, radii } from "../../../theme/v2-neutral";
 import type { ProfileTab } from "../ProfileScreen";
 
 interface SegmentedTabsProps {
@@ -49,31 +50,36 @@ export default function SegmentedTabs({ selectedTab, onTabPress }: SegmentedTabs
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "white",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e0e0e0",
-    marginBottom: 8,
+    backgroundColor: v2Colors.surface1,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: v2Colors.border,
+    marginBottom: spacing(2),
+    marginHorizontal: spacing(4),
+    borderRadius: radii.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
   },
   scrollContainer: {
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing(4),
+    paddingVertical: spacing(1),
   },
   tab: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: spacing(3),
+    paddingHorizontal: spacing(4),
     borderBottomWidth: 2,
     borderBottomColor: "transparent",
-    marginRight: 24,
+    marginRight: spacing(6),
   },
   activeTab: {
-    borderBottomColor: "#007AFF",
+    borderBottomColor: v2Colors.accent,
   },
   tabText: {
     fontSize: 16,
     fontWeight: "500",
-    color: "#666",
+    color: v2Colors.text.secondary,
   },
   activeTabText: {
-    color: "#007AFF",
+    color: v2Colors.accent,
     fontWeight: "600",
   },
 });

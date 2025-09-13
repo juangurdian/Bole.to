@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   Dimensions 
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { colors as v2Colors, spacing, radii } from "../../../theme/v2-neutral";
 
 interface Attendee {
   id: string;
@@ -50,12 +52,15 @@ export default function AttendeesRail({ attendees, totalCount, mode }: Attendees
 
     return (
       <TouchableOpacity style={styles.avatarContainer} key={item.id}>
-        <View style={[
-          styles.avatar,
-          item.isConnected && styles.avatarConnected
-        ]}>
+        <LinearGradient
+          colors={[v2Colors.accent, v2Colors.accent2]}
+          style={[
+            styles.avatar,
+            item.isConnected && styles.avatarConnected
+          ]}
+        >
           <Text style={styles.avatarText}>{initials}</Text>
-        </View>
+        </LinearGradient>
         {item.isConnected && <View style={styles.connectedIndicator} />}
       </TouchableOpacity>
     );
@@ -102,23 +107,27 @@ export default function AttendeesRail({ attendees, totalCount, mode }: Attendees
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
+    backgroundColor: v2Colors.surface1,
+    paddingHorizontal: spacing(4),
+    paddingVertical: spacing(3),
+    marginBottom: spacing(2),
+    marginHorizontal: spacing(4),
+    borderRadius: radii.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
   },
   header: {
-    marginBottom: 12,
+    marginBottom: spacing(3),
   },
   title: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 2,
+    fontSize: 18,
+    fontWeight: '700' as const,
+    color: v2Colors.text.primary,
+    marginBottom: spacing(0.5),
   },
   subtitle: {
     fontSize: 14,
-    color: "#666",
+    color: v2Colors.text.secondary,
   },
   railContainer: {
     marginTop: 4,
@@ -131,53 +140,52 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#e0e0e0",
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 2,
-    borderColor: "white",
+    borderColor: v2Colors.surface1,
   },
   avatarConnected: {
-    borderColor: "#4CAF50",
-    borderWidth: 2,
+    borderColor: v2Colors.success,
+    borderWidth: 3,
   },
   avatarText: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#666",
+    fontWeight: '700' as const,
+    color: v2Colors.bg,
   },
   connectedIndicator: {
     position: "absolute",
     bottom: -2,
     right: -2,
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: "#4CAF50",
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: v2Colors.success,
     borderWidth: 2,
-    borderColor: "white",
+    borderColor: v2Colors.surface1,
   },
   moreAvatarContainer: {
     alignItems: "center",
   },
   moreAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#f8f9fa",
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: v2Colors.surface2,
     borderWidth: 2,
-    borderColor: "#e9ecef",
+    borderColor: v2Colors.border,
     borderStyle: "dashed",
     justifyContent: "center",
     alignItems: "center",
   },
   moreAvatarText: {
     fontSize: 12,
-    fontWeight: "600",
-    color: "#6c757d",
+    fontWeight: '600' as const,
+    color: v2Colors.text.secondary,
   },
   avatarSeparator: {
     width: 8,

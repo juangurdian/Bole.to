@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { colors as v2Colors, spacing, radii } from "../../../theme/v2-neutral";
 
 interface ActionBarProps {
   event: any;
@@ -107,7 +108,7 @@ export default function ActionBar({
   };
 
   return (
-    <View style={[styles.container, { paddingBottom: insets.bottom + 16 }]}>
+    <View style={[styles.container, { paddingBottom: insets.bottom + spacing(4) }]}>
       <View style={styles.content}>
         {renderContent()}
       </View>
@@ -121,71 +122,71 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "white",
-    borderTopWidth: 1,
-    borderTopColor: "#e0e0e0",
-    paddingTop: 16,
-    paddingHorizontal: 16,
+    backgroundColor: v2Colors.surface1,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: v2Colors.border,
+    paddingTop: spacing(4),
+    paddingHorizontal: spacing(4),
     ...Platform.select({
       ios: {
-        shadowColor: "#000",
+        shadowColor: v2Colors.bg,
         shadowOffset: { width: 0, height: -2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
       },
       android: {
-        elevation: 8,
+        elevation: 12,
       },
     }),
   },
   content: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
+    gap: spacing(3),
   },
   priceContainer: {
     flex: 1,
   },
   totalLabel: {
     fontSize: 12,
-    color: "#666",
-    marginBottom: 2,
+    color: v2Colors.text.secondary,
+    marginBottom: spacing(0.5),
   },
   totalPrice: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
+    fontWeight: '600' as const,
+    color: v2Colors.text.primary,
   },
   secondaryButton: {
     flex: 1,
     backgroundColor: "transparent",
     borderWidth: 2,
-    borderColor: "#007AFF",
-    paddingVertical: 14,
-    borderRadius: 12,
+    borderColor: v2Colors.accent,
+    paddingVertical: spacing(3.5),
+    borderRadius: radii.md,
     alignItems: "center",
   },
   secondaryButtonText: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#007AFF",
+    fontWeight: '600' as const,
+    color: v2Colors.accent,
   },
   primaryButton: {
     flex: 2,
-    backgroundColor: "#007AFF",
-    paddingVertical: 16,
-    borderRadius: 12,
+    backgroundColor: v2Colors.accent,
+    paddingVertical: spacing(4),
+    borderRadius: radii.md,
     alignItems: "center",
   },
   primaryButtonText: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "white",
+    fontWeight: '600' as const,
+    color: v2Colors.bg,
   },
   disabledButton: {
-    backgroundColor: "#ccc",
+    backgroundColor: v2Colors.surface2,
   },
   disabledButtonText: {
-    color: "#999",
+    color: v2Colors.text.tertiary,
   },
 });

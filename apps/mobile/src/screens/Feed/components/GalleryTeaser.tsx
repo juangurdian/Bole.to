@@ -1,5 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Feather } from "@expo/vector-icons";
+import { colors as v2Colors, spacing, radii } from "../../../theme/v2-neutral";
 
 interface GalleryTeaserProps {
   photos: any[];
@@ -45,11 +47,11 @@ export default function GalleryTeaser({ photos, revealAt, onOpen }: GalleryTease
           >
             {isRevealed ? (
               <View style={styles.photo}>
-                <Text style={styles.photoIcon}>📸</Text>
+                <Feather name="image" size={20} color={v2Colors.text.tertiary} />
               </View>
             ) : (
               <View style={[styles.photo, styles.lockedPhoto]}>
-                <Text style={styles.lockIcon}>🔒</Text>
+                <Feather name="lock" size={16} color={v2Colors.text.tertiary} />
               </View>
             )}
           </View>
@@ -57,7 +59,7 @@ export default function GalleryTeaser({ photos, revealAt, onOpen }: GalleryTease
         
         {!isRevealed && (
           <View style={styles.revealOverlay}>
-            <Text style={styles.revealIcon}>🔒</Text>
+            <Feather name="lock" size={32} color={v2Colors.text.primary} />
             <Text style={styles.revealTitle}>Photos locked</Text>
             <Text style={styles.revealTime}>
               Reveals in {getTimeUntilReveal()}
@@ -71,33 +73,38 @@ export default function GalleryTeaser({ photos, revealAt, onOpen }: GalleryTease
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "white",
-    marginBottom: 8,
-    padding: 16,
+    backgroundColor: v2Colors.surface1,
+    marginBottom: spacing(2),
+    marginHorizontal: spacing(4),
+    padding: spacing(4),
+    borderRadius: radii.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: spacing(3),
   },
   title: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#333",
+    fontSize: 20,
+    fontWeight: '700' as const,
+    color: v2Colors.text.primary,
   },
   viewAllText: {
     fontSize: 16,
-    color: "#007AFF",
-    fontWeight: "500",
+    color: v2Colors.accent,
+    fontWeight: '500' as const,
   },
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
     height: 200,
-    borderRadius: 12,
+    borderRadius: radii.md,
     overflow: "hidden",
     position: "relative",
+    backgroundColor: v2Colors.surface2,
   },
   photoSlot: {
     width: "50%",
@@ -112,14 +119,14 @@ const styles = StyleSheet.create({
   },
   photo: {
     flex: 1,
-    backgroundColor: "#e0e0e0",
+    backgroundColor: v2Colors.surface2,
     justifyContent: "center",
     alignItems: "center",
   },
   lockedPhoto: {
-    backgroundColor: "#f8f9fa",
+    backgroundColor: v2Colors.surface1,
     borderWidth: 2,
-    borderColor: "#e9ecef",
+    borderColor: v2Colors.border,
     borderStyle: "dashed",
   },
   photoIcon: {
@@ -134,10 +141,10 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    backgroundColor: `${v2Colors.bg}90`,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 12,
+    borderRadius: radii.md,
   },
   revealIcon: {
     fontSize: 32,
@@ -145,12 +152,13 @@ const styles = StyleSheet.create({
   },
   revealTitle: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "white",
-    marginBottom: 4,
+    fontWeight: '600' as const,
+    color: v2Colors.text.primary,
+    marginBottom: spacing(1),
+    marginTop: spacing(2),
   },
   revealTime: {
     fontSize: 14,
-    color: "white",
+    color: v2Colors.text.secondary,
   },
 });

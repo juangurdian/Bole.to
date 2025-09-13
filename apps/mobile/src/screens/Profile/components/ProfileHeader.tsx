@@ -6,7 +6,10 @@ import {
   StyleSheet,
   ActivityIndicator 
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { Feather } from "@expo/vector-icons";
 import { useAuth } from "../../../auth/useAuth";
+import { colors as v2Colors, spacing, radii } from "../../../theme/v2-neutral";
 
 interface ProfileHeaderProps {
   profile: any;
@@ -106,13 +109,18 @@ export default function ProfileHeader({ profile, isLoading, onEditPress }: Profi
     <View style={styles.container}>
       {/* Avatar */}
       <TouchableOpacity style={styles.avatarContainer} onPress={onEditPress}>
-        <View style={styles.avatar}>
+        <LinearGradient
+          colors={[v2Colors.accent, v2Colors.accent2]}
+          style={styles.avatar}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
           <Text style={styles.avatarText}>
             {getInitials(displayName)}
           </Text>
-        </View>
+        </LinearGradient>
         <View style={styles.editAvatarOverlay}>
-          <Text style={styles.editAvatarText}>✏️</Text>
+          <Feather name="edit-2" size={12} color={v2Colors.text.primary} />
         </View>
       </TouchableOpacity>
 
@@ -122,7 +130,7 @@ export default function ProfileHeader({ profile, isLoading, onEditPress }: Profi
           <Text style={styles.name}>{displayName}</Text>
           {(displayProfile.roles?.includes("promoter") || displayProfile.role === "promoter") && (
             <View style={styles.promoterBadge}>
-              <Text style={styles.promoterBadgeText}>🎪</Text>
+              <Feather name="star" size={16} color={v2Colors.accent} />
             </View>
           )}
           {isUsingHiEvents && displayProfile.currentAccount && (
@@ -156,7 +164,8 @@ export default function ProfileHeader({ profile, isLoading, onEditPress }: Profi
         
         {displayProfile.privacy?.profile === "private" && (
           <View style={styles.privacyBanner}>
-            <Text style={styles.privacyText}>🔒 Your profile is private</Text>
+            <Feather name="lock" size={14} color={v2Colors.text.secondary} style={{ marginRight: spacing(1) }} />
+            <Text style={styles.privacyText}>Your profile is private</Text>
           </View>
         )}
       </View>
@@ -171,189 +180,197 @@ export default function ProfileHeader({ profile, isLoading, onEditPress }: Profi
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "white",
-    paddingHorizontal: 16,
-    paddingVertical: 20,
-    marginBottom: 8,
+    backgroundColor: v2Colors.surface1,
+    paddingHorizontal: spacing(4),
+    paddingVertical: spacing(5),
+    marginBottom: spacing(2),
+    marginHorizontal: spacing(4),
+    borderRadius: radii.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
   },
   avatarContainer: {
     alignSelf: "center",
     position: "relative",
-    marginBottom: 16,
+    marginBottom: spacing(4),
   },
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "#e0e0e0",
+    width: 96,
+    height: 96,
+    borderRadius: 48,
     justifyContent: "center",
     alignItems: "center",
   },
   avatarText: {
-    fontSize: 28,
-    fontWeight: "600",
-    color: "#666",
+    fontSize: 32,
+    fontWeight: "700",
+    color: v2Colors.text.primary,
   },
   editAvatarOverlay: {
     position: "absolute",
-    bottom: 0,
-    right: 0,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: "#007AFF",
+    bottom: 4,
+    right: 4,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: v2Colors.accent,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 2,
-    borderColor: "white",
+    borderColor: v2Colors.surface1,
   },
   editAvatarText: {
     fontSize: 12,
   },
   infoContainer: {
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: spacing(4),
   },
   nameRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 4,
+    marginBottom: spacing(1),
   },
   name: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#333",
-    marginRight: 8,
+    fontSize: 28,
+    fontWeight: "700",
+    color: v2Colors.text.primary,
+    marginRight: spacing(2),
   },
   promoterBadge: {
-    width: 20,
-    height: 20,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: `${v2Colors.accent}20`,
     justifyContent: "center",
     alignItems: "center",
-  },
-  promoterBadgeText: {
-    fontSize: 16,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.accent,
   },
   handle: {
     fontSize: 16,
-    color: "#666",
-    marginBottom: 8,
+    color: v2Colors.text.secondary,
+    marginBottom: spacing(2),
+    fontWeight: '500',
   },
   bio: {
     fontSize: 16,
-    color: "#333",
+    color: v2Colors.text.primary,
     textAlign: "center",
-    lineHeight: 22,
-    marginBottom: 12,
+    lineHeight: 24,
+    marginBottom: spacing(3),
   },
   badgesContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
-    marginBottom: 12,
-    gap: 6,
+    marginBottom: spacing(3),
+    gap: spacing(1.5),
   },
   badge: {
-    backgroundColor: "#E8F4FD",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#007AFF",
+    backgroundColor: `${v2Colors.accent}15`,
+    paddingHorizontal: spacing(2.5),
+    paddingVertical: spacing(1.5),
+    borderRadius: radii.md,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: `${v2Colors.accent}40`,
   },
   badgeText: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#007AFF",
+    color: v2Colors.accent,
   },
   privacyBanner: {
-    backgroundColor: "#FFF3CD",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#FFE69C",
-    marginTop: 8,
+    backgroundColor: v2Colors.surface2,
+    paddingHorizontal: spacing(3),
+    paddingVertical: spacing(2),
+    borderRadius: radii.md,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
+    marginTop: spacing(2),
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
   privacyText: {
     fontSize: 14,
-    color: "#856404",
-    textAlign: "center",
+    color: v2Colors.text.secondary,
+    fontWeight: '500',
   },
   editButton: {
-    backgroundColor: "#f8f9fa",
-    paddingVertical: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#e9ecef",
+    backgroundColor: `${v2Colors.accent}15`,
+    paddingVertical: spacing(3),
+    borderRadius: radii.md,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.accent,
   },
   editButtonText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#495057",
+    color: v2Colors.accent,
     textAlign: "center",
   },
   // Skeleton styles
   avatarSkeleton: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "#e0e0e0",
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: v2Colors.surface2,
     alignSelf: "center",
-    marginBottom: 16,
+    marginBottom: spacing(4),
   },
   nameSkeleton: {
-    width: 120,
-    height: 24,
-    backgroundColor: "#e0e0e0",
-    borderRadius: 4,
-    marginBottom: 8,
+    width: 140,
+    height: 28,
+    backgroundColor: v2Colors.surface2,
+    borderRadius: radii.sm,
+    marginBottom: spacing(2),
   },
   handleSkeleton: {
-    width: 80,
+    width: 100,
     height: 16,
-    backgroundColor: "#e0e0e0",
-    borderRadius: 4,
-    marginBottom: 12,
+    backgroundColor: v2Colors.surface2,
+    borderRadius: radii.sm,
+    marginBottom: spacing(3),
   },
   bioSkeleton: {
-    width: 200,
-    height: 44,
-    backgroundColor: "#e0e0e0",
-    borderRadius: 4,
-    marginBottom: 16,
+    width: 220,
+    height: 48,
+    backgroundColor: v2Colors.surface2,
+    borderRadius: radii.sm,
+    marginBottom: spacing(4),
   },
   editButtonSkeleton: {
-    height: 44,
-    backgroundColor: "#e0e0e0",
-    borderRadius: 8,
+    height: 48,
+    backgroundColor: v2Colors.surface2,
+    borderRadius: radii.md,
   },
   // Hi.Events specific styles
   hiEventsBadge: {
-    backgroundColor: "#4F46E5",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 8,
-    marginLeft: 8,
+    backgroundColor: v2Colors.accent2,
+    paddingHorizontal: spacing(1.5),
+    paddingVertical: spacing(0.5),
+    borderRadius: radii.sm,
+    marginLeft: spacing(2),
   },
   hiEventsBadgeText: {
-    color: "#ffffff",
+    color: v2Colors.text.primary,
     fontSize: 10,
     fontWeight: "600",
   },
   accountInfo: {
-    backgroundColor: "#f8f9ff",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#e3e8ff",
-    marginTop: 8,
+    backgroundColor: v2Colors.surface2,
+    paddingHorizontal: spacing(3),
+    paddingVertical: spacing(2),
+    borderRadius: radii.md,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
+    marginTop: spacing(2),
   },
   accountInfoText: {
     fontSize: 13,
-    color: "#4F46E5",
+    color: v2Colors.text.secondary,
     textAlign: "center",
-    marginBottom: 2,
+    marginBottom: spacing(0.5),
   },
 });

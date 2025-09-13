@@ -1,5 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Feather } from "@expo/vector-icons";
+import { colors as v2Colors, spacing, radii } from "../../../theme/v2-neutral";
 
 interface FeedPreviewProps {
   items: any[];
@@ -13,7 +15,7 @@ export default function FeedPreview({ items, mode, onOpen }: FeedPreviewProps) {
       <View style={styles.container}>
         <Text style={styles.title}>Event Feed</Text>
         <View style={styles.lockedContainer}>
-          <Text style={styles.lockIcon}>🔒</Text>
+          <Feather name="lock" size={32} color={v2Colors.text.tertiary} />
           <Text style={styles.lockedTitle}>Join the conversation</Text>
           <Text style={styles.lockedMessage}>
             Buy tickets to see posts, polls, and updates from other attendees
@@ -46,29 +48,33 @@ export default function FeedPreview({ items, mode, onOpen }: FeedPreviewProps) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "white",
-    marginBottom: 8,
-    padding: 16,
+    backgroundColor: v2Colors.surface1,
+    marginBottom: spacing(2),
+    marginHorizontal: spacing(4),
+    padding: spacing(4),
+    borderRadius: radii.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: spacing(3),
   },
   title: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#333",
+    fontSize: 20,
+    fontWeight: '700' as const,
+    color: v2Colors.text.primary,
   },
   viewAllText: {
     fontSize: 16,
-    color: "#007AFF",
-    fontWeight: "500",
+    color: v2Colors.accent,
+    fontWeight: '500' as const,
   },
   lockedContainer: {
     alignItems: "center",
-    padding: 32,
+    padding: spacing(8),
   },
   lockIcon: {
     fontSize: 32,
@@ -76,28 +82,31 @@ const styles = StyleSheet.create({
   },
   lockedTitle: {
     fontSize: 18,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 8,
+    fontWeight: '600' as const,
+    color: v2Colors.text.primary,
+    marginBottom: spacing(2),
+    marginTop: spacing(4),
   },
   lockedMessage: {
     fontSize: 16,
-    color: "#666",
+    color: v2Colors.text.secondary,
     textAlign: "center",
   },
   feedItem: {
-    padding: 12,
-    backgroundColor: "#f8f9fa",
-    borderRadius: 8,
-    marginBottom: 8,
+    padding: spacing(3),
+    backgroundColor: v2Colors.surface2,
+    borderRadius: radii.md,
+    marginBottom: spacing(2),
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
   },
   feedText: {
     fontSize: 15,
-    color: "#333",
-    marginBottom: 4,
+    color: v2Colors.text.primary,
+    marginBottom: spacing(1),
   },
   feedMeta: {
     fontSize: 12,
-    color: "#666",
+    color: v2Colors.text.tertiary,
   },
 });

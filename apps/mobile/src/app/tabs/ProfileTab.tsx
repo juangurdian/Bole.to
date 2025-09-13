@@ -17,7 +17,7 @@ export default function ProfileTab() {
     <Stack.Navigator>
       <Stack.Screen name="ProfileScreen" component={NewProfileScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: "Settings" }} />
-      <Stack.Screen name="EventScreen" component={EventScreen} options={{ title: "Event" }} />
+      <Stack.Screen name="EventScreen" component={EventScreen} options={{ headerShown: false }} />
       <Stack.Screen name="NotificationsScreen" component={NotificationsScreen} options={{ title: "Notifications" }} />
       <Stack.Screen name="StaffEntryScreen" component={StaffEntryScreen} options={{ title: "Staff Mode" }} />
       <Stack.Screen name="EventPickerScreen" component={EventPickerScreen} options={{ title: "Select Event" }} />

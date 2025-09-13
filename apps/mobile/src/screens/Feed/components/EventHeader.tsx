@@ -8,7 +8,10 @@ import {
   StatusBar,
   Platform
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { colors as v2Colors, spacing, radii } from "../../../theme/v2-neutral";
 
 const { width: screenWidth } = Dimensions.get("window");
 const HERO_HEIGHT = (screenWidth * 9) / 16; // 16:9 aspect ratio
@@ -72,27 +75,38 @@ export default function EventHeader({ event, onBack, onShare, onSave }: EventHea
     <View style={styles.container}>
       {/* Hero Image with Gradient Overlay */}
       <View style={[styles.heroContainer, { height: HERO_HEIGHT }]}>
-        <View style={styles.heroImagePlaceholder}>
-          <Text style={styles.heroImageIcon}>🎵</Text>
-        </View>
+        <LinearGradient
+          colors={[v2Colors.accent, v2Colors.accent2]}
+          style={styles.heroImagePlaceholder}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <Feather name="music" size={64} color={v2Colors.bg} />
+        </LinearGradient>
         
         {/* Gradient Overlay */}
-        <View style={styles.gradientOverlay} />
+        <LinearGradient
+          colors={['transparent', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,0.8)']}
+          style={styles.gradientOverlay}
+        />
         
         {/* Top Navigation Bar */}
         <View style={[styles.topBar, { paddingTop: insets.top + 8 }]}>
           <TouchableOpacity style={styles.navButton} onPress={onBack}>
-            <Text style={styles.navButtonText}>←</Text>
+            <Feather name="arrow-left" size={20} color={v2Colors.text.primary} />
           </TouchableOpacity>
           
           <View style={styles.navActions}>
             <TouchableOpacity style={styles.navButton} onPress={onShare}>
-              <Text style={styles.navButtonText}>↗</Text>
+              <Feather name="share" size={18} color={v2Colors.text.primary} />
             </TouchableOpacity>
             <TouchableOpacity style={styles.navButton} onPress={onSave}>
-              <Text style={styles.navButtonText}>
-                {event.you?.following ? "❤️" : "🤍"}
-              </Text>
+              <Feather 
+                name={event.you?.following ? "heart" : "heart"} 
+                size={18} 
+                color={event.you?.following ? v2Colors.accent : v2Colors.text.primary}
+                fill={event.you?.following ? v2Colors.accent : 'none'}
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -145,13 +159,8 @@ const styles = StyleSheet.create({
   },
   heroImagePlaceholder: {
     flex: 1,
-    backgroundColor: "#6C5CE7",
     justifyContent: "center",
     alignItems: "center",
-  },
-  heroImageIcon: {
-    fontSize: 48,
-    color: "white",
   },
   gradientOverlay: {
     position: "absolute",
@@ -159,7 +168,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.3)",
   },
   topBar: {
     position: "absolute",
@@ -169,57 +177,56 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    paddingHorizontal: 16,
-    paddingBottom: 8,
+    paddingHorizontal: spacing(4),
+    paddingBottom: spacing(2),
   },
   navButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: `${v2Colors.bg}80`,
     justifyContent: "center",
     alignItems: "center",
-  },
-  navButtonText: {
-    fontSize: 18,
-    color: "white",
-    fontWeight: "600",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: `${v2Colors.border}60`,
   },
   navActions: {
     flexDirection: "row",
-    gap: 8,
+    gap: spacing(2),
   },
   bottomOverlays: {
     position: "absolute",
-    bottom: 16,
-    left: 16,
-    right: 16,
+    bottom: spacing(4),
+    left: spacing(4),
+    right: spacing(4),
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
+    gap: spacing(2),
   },
   chip: {
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
+    backgroundColor: `${v2Colors.bg}90`,
+    paddingHorizontal: spacing(3),
+    paddingVertical: spacing(1.5),
+    borderRadius: radii.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: `${v2Colors.border}40`,
   },
   chipText: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "white",
+    fontWeight: '600' as const,
+    color: v2Colors.text.primary,
   },
   countdownPill: {
-    backgroundColor: "#FF6B6B",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginTop: 4,
+    backgroundColor: v2Colors.accent,
+    paddingHorizontal: spacing(4),
+    paddingVertical: spacing(2),
+    borderRadius: radii.xl,
+    marginTop: spacing(1),
   },
   countdownText: {
     fontSize: 14,
-    fontWeight: "700",
-    color: "white",
+    fontWeight: '700' as const,
+    color: v2Colors.bg,
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },

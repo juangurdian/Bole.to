@@ -5,6 +5,7 @@ import {
   TouchableOpacity, 
   StyleSheet 
 } from "react-native";
+import { colors as v2Colors, spacing, radii } from "../../../theme/v2-neutral";
 
 interface TicketsModuleProps {
   pricing: any;
@@ -156,52 +157,59 @@ function TierRow({ tier, onPress }: TierRowProps) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "white",
-    marginBottom: 8,
+    backgroundColor: v2Colors.surface1,
+    marginBottom: spacing(2),
+    marginHorizontal: spacing(4),
+    borderRadius: radii.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 16,
+    paddingHorizontal: spacing(4),
+    paddingTop: spacing(5),
+    paddingBottom: spacing(4),
   },
   title: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#333",
+    fontSize: 20,
+    fontWeight: '700' as const,
+    color: v2Colors.text.primary,
   },
   statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: spacing(2),
+    paddingVertical: spacing(1),
+    borderRadius: radii.md,
   },
   statusText: {
     fontSize: 12,
-    fontWeight: "600",
-    color: "white",
+    fontWeight: '600' as const,
+    color: v2Colors.text.primary,
   },
   tierList: {
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing(4),
   },
   tierRow: {
     flexDirection: "row",
-    backgroundColor: "#f8f9fa",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    backgroundColor: v2Colors.surface2,
+    borderRadius: radii.md,
+    padding: spacing(4),
+    marginBottom: spacing(3),
     borderLeftWidth: 4,
-    borderLeftColor: "#007AFF",
+    borderLeftColor: v2Colors.accent,
     position: "relative",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
   },
   tierRowDisabled: {
-    backgroundColor: "#f5f5f5",
-    borderLeftColor: "#dee2e6",
+    backgroundColor: v2Colors.surface1,
+    borderLeftColor: v2Colors.border,
+    opacity: 0.6,
   },
   tierInfo: {
     flex: 1,
-    marginRight: 16,
+    marginRight: spacing(4),
   },
   tierNameRow: {
     flexDirection: "row",
@@ -210,25 +218,25 @@ const styles = StyleSheet.create({
   },
   tierName: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
-    marginRight: 8,
+    fontWeight: '600' as const,
+    color: v2Colors.text.primary,
+    marginRight: spacing(2),
   },
   soldOutBadge: {
-    backgroundColor: "#dc3545",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 8,
+    backgroundColor: v2Colors.error,
+    paddingHorizontal: spacing(1.5),
+    paddingVertical: spacing(0.5),
+    borderRadius: radii.sm,
   },
   soldOutText: {
     fontSize: 10,
-    fontWeight: "600",
-    color: "white",
+    fontWeight: '600' as const,
+    color: v2Colors.text.primary,
   },
   tierDescription: {
     fontSize: 14,
-    color: "#666",
-    marginBottom: 8,
+    color: v2Colors.text.secondary,
+    marginBottom: spacing(2),
   },
   perksRow: {
     flexDirection: "row",
@@ -236,19 +244,21 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   perkChip: {
-    backgroundColor: "#e9ecef",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    backgroundColor: `${v2Colors.accent}15`,
+    paddingHorizontal: spacing(2),
+    paddingVertical: spacing(1),
+    borderRadius: radii.md,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: `${v2Colors.accent}30`,
   },
   perkText: {
     fontSize: 12,
-    fontWeight: "500",
-    color: "#495057",
+    fontWeight: '500' as const,
+    color: v2Colors.text.primary,
   },
   morePerks: {
     fontSize: 12,
-    color: "#6c757d",
+    color: v2Colors.text.tertiary,
     alignSelf: "center",
   },
   tierPricing: {
@@ -256,16 +266,16 @@ const styles = StyleSheet.create({
   },
   tierPrice: {
     fontSize: 18,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 4,
+    fontWeight: '700' as const,
+    color: v2Colors.text.primary,
+    marginBottom: spacing(1),
   },
   remainingText: {
     fontSize: 12,
-    color: "#666",
+    color: v2Colors.text.secondary,
   },
   disabledText: {
-    color: "#adb5bd",
+    color: v2Colors.text.tertiary,
   },
   perforationEdge: {
     position: "absolute",
@@ -281,15 +291,15 @@ const styles = StyleSheet.create({
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: "#dee2e6",
+    backgroundColor: v2Colors.border,
   },
   footer: {
-    paddingHorizontal: 16,
-    paddingBottom: 20,
+    paddingHorizontal: spacing(4),
+    paddingBottom: spacing(5),
   },
   footerText: {
     fontSize: 12,
-    color: "#6c757d",
+    color: v2Colors.text.tertiary,
     textAlign: "center",
   },
 });

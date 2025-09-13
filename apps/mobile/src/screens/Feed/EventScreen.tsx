@@ -3,10 +3,13 @@ import {
   View, 
   ScrollView,
   StyleSheet, 
-  RefreshControl 
+  RefreshControl,
+  StatusBar 
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useQuery } from "@tanstack/react-query";
 import { useApi } from "../../api";
+import { colors as v2Colors } from "../../theme/v2-neutral";
 import EventHeader from "./components/EventHeader";
 import EventMeta from "./components/EventMeta";
 import EventDescription from "./components/EventDescription";
@@ -134,7 +137,13 @@ export default function EventScreen({ route, navigation }: EventScreenProps) {
   }, 0);
 
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={[v2Colors.bg, '#0B0F16', '#0A0C10']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0.8, y: 1 }}
+      style={{ flex: 1 }}
+    >
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
@@ -142,7 +151,8 @@ export default function EventScreen({ route, navigation }: EventScreenProps) {
           <RefreshControl
             refreshing={eventQuery.isRefetching}
             onRefresh={handleRefresh}
-            tintColor="#007AFF"
+            tintColor={v2Colors.text.primary}
+            titleColor={v2Colors.text.primary}
           />
         }
       >
@@ -219,19 +229,15 @@ export default function EventScreen({ route, navigation }: EventScreenProps) {
         onClose={() => setIsTicketSelectorVisible(false)}
         onCheckout={handleBuyTickets}
       />
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f5f5f5",
-  },
   scrollView: {
     flex: 1,
   },
   bottomPadding: {
-    height: 100, // Space for sticky action bar
+    height: 140, // Space for sticky action bar + safe area + scroll buffer
   },
 });

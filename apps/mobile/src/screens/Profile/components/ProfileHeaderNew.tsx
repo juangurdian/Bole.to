@@ -7,7 +7,9 @@ import {
   Image,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { Feather } from "@expo/vector-icons";
 import { theme } from "../../../theme";
+import { colors as v2Colors, spacing, radii } from "../../../theme/v2-neutral";
 
 interface ProfileData {
   id: string;
@@ -49,10 +51,10 @@ export default function ProfileHeaderNew({
       {/* Top Actions */}
       <View style={styles.topActions}>
         <TouchableOpacity style={styles.topButton} onPress={onSharePress}>
-          <Text style={styles.topIcon}>📤</Text>
+          <Feather name="share-2" size={18} color={v2Colors.text.primary} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.topButton} onPress={onSettingsPress}>
-          <Text style={styles.topIcon}>⚙️</Text>
+          <Feather name="settings" size={18} color={v2Colors.text.primary} />
         </TouchableOpacity>
       </View>
 
@@ -60,37 +62,30 @@ export default function ProfileHeaderNew({
       <View style={styles.avatarSection}>
         <View style={styles.avatarContainer}>
           <LinearGradient
-            colors={theme.colors.gradient.primary}
+            colors={[v2Colors.accent, v2Colors.accent2]}
             style={styles.avatarRing}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
           >
             <View style={styles.avatarInner}>
-              {profile.avatar ? (
-                <Image
-                  source={{ uri: profile.avatar }}
-                  style={styles.avatar}
-                />
-              ) : (
-                <LinearGradient
-                  colors={theme.colors.gradient.warm}
-                  style={styles.avatarPlaceholder}
-                >
-                  <Text style={styles.avatarText}>
-                    {profile.name[0].toUpperCase()}
-                  </Text>
-                </LinearGradient>
-              )}
+              <LinearGradient
+                colors={[v2Colors.accent, v2Colors.accent2]}
+                style={styles.avatarPlaceholder}
+              >
+                <View style={styles.monkeyContainer}>
+                  <Feather name="smile" size={48} color={v2Colors.bg} />
+                </View>
+              </LinearGradient>
             </View>
           </LinearGradient>
           
           {profile.verified && (
             <View style={styles.verifiedBadge}>
               <LinearGradient
-                colors={theme.colors.gradient.accent}
+                colors={[v2Colors.accent, v2Colors.accent2]}
                 style={styles.verifiedGradient}
               >
-                <Text style={styles.verifiedIcon}>✓</Text>
+                <Feather name="check" size={14} color={v2Colors.bg} />
               </LinearGradient>
             </View>
           )}
@@ -103,7 +98,7 @@ export default function ProfileHeaderNew({
           <Text style={styles.name}>{profile.name}</Text>
           {profile.verified && (
             <LinearGradient
-              colors={theme.colors.gradient.accent}
+              colors={[v2Colors.accent, v2Colors.accent2]}
               style={styles.verifiedPill}
             >
               <Text style={styles.verifiedPillText}>Verified</Text>
@@ -120,14 +115,14 @@ export default function ProfileHeaderNew({
         <View style={styles.metaRow}>
           {profile.location && (
             <View style={styles.metaItem}>
-              <Text style={styles.metaIcon}>📍</Text>
+              <Feather name="map-pin" size={14} color={v2Colors.text.tertiary} />
               <Text style={styles.metaText}>{profile.location}</Text>
             </View>
           )}
           
           {profile.joinedDate && (
             <View style={styles.metaItem}>
-              <Text style={styles.metaIcon}>📅</Text>
+              <Feather name="calendar" size={14} color={v2Colors.text.tertiary} />
               <Text style={styles.metaText}>Joined {profile.joinedDate}</Text>
             </View>
           )}
@@ -139,31 +134,38 @@ export default function ProfileHeaderNew({
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: theme.spacing.lg,
-    paddingBottom: theme.spacing.lg,
+    paddingHorizontal: spacing(4),
+    paddingBottom: spacing(4),
+    backgroundColor: v2Colors.surface1,
+    marginHorizontal: spacing(4),
+    marginBottom: spacing(2),
+    borderRadius: radii.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
   },
   topActions: {
     flexDirection: "row",
     justifyContent: "flex-end",
-    gap: theme.spacing.sm,
-    marginBottom: theme.spacing.md,
+    gap: spacing(2),
+    marginBottom: spacing(3),
+    paddingTop: spacing(2),
   },
   topButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "rgba(255,255,255,0.1)",
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: v2Colors.surface2,
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.06)",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
   },
   topIcon: {
     fontSize: 16,
   },
   avatarSection: {
     alignItems: "center",
-    marginBottom: theme.spacing.lg,
+    marginBottom: spacing(4),
   },
   avatarContainer: {
     position: "relative",
@@ -180,7 +182,7 @@ const styles = StyleSheet.create({
     width: 98,
     height: 98,
     borderRadius: 49,
-    backgroundColor: theme.colors.bg,
+    backgroundColor: v2Colors.surface1,
     padding: 3,
     justifyContent: "center",
     alignItems: "center",
@@ -197,10 +199,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  avatarText: {
-    fontSize: 36,
-    fontWeight: theme.typography.weights.bold,
-    color: theme.colors.white,
+  monkeyContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   verifiedBadge: {
     position: "absolute",
@@ -216,7 +217,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 2,
-    borderColor: theme.colors.bg,
+    borderColor: v2Colors.surface1,
     borderRadius: 14,
   },
   verifiedIcon: {
@@ -230,67 +231,67 @@ const styles = StyleSheet.create({
   nameRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: theme.spacing.sm,
-    marginBottom: theme.spacing.xs,
+    gap: spacing(2),
+    marginBottom: spacing(1),
   },
   name: {
-    fontSize: theme.typography.sizes.xl,
-    fontWeight: theme.typography.weights.bold,
-    color: theme.colors.text.primary,
+    fontSize: 28,
+    fontWeight: '700' as const,
+    color: v2Colors.text.primary,
   },
   verifiedPill: {
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: 2,
-    borderRadius: theme.borderRadius.md,
+    paddingHorizontal: spacing(2),
+    paddingVertical: spacing(0.5),
+    borderRadius: radii.sm,
   },
   verifiedPillText: {
-    fontSize: theme.typography.sizes.xs,
-    fontWeight: theme.typography.weights.semibold,
-    color: theme.colors.white,
+    fontSize: 12,
+    fontWeight: '600' as const,
+    color: v2Colors.bg,
   },
   username: {
-    fontSize: theme.typography.sizes.md,
-    color: theme.colors.text.secondary,
-    marginBottom: theme.spacing.sm,
+    fontSize: 16,
+    color: v2Colors.text.secondary,
+    marginBottom: spacing(2),
+    fontWeight: '500' as const,
   },
   bio: {
-    fontSize: theme.typography.sizes.md,
-    color: theme.colors.text.primary,
+    fontSize: 16,
+    color: v2Colors.text.primary,
     textAlign: "center",
-    lineHeight: theme.typography.lineHeights.normal * theme.typography.sizes.md,
-    marginBottom: theme.spacing.md,
-    paddingHorizontal: theme.spacing.lg,
+    lineHeight: 24,
+    marginBottom: spacing(3),
+    paddingHorizontal: spacing(4),
   },
   metaRow: {
     flexDirection: "row",
-    gap: theme.spacing.lg,
+    gap: spacing(4),
     alignItems: "center",
+    justifyContent: "center",
   },
   metaItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: theme.spacing.xs,
-  },
-  metaIcon: {
-    fontSize: 12,
+    gap: spacing(1),
   },
   metaText: {
-    fontSize: theme.typography.sizes.sm,
-    color: theme.colors.text.tertiary,
+    fontSize: 14,
+    color: v2Colors.text.tertiary,
+    fontWeight: '500' as const,
   },
   loadingAvatar: {
     width: 104,
     height: 104,
     borderRadius: 52,
-    backgroundColor: "rgba(255,255,255,0.1)",
+    backgroundColor: v2Colors.surface2,
     alignSelf: "center",
-    marginBottom: theme.spacing.md,
+    marginBottom: spacing(3),
   },
   loadingText: {
     width: 150,
     height: 20,
-    borderRadius: 10,
-    backgroundColor: "rgba(255,255,255,0.1)",
+    borderRadius: radii.sm,
+    backgroundColor: v2Colors.surface2,
     alignSelf: "center",
   },
 });

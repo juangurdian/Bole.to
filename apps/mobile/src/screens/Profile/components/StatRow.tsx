@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { colors as v2Colors, spacing, radii } from "../../../theme/v2-neutral";
 
 interface StatRowProps {
   profile: any;
@@ -63,39 +64,42 @@ export default function StatRow({ profile, isLoading, onFollowersPress, onFollow
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    backgroundColor: "white",
-    paddingVertical: 16,
-    marginBottom: 8,
+    backgroundColor: v2Colors.surface1,
+    paddingVertical: spacing(4),
+    marginBottom: spacing(2),
+    marginHorizontal: spacing(4),
+    borderRadius: radii.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
     justifyContent: "space-around",
-    borderTopWidth: 1,
-    borderTopColor: "#f0f0f0",
   },
   statContainer: {
     alignItems: "center",
     flex: 1,
   },
   statNumber: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 4,
+    fontSize: 24,
+    fontWeight: "700",
+    color: v2Colors.text.primary,
+    marginBottom: spacing(1),
   },
   statLabel: {
     fontSize: 14,
-    color: "#666",
+    color: v2Colors.text.secondary,
+    fontWeight: '500',
   },
   // Skeleton styles
   statNumberSkeleton: {
-    width: 40,
-    height: 20,
-    backgroundColor: "#e0e0e0",
-    borderRadius: 4,
-    marginBottom: 8,
+    width: 48,
+    height: 24,
+    backgroundColor: v2Colors.surface2,
+    borderRadius: radii.sm,
+    marginBottom: spacing(2),
   },
   statLabelSkeleton: {
-    width: 60,
+    width: 70,
     height: 14,
-    backgroundColor: "#e0e0e0",
-    borderRadius: 4,
+    backgroundColor: v2Colors.surface2,
+    borderRadius: radii.sm,
   },
 });

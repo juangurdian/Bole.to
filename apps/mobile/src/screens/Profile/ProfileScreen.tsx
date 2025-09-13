@@ -5,11 +5,14 @@ import {
   StyleSheet, 
   ScrollView, 
   RefreshControl,
-  Dimensions 
+  Dimensions,
+  StatusBar 
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
 import { useApi } from "../../api";
+import { colors as v2Colors } from "../../theme/v2-neutral";
 import ProfileHeader from "./components/ProfileHeader";
 import StatRow from "./components/StatRow";
 import ActionRow from "./components/ActionRow";
@@ -120,18 +123,26 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
   const showcase = showcaseQuery.data;
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView
-        style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={isLoading}
-            onRefresh={handleRefresh}
-            tintColor="#007AFF"
-          />
-        }
-      >
+    <LinearGradient
+      colors={[v2Colors.bg, '#0B0F16', '#0A0C10']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0.8, y: 1 }}
+      style={{ flex: 1 }}
+    >
+      <StatusBar barStyle="light-content" backgroundColor={v2Colors.bg} translucent />
+      <SafeAreaView style={styles.container}>
+        <ScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={isLoading}
+              onRefresh={handleRefresh}
+              tintColor={v2Colors.text.primary}
+              titleColor={v2Colors.text.primary}
+            />
+          }
+        >
         {/* Header Section */}
         <ProfileHeader
           profile={profile}
@@ -163,15 +174,15 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
         <View style={styles.tabContent}>
           {renderTabContent()}
         </View>
-      </ScrollView>
-    </SafeAreaView>
+        </ScrollView>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
   },
   scrollView: {
     flex: 1,

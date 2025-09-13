@@ -1,5 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Feather } from "@expo/vector-icons";
+import { colors as v2Colors, spacing, radii } from "../../../theme/v2-neutral";
 
 interface VenueCardProps {
   venue: any;
@@ -12,7 +14,7 @@ export default function VenueCard({ venue, onOpenMaps }: VenueCardProps) {
       <Text style={styles.title}>Location</Text>
       <TouchableOpacity style={styles.venueButton} onPress={onOpenMaps}>
         <View style={styles.mapPreview}>
-          <Text style={styles.mapIcon}>🗺️</Text>
+          <Feather name="map-pin" size={24} color={v2Colors.accent} />
         </View>
         <View style={styles.venueInfo}>
           <Text style={styles.venueName}>{venue.name}</Text>
@@ -20,18 +22,21 @@ export default function VenueCard({ venue, onOpenMaps }: VenueCardProps) {
             {venue.address}, {venue.city}
           </Text>
         </View>
-        <Text style={styles.chevron}>›</Text>
+        <Feather name="chevron-right" size={18} color={v2Colors.text.tertiary} />
       </TouchableOpacity>
       
       <View style={styles.actionRow}>
         <TouchableOpacity style={styles.actionButton}>
-          <Text style={styles.actionText}>📍 Directions</Text>
+          <Feather name="navigation" size={16} color={v2Colors.accent} />
+          <Text style={styles.actionText}>Directions</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionButton}>
-          <Text style={styles.actionText}>🚗 Ride</Text>
+          <Feather name="car" size={16} color={v2Colors.accent} />
+          <Text style={styles.actionText}>Ride</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionButton}>
-          <Text style={styles.actionText}>📅 Calendar</Text>
+          <Feather name="calendar" size={16} color={v2Colors.accent} />
+          <Text style={styles.actionText}>Calendar</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -40,32 +45,40 @@ export default function VenueCard({ venue, onOpenMaps }: VenueCardProps) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "white",
-    marginBottom: 8,
-    padding: 16,
+    backgroundColor: v2Colors.surface1,
+    marginBottom: spacing(2),
+    marginHorizontal: spacing(4),
+    padding: spacing(4),
+    borderRadius: radii.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
   },
   title: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 12,
+    fontSize: 20,
+    fontWeight: '700' as const,
+    color: v2Colors.text.primary,
+    marginBottom: spacing(3),
   },
   venueButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f8f9fa",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
+    backgroundColor: v2Colors.surface2,
+    borderRadius: radii.md,
+    padding: spacing(4),
+    marginBottom: spacing(4),
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
   },
   mapPreview: {
     width: 60,
     height: 60,
-    backgroundColor: "#e0e0e0",
-    borderRadius: 8,
+    backgroundColor: `${v2Colors.accent}15`,
+    borderRadius: radii.md,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 16,
+    marginRight: spacing(4),
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: `${v2Colors.accent}30`,
   },
   mapIcon: {
     fontSize: 24,
@@ -75,13 +88,13 @@ const styles = StyleSheet.create({
   },
   venueName: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 4,
+    fontWeight: '600' as const,
+    color: v2Colors.text.primary,
+    marginBottom: spacing(1),
   },
   venueAddress: {
     fontSize: 14,
-    color: "#666",
+    color: v2Colors.text.secondary,
   },
   chevron: {
     fontSize: 18,
@@ -89,20 +102,23 @@ const styles = StyleSheet.create({
   },
   actionRow: {
     flexDirection: "row",
-    gap: 12,
+    gap: spacing(3),
   },
   actionButton: {
     flex: 1,
-    backgroundColor: "#f8f9fa",
-    paddingVertical: 12,
-    borderRadius: 8,
+    backgroundColor: v2Colors.surface2,
+    paddingVertical: spacing(3),
+    borderRadius: radii.md,
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#e9ecef",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: spacing(1.5),
   },
   actionText: {
     fontSize: 14,
-    fontWeight: "500",
-    color: "#495057",
+    fontWeight: '500' as const,
+    color: v2Colors.text.primary,
   },
 });

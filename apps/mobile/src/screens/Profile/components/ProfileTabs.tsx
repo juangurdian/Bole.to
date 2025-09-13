@@ -7,7 +7,9 @@ import {
   ScrollView,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { Feather } from "@expo/vector-icons";
 import { theme } from "../../../theme";
+import { colors as v2Colors, spacing, radii } from "../../../theme/v2-neutral";
 
 export type ProfileTab = "overview" | "events" | "photos" | "badges";
 
@@ -26,11 +28,11 @@ export default function ProfileTabs({
   onTabChange,
   counts,
 }: ProfileTabsProps) {
-  const tabs: { id: ProfileTab; label: string; icon: string }[] = [
-    { id: "overview", label: "Overview", icon: "📊" },
-    { id: "events", label: "Events", icon: "🎪" },
-    { id: "photos", label: "Photos", icon: "📸" },
-    { id: "badges", label: "Badges", icon: "🏆" },
+  const tabs: { id: ProfileTab; label: string; iconName: keyof typeof Feather.glyphMap }[] = [
+    { id: "overview", label: "Overview", iconName: "bar-chart" },
+    { id: "events", label: "Events", iconName: "calendar" },
+    { id: "photos", label: "Photos", iconName: "camera" },
+    { id: "badges", label: "Badges", iconName: "award" },
   ];
 
   const getTabCount = (tabId: ProfileTab) => {
@@ -67,12 +69,12 @@ export default function ProfileTabs({
             >
               {isActive ? (
                 <LinearGradient
-                  colors={theme.colors.gradient.primary}
+                  colors={[v2Colors.accent, v2Colors.accent2]}
                   style={styles.activeGradient}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                 >
-                  <Text style={styles.tabIcon}>{tab.icon}</Text>
+                  <Feather name={tab.iconName} size={16} color={v2Colors.bg} />
                   <Text style={[styles.tabText, styles.activeText]}>
                     {tab.label}
                   </Text>
@@ -84,7 +86,7 @@ export default function ProfileTabs({
                 </LinearGradient>
               ) : (
                 <View style={styles.tabContent}>
-                  <Text style={styles.tabIcon}>{tab.icon}</Text>
+                  <Feather name={tab.iconName} size={16} color={v2Colors.text.secondary} />
                   <Text style={styles.tabText}>{tab.label}</Text>
                   {count !== null && count > 0 && (
                     <View style={[styles.countBadge, styles.inactiveCountBadge]}>
@@ -105,72 +107,72 @@ export default function ProfileTabs({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: theme.spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.06)",
+    marginBottom: spacing(3),
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: v2Colors.border,
   },
   scrollContent: {
-    paddingHorizontal: theme.spacing.lg,
-    gap: theme.spacing.sm,
-    paddingBottom: theme.spacing.md,
+    paddingHorizontal: spacing(4),
+    gap: spacing(2),
+    paddingBottom: spacing(3),
   },
   tab: {
-    borderRadius: theme.borderRadius.xl,
+    borderRadius: radii.lg,
     overflow: "hidden",
   },
   activeTab: {
-    shadowColor: theme.colors.primary,
+    shadowColor: v2Colors.accent,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.15,
     shadowRadius: 4,
     elevation: 4,
   },
   tabContent: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    backgroundColor: "rgba(255,255,255,0.1)",
-    borderRadius: theme.borderRadius.xl,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.06)",
-    gap: theme.spacing.xs,
+    paddingHorizontal: spacing(3),
+    paddingVertical: spacing(2.5),
+    backgroundColor: v2Colors.surface1,
+    borderRadius: radii.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
+    gap: spacing(2),
   },
   activeGradient: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    gap: theme.spacing.xs,
+    paddingHorizontal: spacing(3),
+    paddingVertical: spacing(2.5),
+    gap: spacing(2),
   },
   tabIcon: {
     fontSize: 16,
   },
   tabText: {
-    fontSize: theme.typography.sizes.sm,
-    fontWeight: theme.typography.weights.medium,
-    color: theme.colors.text.secondary,
+    fontSize: 14,
+    fontWeight: '500' as const,
+    color: v2Colors.text.secondary,
   },
   activeText: {
-    color: theme.colors.white,
-    fontWeight: theme.typography.weights.semibold,
+    color: v2Colors.bg,
+    fontWeight: '600' as const,
   },
   countBadge: {
-    backgroundColor: "rgba(255,255,255,0.2)",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 10,
-    marginLeft: 4,
+    backgroundColor: `${v2Colors.bg}30`,
+    paddingHorizontal: spacing(1.5),
+    paddingVertical: spacing(0.5),
+    borderRadius: radii.sm,
+    marginLeft: spacing(1),
   },
   inactiveCountBadge: {
-    backgroundColor: "rgba(255,255,255,0.1)",
+    backgroundColor: v2Colors.surface2,
   },
   countText: {
-    fontSize: theme.typography.sizes.xs,
-    fontWeight: theme.typography.weights.semibold,
-    color: theme.colors.white,
+    fontSize: 12,
+    fontWeight: '600' as const,
+    color: v2Colors.bg,
   },
   inactiveCountText: {
-    color: theme.colors.text.secondary,
+    color: v2Colors.text.secondary,
   },
 });

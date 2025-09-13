@@ -1,5 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Feather } from "@expo/vector-icons";
+import { colors as v2Colors, spacing, radii } from "../../../theme/v2-neutral";
 
 interface PoliciesSummaryProps {
   policies: any;
@@ -35,12 +37,12 @@ export default function PoliciesSummary({ policies, onOpen }: PoliciesSummaryPro
       
       <View style={styles.policyGrid}>
         <View style={styles.policyItem}>
-          <Text style={styles.policyIcon}>💳</Text>
+          <Feather name="credit-card" size={16} color={v2Colors.accent} />
           <Text style={styles.policyText}>{getRefundText()}</Text>
         </View>
         
         <View style={styles.policyItem}>
-          <Text style={styles.policyIcon}>🚪</Text>
+          <Feather name="log-in" size={16} color={v2Colors.accent} />
           <Text style={styles.policyText}>
             {policies.reentry ? "Re-entry allowed" : "No re-entry"}
           </Text>
@@ -48,14 +50,14 @@ export default function PoliciesSummary({ policies, onOpen }: PoliciesSummaryPro
         
         {policies.minAge && (
           <View style={styles.policyItem}>
-            <Text style={styles.policyIcon}>🔞</Text>
+            <Feather name="users" size={16} color={v2Colors.accent} />
             <Text style={styles.policyText}>{policies.minAge}+ only</Text>
           </View>
         )}
         
         {policies.doorsOpen && (
           <View style={styles.policyItem}>
-            <Text style={styles.policyIcon}>⏰</Text>
+            <Feather name="clock" size={16} color={v2Colors.accent} />
             <Text style={styles.policyText}>
               Doors open {formatTime(policies.doorsOpen)}
             </Text>
@@ -65,7 +67,7 @@ export default function PoliciesSummary({ policies, onOpen }: PoliciesSummaryPro
       
       <TouchableOpacity style={styles.viewFullButton} onPress={onOpen}>
         <Text style={styles.viewFullText}>View full policy</Text>
-        <Text style={styles.chevron}>›</Text>
+        <Feather name="chevron-right" size={18} color={v2Colors.text.tertiary} />
       </TouchableOpacity>
     </View>
   );
@@ -73,54 +75,51 @@ export default function PoliciesSummary({ policies, onOpen }: PoliciesSummaryPro
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "white",
-    marginBottom: 8,
-    padding: 16,
+    backgroundColor: v2Colors.surface1,
+    marginBottom: spacing(2),
+    marginHorizontal: spacing(4),
+    padding: spacing(4),
+    borderRadius: radii.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
   },
   title: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 16,
+    fontSize: 20,
+    fontWeight: '700' as const,
+    color: v2Colors.text.primary,
+    marginBottom: spacing(3),
   },
   policyGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 16,
-    marginBottom: 16,
+    gap: spacing(2),
+    marginBottom: spacing(4),
   },
   policyItem: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f8f9fa",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "#e9ecef",
-  },
-  policyIcon: {
-    fontSize: 14,
-    marginRight: 6,
+    backgroundColor: v2Colors.surface2,
+    paddingHorizontal: spacing(3),
+    paddingVertical: spacing(2),
+    borderRadius: radii.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
+    gap: spacing(2),
   },
   policyText: {
     fontSize: 14,
-    fontWeight: "500",
-    color: "#495057",
+    fontWeight: '500' as const,
+    color: v2Colors.text.primary,
   },
   viewFullButton: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 8,
+    paddingVertical: spacing(2),
   },
   viewFullText: {
     fontSize: 16,
-    color: "#007AFF",
-    fontWeight: "500",
-  },
-  chevron: {
-    fontSize: 18,
-    color: "#c7c7cc",
+    color: v2Colors.accent,
+    fontWeight: '500' as const,
   },
 });

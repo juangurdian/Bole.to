@@ -5,6 +5,8 @@ import {
   TouchableOpacity, 
   StyleSheet 
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { colors as v2Colors, spacing, radii } from "../../../theme/v2-neutral";
 
 interface EventDescriptionProps {
   description: string;
@@ -41,7 +43,10 @@ export default function EventDescription({ description, collapsedLines = 4 }: Ev
         {renderText()}
         
         {!isExpanded && needsExpansion && (
-          <View style={styles.fadeOverlay} />
+          <LinearGradient
+            colors={['transparent', v2Colors.surface1]}
+            style={styles.fadeOverlay}
+          />
         )}
       </View>
       
@@ -61,43 +66,45 @@ export default function EventDescription({ description, collapsedLines = 4 }: Ev
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "white",
-    marginBottom: 8,
+    backgroundColor: v2Colors.surface1,
+    marginBottom: spacing(2),
+    marginHorizontal: spacing(4),
+    borderRadius: radii.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#333",
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 12,
+    fontSize: 20,
+    fontWeight: '700' as const,
+    color: v2Colors.text.primary,
+    paddingHorizontal: spacing(4),
+    paddingTop: spacing(5),
+    paddingBottom: spacing(3),
   },
   content: {
     position: "relative",
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing(4),
   },
   paragraph: {
     fontSize: 16,
     lineHeight: 24,
-    color: "#333",
-    marginBottom: 12,
+    color: v2Colors.text.primary,
+    marginBottom: spacing(3),
   },
   fadeOverlay: {
     position: "absolute",
     bottom: 0,
-    left: 16,
-    right: 16,
+    left: spacing(4),
+    right: spacing(4),
     height: 40,
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
-    backgroundImage: "linear-gradient(transparent, white)",
   },
   expandButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingHorizontal: spacing(4),
+    paddingVertical: spacing(4),
   },
   expandButtonText: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#007AFF",
+    fontWeight: '600' as const,
+    color: v2Colors.accent,
   },
 });

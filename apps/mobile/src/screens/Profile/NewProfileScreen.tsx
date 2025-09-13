@@ -12,6 +12,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
 import { theme } from "../../theme";
+import { colors as v2Colors, spacing, radii } from "../../theme/v2-neutral";
 import { mockApi } from "../../mocks/api";
 
 // Profile Components
@@ -140,8 +141,8 @@ export default function NewProfileScreen({ navigation }: any) {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={theme.colors.text.primary}
-            titleColor={theme.colors.text.primary}
+            tintColor={v2Colors.text.primary}
+            titleColor={v2Colors.text.primary}
           />
         }
         showsVerticalScrollIndicator={false}
@@ -180,14 +181,14 @@ export default function NewProfileScreen({ navigation }: any) {
 
           <TouchableOpacity style={styles.actionButton} onPress={handleShareProfile}>
             <View style={styles.actionSecondary}>
-              <Text style={styles.actionIcon}>📤</Text>
+              <Feather name="share-2" size={18} color={v2Colors.accent} />
               <Text style={styles.actionSecondaryText}>Share</Text>
             </View>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate("QRCode")}>
             <View style={styles.actionSecondary}>
-              <Text style={styles.actionIcon}>📱</Text>
+              <Feather name="smartphone" size={18} color={v2Colors.accent} />
               <Text style={styles.actionSecondaryText}>QR</Text>
             </View>
           </TouchableOpacity>
@@ -243,46 +244,44 @@ const styles = StyleSheet.create({
   },
   actionsContainer: {
     flexDirection: "row",
-    paddingHorizontal: theme.spacing.lg,
-    marginBottom: theme.spacing.lg,
-    gap: theme.spacing.sm,
+    paddingHorizontal: spacing(4),
+    marginBottom: spacing(4),
+    gap: spacing(3),
   },
   actionButton: {
     flex: 1,
-    height: 44,
-    borderRadius: theme.borderRadius.lg,
+    height: 48,
+    borderRadius: radii.md,
     overflow: "hidden",
   },
   actionGradient: {
     flex: 1,
+    flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
   },
   actionText: {
-    fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.semibold,
-    color: theme.colors.white,
+    fontSize: 16,
+    fontWeight: '600' as const,
+    color: v2Colors.bg,
   },
   actionSecondary: {
     flex: 1,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.1)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.06)",
-    borderRadius: theme.borderRadius.lg,
-    gap: theme.spacing.xs,
-  },
-  actionIcon: {
-    fontSize: 16,
+    backgroundColor: v2Colors.surface1,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: v2Colors.border,
+    borderRadius: radii.md,
+    gap: spacing(2),
   },
   actionSecondaryText: {
-    fontSize: theme.typography.sizes.sm,
-    fontWeight: theme.typography.weights.medium,
-    color: theme.colors.text.primary,
+    fontSize: 14,
+    fontWeight: '600' as const,
+    color: v2Colors.text.primary,
   },
   tabContent: {
-    paddingTop: theme.spacing.md,
+    paddingTop: spacing(4),
   },
 });

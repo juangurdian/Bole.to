@@ -13,7 +13,7 @@ export default function SocialTab() {
   return (
     <Stack.Navigator>
       <Stack.Screen name="FeedScreen" component={NewFeedScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="EventScreen" component={EventScreen} options={{ title: "Event" }} />
+      <Stack.Screen name="EventScreen" component={EventScreen} options={{ headerShown: false }} />
       <Stack.Screen name="PostComposer" component={PostComposer} options={{ title: "Create Post" }} />
       <Stack.Screen name="PollScreen" component={PollScreen} options={{ title: "Poll" }} />
       <Stack.Screen name="CaptureScreen" component={CaptureScreen} options={{ title: "Take Photo" }} />
